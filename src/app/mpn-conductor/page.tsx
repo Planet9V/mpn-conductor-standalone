@@ -73,8 +73,8 @@ function createActorProfile(speakerName: string, index: number): ActorProfile {
 
 // Dynamic imports for heavy 3D components
 const ConductorScoreView = dynamic(
-    () => import('@/components/mpn-lab/ConductorScore'),
-    { ssr: false, loading: () => <LoadingPlaceholder label="Loading Conductor Score..." /> }
+    () => import('@/components/mpn-lab/ConductorScoreVexFlow'),
+    { ssr: false, loading: () => <LoadingPlaceholder label="Loading VexFlow Score..." /> }
 );
 
 const MPNExperiment_TonnetzGrid = dynamic(

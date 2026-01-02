@@ -16,6 +16,7 @@
 
 # Environment
 .env*.local
+DATABASE_CREDENTIALS.md
 !.env.example
 
 # IDE
