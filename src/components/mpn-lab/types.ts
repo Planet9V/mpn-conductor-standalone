@@ -4,6 +4,12 @@ export interface ScenarioFrame {
     trauma: number;
     entropy: number;
     focusLayer: number;
+    // Stage directions for background/environment scoring
+    stageDirection?: string;
+    // Actor notes for emotional dynamic
+    actorNote?: string;
+    // Mood for environment stave
+    mood?: 'neutral' | 'tense' | 'peaceful' | 'chaotic' | 'ominous' | 'melancholic' | 'triumphant';
     script?: {
         speaker: string;
         text: string;
@@ -20,3 +26,4 @@ export interface LiteraryScenario {
     color: string;
     frames: ScenarioFrame[];
 }
+

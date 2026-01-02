@@ -157,9 +157,17 @@ export const LITERARY_SCENARIOS: LiteraryScenario[] = [
             // ACT III - The Crisis
             {
                 name: 'To Be or Not To Be',
-                description: 'The famous deliberation on suicide.',
+                description: 'Act III Scene 1. Hamlet enters, unaware of Claudius and Polonius concealed behind the arras.',
                 trauma: 0.7, entropy: 0.9, focusLayer: 6,
-                script: { speaker: 'Hamlet', text: "To be, or not to be, that is the question.", chord: 'Minimalist Pulse', analysis: 'Zero-degree existentialism. The subject oscillates between Being and Void.' }
+                stageDirection: '[HAMLET enters, book in hand, walking slowly. He pauses center stage, staring into middle distance. His manner is distracted, melancholic. Behind the arras, CLAUDIUS and POLONIUS observe in silence.]',
+                actorNote: '[Speak slowly, with growing intensity. Each phrase should land with philosophical weight. The rhythm accelerates at "the whips and scorns of time" then retreats to contemplation.]',
+                mood: 'melancholic',
+                script: {
+                    speaker: 'Hamlet',
+                    text: "To be, or not to be: that is the question: Whether 'tis nobler in the mind to suffer the slings and arrows of outrageous fortune, or to take arms against a sea of troubles, and by opposing end them? To die: to sleep; no more; and by a sleep to say we end the heart-ache and the thousand natural shocks that flesh is heir to...",
+                    chord: 'Minimalist Pulse',
+                    analysis: 'Zero-degree existentialism. The subject oscillates between Being and Void. Extended monologue reveals the recursive loop of the death-drive.'
+                }
             },
             {
                 name: 'Nunnery Scene',
@@ -444,15 +452,21 @@ export const LITERARY_SCENARIOS: LiteraryScenario[] = [
             },
             {
                 name: 'The Revelation',
-                description: '"The child was Laius\'s."',
+                description: 'The Shepherd finally reveals that the child was Laius\'s own son, given to him to be exposed on Mount Cithaeron.',
                 trauma: 0.95, entropy: 0.2, focusLayer: 0,
-                script: { speaker: 'Shepherd', text: "It was said to be his child... your wife could tell you best.", chord: 'C#m11', analysis: 'The Veil drops. Incest and Parricide confirmed.' }
+                stageDirection: '[The SHEPHERD, an old man, is held by attendants. He trembles. OEDIPUS stands close, his face contorted with desperate urgency. JOCASTA has fled inside. The CHORUS watches in frozen horror.]',
+                actorNote: '[Shepherd: speak with reluctance dissolving into resignation. Oedipus: the voice should crack as comprehension dawns. This is the moment where the entire worldview collapses.]',
+                mood: 'ominous',
+                script: { speaker: 'Shepherd', text: "It was said to be his child... your wife could tell you best. She gave him to me... to kill. But I pitied it. And now, if you are what this man says, know that you were born for pain.", chord: 'C#m11', analysis: 'The Veil drops. Incest and Parricide confirmed. The Real crushes the Symbolic.' }
             },
             {
                 name: 'ANAGNORISIS',
-                description: '"Light, may this be the last I look on you!"',
+                description: 'Recognition. Oedipus screams as full understanding strikes.',
                 trauma: 1.0, entropy: 0.1, focusLayer: -1,
-                script: { speaker: 'Oedipus', text: "Light, may this be the last I look on you!", chord: 'Orchestral Hit (Tutti)', analysis: 'Total Symbolic Collapse. The Ego (Eye) cannot sustain the vision of the Real.' }
+                stageDirection: '[OEDIPUS staggers backward, hands rising to his face. A terrible sound escapes him - part scream, part groan. He turns wildly, as if seeking escape, then rushes toward the palace doors.]',
+                actorNote: '[This must be the most devastating moment in tragic theatre. The cry "AIEEEE" should come from the gut. After the initial outburst, the next line is spoken with the clarity of absolute despair.]',
+                mood: 'chaotic',
+                script: { speaker: 'Oedipus', text: "O! O! O! All come to pass, all true! Light, may this be the last I look on you - I who was born of those who should not have borne me, married whom I should not marry, and slain those who should not have been slain!", chord: 'Orchestral Hit (Tutti)', analysis: 'Total Symbolic Collapse. The Ego (Eye) cannot sustain the vision of the Real.' }
             },
             {
                 name: 'The Scream',
@@ -605,15 +619,21 @@ export const LITERARY_SCENARIOS: LiteraryScenario[] = [
             },
             {
                 name: 'The Murder',
-                description: 'Offstage killing.',
+                description: 'Act II Scene 2. Lady Macbeth waits as her husband commits regicide offstage.',
                 trauma: 0.9, entropy: 0.6, focusLayer: 1,
-                script: { speaker: 'Lady Macbeth', text: "Had he not resembled my father as he slept, I had done't.", chord: 'Silence -> Thud', analysis: 'The Act (Passage a l\'acte). Irreversible rupture.' }
+                stageDirection: '[Night. A courtyard. LADY MACBETH enters with a torch. Distant owl hoots. Crickets. She is alert, tense, listening for sounds from Duncan\'s chamber above. She starts at every noise.]',
+                actorNote: '[Lady Macbeth: whisper with fierce intensity. Her confidence is a mask over deep anxiety. When Macbeth enters, she must shift between impatience, fear, and steely resolve.]',
+                mood: 'tense',
+                script: { speaker: 'Lady Macbeth', text: "That which hath made them drunk hath made me bold; what hath quench'd them hath given me fire. Hark! Peace! It was the owl that shriek'd, the fatal bellman, which gives the stern'st good-night. He is about it: the doors are open; and the surfeited grooms do mock their charge with snores: I have drugg'd their possets. Had he not resembled my father as he slept, I had done't.", chord: 'Silence -> Thud', analysis: 'The Act (Passage a l\'acte). Irreversible rupture. Her confession about her father reveals the Oedipal limit even she cannot cross.' }
             },
             {
                 name: 'Sleep No More',
-                description: 'Macbeth returns bloody.',
+                description: 'Macbeth returns, shattered, hands dripping blood.',
                 trauma: 0.9, entropy: 0.8, focusLayer: 3,
-                script: { speaker: 'Macbeth', text: "Methought I heard a voice cry 'Sleep no more! Macbeth does murder sleep'.", chord: 'Dissonant Drone', analysis: 'Guilt destroys the unconscious refuge (Sleep).' }
+                stageDirection: '[MACBETH enters from above, hands red with blood. He stares at them in horror. He carries the murder daggers - a fatal mistake. LADY MACBETH sees them and recoils.]',
+                actorNote: '[Macbeth: he should seem almost in a trance, speaking as if the words force themselves out. His gaze is fixed not on Lady Macbeth but on something invisible. The trauma is immediate and total.]',
+                mood: 'chaotic',
+                script: { speaker: 'Macbeth', text: "I have done the deed. Didst thou not hear a noise? Methought I heard a voice cry 'Sleep no more! Macbeth does murder sleep' - the innocent sleep, sleep that knits up the ravell'd sleave of care, the death of each day's life, sore labour's bath, balm of hurt minds, great nature's second course, chief nourisher in life's feast.", chord: 'Dissonant Drone', analysis: 'Guilt destroys the unconscious refuge (Sleep). The voice is the Super-Ego announcing the permanent exile from peace.' }
             },
             {
                 name: 'Knocking',
