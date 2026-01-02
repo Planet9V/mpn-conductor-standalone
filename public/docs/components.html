@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Components - MPN Conductor</title>
+    <link rel="stylesheet" href="wiki.css">
+</head>
+
+<body>
+    <div class="wiki-container">
+        <nav class="wiki-sidebar">
+            <a href="index.html" class="wiki-logo">MPN DOCS</a>
+            <div class="wiki-logo-sub">Musical Psychometric Notation</div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Getting Started</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="index.html" class="wiki-nav-link">Home</a></li>
+                    <li><a href="quickstart.html" class="wiki-nav-link">Quick Start</a></li>
+                    <li><a href="features.html" class="wiki-nav-link">Features</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Architecture</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="architecture.html" class="wiki-nav-link">System Overview</a></li>
+                    <li><a href="components.html" class="wiki-nav-link active">Components</a></li>
+                    <li><a href="file-index.html" class="wiki-nav-link">File Index</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Reference</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="api-reference.html" class="wiki-nav-link">API Reference</a></li>
+                    <li><a href="theory.html" class="wiki-nav-link">Theory</a></li>
+                    <li><a href="testing.html" class="wiki-nav-link">Testing</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Deployment</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="deployment.html" class="wiki-nav-link">Deployment Guide</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="wiki-content">
+            <div class="wiki-breadcrumb"><a href="index.html">Docs</a> / Components</div>
+
+            <h1 class="wiki-title">Component Library</h1>
+            <p class="wiki-subtitle">44 React components for MPN visualization and control</p>
+
+            <section class="wiki-section">
+                <h2>Pages</h2>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Path</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>MPNConductorPage</td>
+                        <td><code>app/mpn-conductor/page.tsx</code></td>
+                        <td>Main conductor score interface</td>
+                    </tr>
+                    <tr>
+                        <td>MPNReferencePage</td>
+                        <td><code>app/mpn-reference/page.tsx</code></td>
+                        <td>Interactive reference dictionary</td>
+                    </tr>
+                    <tr>
+                        <td>MPNLabPage</td>
+                        <td><code>app/mpn-lab/page.tsx</code></td>
+                        <td>Experimental visualizations</td>
+                    </tr>
+                    <tr>
+                        <td>LandingPage</td>
+                        <td><code>app/page.tsx</code></td>
+                        <td>Homepage with navigation</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Score Components</h2>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Props</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>ConductorScore</code></td>
+                        <td>frame, showChordSymbols, showDynamics, isPlaying, currentBeat</td>
+                        <td>Multi-stave conductor's score renderer</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNPsychoacousticScore</code></td>
+                        <td>trauma, entropy, rsi, mode</td>
+                        <td>Single-stave psychoacoustic display</td>
+                    </tr>
+                    <tr>
+                        <td><code>ScenarioDriver</code></td>
+                        <td>scenario, onFrameChange</td>
+                        <td>Scenario playback controller</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>3D Visualizations</h2>
+                <p>All 3D components use react-three-fiber and should be loaded with <code>dynamic()</code> and
+                    <code>ssr: false</code>.</p>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Props</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_TonnetzGrid</code></td>
+                        <td>trauma, entropy</td>
+                        <td>Neo-Riemannian harmonic space</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_LorenzAttractor</code></td>
+                        <td>trauma, entropy, time</td>
+                        <td>Phase space trajectory</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_BorromeanKnot</code></td>
+                        <td>rsi, stability</td>
+                        <td>Lacanian knot topology</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_TensorHypercube</code></td>
+                        <td>dimensions</td>
+                        <td>Multi-dimensional state space</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>2D Visualizations</h2>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Technology</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_DialecticGraph</code></td>
+                        <td>XYFlow</td>
+                        <td>Actor relationship network</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_SevenBandWaveform</code></td>
+                        <td>Nivo</td>
+                        <td>7-dimensional psychometric bands</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_PersistenceBarcode</code></td>
+                        <td>D3</td>
+                        <td>Topological persistence diagram</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_SpectralWaterfall</code></td>
+                        <td>Canvas</td>
+                        <td>Audio spectrum visualization</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_StateEvolution7D</code></td>
+                        <td>Nivo</td>
+                        <td>State evolution over time</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Control Components</h2>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Props</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>MPNLabControls</code></td>
+                        <td>onTraumaChange, onEntropyChange</td>
+                        <td>Parameter sliders and controls</td>
+                    </tr>
+                    <tr>
+                        <td><code>AdjustmentDial</code></td>
+                        <td>value, onChange, label</td>
+                        <td>Rotary dial for adjustments</td>
+                    </tr>
+                    <tr>
+                        <td><code>ParameterAdjustmentPanel</code></td>
+                        <td>entries, onUpdate</td>
+                        <td>Reference parameter editor</td>
+                    </tr>
+                    <tr>
+                        <td><code>PresetManager</code></td>
+                        <td>presets, onLoad, onSave</td>
+                        <td>Save/load configurations</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Branding Components</h2>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Props</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>OXOTLogo</code></td>
+                        <td>className</td>
+                        <td>MPN logo (aliased from OXOT)</td>
+                    </tr>
+                    <tr>
+                        <td><code>PageHeader</code></td>
+                        <td>title, subtitle, variant, accent</td>
+                        <td>Page title component</td>
+                    </tr>
+                    <tr>
+                        <td><code>OXOTBadge</code></td>
+                        <td>label, variant</td>
+                        <td>Status badge</td>
+                    </tr>
+                    <tr>
+                        <td><code>OXOTRibbon</code></td>
+                        <td>text</td>
+                        <td>Corner ribbon</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Usage Examples</h2>
+                <h3>Dynamic Import for 3D Components</h3>
+                <pre><code>import dynamic from 'next/dynamic';
+
+const TonnetzGrid = dynamic(
+    () => import('@/components/mpn-lab/MPNExperiment_TonnetzGrid'),
+    { ssr: false, loading: () => &lt;LoadingPlaceholder /&gt; }
+);
+
+// In JSX:
+&lt;TonnetzGrid trauma={0.7} entropy={0.5} /&gt;</code></pre>
+
+                <h3>Using ConductorScore</h3>
+                <pre><code>import ConductorScoreView from '@/components/mpn-lab/ConductorScore';
+
+&lt;ConductorScoreView
+    frame={scoreFrame}
+    showChordSymbols={true}
+    showDynamics={true}
+    isPlaying={isPlaying}
+    currentBeat={currentFrameIndex}
+/&gt;</code></pre>
+
+                <h3>Using ScoreOrchestrator</h3>
+                <pre><code>import { getOrchestrator } from '@/components/mpn-lab/score_orchestrator';
+
+const orchestrator = getOrchestrator();
+orchestrator.registerActor(actorProfile);
+const output = await orchestrator.processFrame(script, trauma, entropy);</code></pre>
+            </section>
+
+            <footer class="wiki-footer">
+                <p>MPN Conductor Documentation v1.0 | <a href="index.html">Back to Index</a></p>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>

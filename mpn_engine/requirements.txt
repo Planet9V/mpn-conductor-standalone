@@ -1,0 +1,19 @@
+# Core dependencies
+numpy>=1.24.0
+scipy>=1.10.0
+
+# NLP
+nltk>=3.8.0
+vaderSentiment>=3.3.2
+requests>=2.31.0
+
+# Music generation
+music21>=9.1.0
+midiutil>=1.2.1
+
+# Visualization
+svgwrite>=1.4.3
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0

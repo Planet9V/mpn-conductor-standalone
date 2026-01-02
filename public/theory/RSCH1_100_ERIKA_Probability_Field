@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ERIKA: Psychohistory Engine</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            background-color: #050505;
+            color: #e0e0e0;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
+        .glass-panel {
+            background: rgba(20, 20, 25, 0.85);
+            backdrop-filter: blur(8px);
+            border: 1px solid #333;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            background: #333;
+            outline: none;
+            opacity: 0.7;
+            transition: .2s;
+        }
+        .slider:hover { opacity: 1; }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #00ffcc;
+            cursor: pointer;
+            border-radius: 50%;
+        }
+        .btn-glow:hover {
+            box-shadow: 0 0 10px #00ffccaa;
+            border-color: #00ffcc;
+        }
+        /* Scrollbar for control panel */
+        .custom-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scroll::-webkit-scrollbar-track {
+            background: #111;
+        }
+        .custom-scroll::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body class="flex h-screen w-full">
+
+    <!-- SIDEBAR CONTROLS -->
+    <div class="w-80 flex-shrink-0 flex flex-col glass-panel z-10 h-full border-r border-gray-800">
+        <div class="p-5 border-b border-gray-800">
+            <h1 class="text-2xl font-bold text-cyan-400 tracking-wider">ERIKA</h1>
+            <p class="text-xs text-gray-500 mt-1 uppercase tracking-widest">Psychohistory Engine v1.0</p>
+        </div>
+
+        <div class="flex-1 overflow-y-auto custom-scroll p-5 space-y-6">
+            
+            <!-- Persona Mix -->
+            <div>
+                <h3 class="text-sm font-bold text-gray-400 mb-3 border-l-2 border-cyan-500 pl-2">PERSONA MIX</h3>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-red-400">Catalysts (Innovators)</span>
+                        <span id="val-catalysts">20%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="20" class="slider" id="slider-catalysts">
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-blue-400">Stabilizers (Inertia)</span>
+                        <span id="val-stabilizers">50%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="50" class="slider" id="slider-stabilizers">
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span class="text-green-400">Synergists (Followers)</span>
+                        <span id="val-synergists">30%</span>
+                    </div>
+                    <input type="range" min="0" max="100" value="30" class="slider" id="slider-synergists">
+                </div>
+                
+                <button id="btn-reset-pop" class="w-full py-1 text-xs border border-gray-600 hover:bg-gray-800 transition text-gray-400 mt-2">Apply Distribution</button>
+            </div>
+
+            <!-- Global Parameters -->
+            <div>
+                <h3 class="text-sm font-bold text-gray-400 mb-3 border-l-2 border-purple-500 pl-2">FIELD PARAMETERS</h3>
+                
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>Population Size</span>
+                        <span id="val-pop-size">1000</span>
+                    </div>
+                    <input type="range" min="100" max="3000" step="100" value="1000" class="slider" id="slider-pop-size">
+                </div>
+
+                <div class="mb-4">
+                    <div class="flex justify-between text-xs mb-1">
+                        <span>Entropy (Noise)</span>
+                        <span id="val-noise">Low</span>
+                    </div>
+                    <input type="range" min="0" max="10" step="0.5" value="2" class="slider" id="slider-noise">
+                </div>
+            </div>
+
+            <!-- Interaction Mode -->
+            <div>
+                <h3 class="text-sm font-bold text-gray-400 mb-3 border-l-2 border-yellow-500 pl-2">INTERACTION</h3>
+                <div class="grid grid-cols-2 gap-2">
+                    <button id="mode-attract" class="mode-btn active py-2 bg-gray-800 border border-green-500 text-xs text-green-400 hover:bg-gray-700">INCENTIVE</button>
+                    <button id="mode-repel" class="mode-btn py-2 bg-transparent border border-gray-700 text-xs text-gray-400 hover:border-red-500 hover:text-red-400">DISRUPTION</button>
+                </div>
+                <p class="text-[10px] text-gray-500 mt-2 italic">Click on canvas to trigger event.</p>
+            </div>
+
+            <!-- Analytics -->
+            <div>
+                <h3 class="text-sm font-bold text-gray-400 mb-2 border-l-2 border-white pl-2">REAL-TIME METRICS</h3>
+                <canvas id="chart-metrics" height="120"></canvas>
+                <div class="mt-2 grid grid-cols-2 gap-2 text-xs">
+                    <div class="bg-gray-900 p-2 border border-gray-800 text-center">
+                        <div class="text-gray-500">Cohesion</div>
+                        <div id="stat-cohesion" class="text-cyan-400 font-bold text-lg">0.0</div>
+                    </div>
+                    <div class="bg-gray-900 p-2 border border-gray-800 text-center">
+                        <div class="text-gray-500">Volatility</div>
+                        <div id="stat-volatility" class="text-orange-400 font-bold text-lg">0.0</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        
+        <div class="p-4 border-t border-gray-800 text-[10px] text-gray-600 text-center">
+            &copy; 2025 ERIKA Systems. Mean Field Approximation.
+        </div>
+    </div>
+
+    <!-- MAIN CANVAS AREA -->
+    <div class="flex-1 relative bg-black h-full overflow-hidden" id="canvas-container">
+        <!-- Simulation Canvas -->
+        <canvas id="sim-canvas" class="absolute top-0 left-0 w-full h-full"></canvas>
+        
+        <!-- Field Overlay (Heatmap) -->
+        <canvas id="field-canvas" class="absolute top-0 left-0 w-full h-full opacity-40 pointer-events-none mix-blend-screen"></canvas>
+        
+        <!-- Overlay UI -->
+        <div class="absolute top-5 right-5 pointer-events-none">
+            <div class="glass-panel p-3 px-5 rounded-full flex items-center space-x-4">
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 rounded-full bg-red-500"></div>
+                    <span class="text-xs text-gray-300">Catalyst</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 rounded-full bg-blue-500"></div>
+                    <span class="text-xs text-gray-300">Stabilizer</span>
+                </div>
+                <div class="flex items-center space-x-2">
+                    <div class="w-2 h-2 rounded-full bg-green-500"></div>
+                    <span class="text-xs text-gray-300">Synergist</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * ERIKA SYSTEM: PSYCHOHISTORY ENGINE
+         * Logic: Agent-Based Modeling approximating Mean Field Games
+         */
+
+        // --- CONFIGURATION ---
+        const config = {
+            populationSize: 1000,
+            noise: 2.0,
+            gridSize: 40, // Resolution of the density field
+            catalystRatio: 0.2,
+            stabilizerRatio: 0.5,
+            synergistRatio: 0.3,
+            interactionMode: 'attract', // or 'repel'
+            speed: 1.5
+        };
+
+        // --- STATE ---
+        const agents = [];
+        let densityField = []; // 2D array
+        let disruptionPoints = []; // List of active event points (attractors/repellers)
+        let frameCount = 0;
+        
+        // Canvas Contexts
+        const canvasSim = document.getElementById('sim-canvas');
+        const ctxSim = canvasSim.getContext('2d');
+        const canvasField = document.getElementById('field-canvas');
+        const ctxField = canvasField.getContext('2d');
+
+        // Dimensions
+        let width, height;
+        let cellW, cellH;
+
+        // Metrics History
+        const historyCohesion = new Array(50).fill(0);
+        const historyVolatility = new Array(50).fill(0);
+
+        // --- CLASSES ---
+
+        class Agent {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 2;
+                this.vy = (Math.random() - 0.5) * 2;
+                this.type = this.assignType();
+                this.color = this.getColor();
+            }
+
+            assignType() {
+                const r = Math.random();
+                if (r < config.catalystRatio) return 'catalyst';
+                if (r < config.catalystRatio + config.stabilizerRatio) return 'stabilizer';
+                return 'synergist';
+            }
+
+            getColor() {
+                switch(this.type) {
+                    case 'catalyst': return '#ff4444'; // Red
+                    case 'stabilizer': return '#4488ff'; // Blue
+                    case 'synergist': return '#00ff88'; // Green
+                }
+            }
+
+            update(densityMap, centerOfMass) {
+                // 1. Base Brownian Motion (Entropy)
+                let dx = (Math.random() - 0.5) * config.noise;
+                let dy = (Math.random() - 0.5) * config.noise;
+
+                // 2. Persona Specific Logic (The "HJB" decision part)
+                
+                if (this.type === 'catalyst') {
+                    // CATALYST: Looks for novelty, repelled by high density (wants to be unique), attracted to Disruptions
+                    const density = this.getDensityAt(this.x, this.y, densityMap);
+                    
+                    // Slight repulsion from crowd
+                    if (density > 0.5) {
+                        dx += (Math.random() - 0.5) * 5;
+                        dy += (Math.random() - 0.5) * 5;
+                    }
+                    
+                    // Strongly attracted to interactive events
+                    disruptionPoints.forEach(p => {
+                        const dist = Math.hypot(p.x - this.x, p.y - this.y);
+                        if (dist < 300) {
+                            const force = p.type === 'attract' ? 200/dist : -200/dist;
+                            dx += (p.x - this.x) * 0.05 * force;
+                            dy += (p.y - this.y) * 0.05 * force;
+                        }
+                    });
+
+                } else if (this.type === 'stabilizer') {
+                    // STABILIZER: Pulls towards the Center of Mass of the entire population
+                    const pullStr = 0.03;
+                    dx += (centerOfMass.x - this.x) * pullStr;
+                    dy += (centerOfMass.y - this.y) * pullStr;
+
+                    // Resists disruption events (moves less)
+                    dx *= 0.5; 
+                    dy *= 0.5;
+
+                } else if (this.type === 'synergist') {
+                    // SYNERGIST: Moves up the density gradient (goes where the crowd is)
+                    // Sample density around agent
+                    const lookAhead = 20;
+                    const dCenter = this.getDensityAt(this.x, this.y, densityMap);
+                    const dRight = this.getDensityAt(this.x + lookAhead, this.y, densityMap);
+                    const dLeft = this.getDensityAt(this.x - lookAhead, this.y, densityMap);
+                    const dDown = this.getDensityAt(this.x, this.y + lookAhead, densityMap);
+                    const dUp = this.getDensityAt(this.x, this.y - lookAhead, densityMap);
+
+                    const gradX = (dRight - dLeft);
+                    const gradY = (dDown - dUp);
+
+                    dx += gradX * 50; // Follow gradient
+                    dy += gradY * 50;
+                    
+                    // Weakly attracted to events
+                    disruptionPoints.forEach(p => {
+                        const dist = Math.hypot(p.x - this.x, p.y - this.y);
+                        if (dist < 200) {
+                            const force = p.type === 'attract' ? 50/dist : -50/dist;
+                            dx += (p.x - this.x) * 0.01 * force;
+                            dy += (p.y - this.y) * 0.01 * force;
+                        }
+                    });
+                }
+
+                // 3. Boundary Containment (Soft walls)
+                const margin = 50;
+                if (this.x < margin) dx += 1;
+                if (this.x > width - margin) dx -= 1;
+                if (this.y < margin) dy += 1;
+                if (this.y > height - margin) dy -= 1;
+
+                // 4. Apply Velocity
+                this.vx = this.vx * 0.9 + dx * 0.1; // Inertia
+                this.vy = this.vy * 0.9 + dy * 0.1;
+                
+                this.x += this.vx * config.speed;
+                this.y += this.vy * config.speed;
+
+                // Hard Clamp
+                this.x = Math.max(0, Math.min(width, this.x));
+                this.y = Math.max(0, Math.min(height, this.y));
+            }
+
+            getDensityAt(x, y, map) {
+                const cx = Math.floor(x / cellW);
+                const cy = Math.floor(y / cellH);
+                if (cx >= 0 && cx < config.gridSize && cy >= 0 && cy < config.gridSize) {
+                    return map[cy][cx];
+                }
+                return 0;
+            }
+
+            draw() {
+                ctxSim.fillStyle = this.color;
+                ctxSim.beginPath();
+                // Catalysts are squares, others circles
+                if (this.type === 'catalyst') {
+                    ctxSim.rect(this.x - 2, this.y - 2, 4, 4);
+                } else {
+                    ctxSim.arc(this.x, this.y, this.type === 'stabilizer' ? 2 : 1.5, 0, Math.PI * 2);
+                }
+                ctxSim.fill();
+            }
+        }
+
+        // --- SYSTEM FUNCTIONS ---
+
+        function resize() {
+            width = canvasSim.width = canvasField.width = document.getElementById('canvas-container').clientWidth;
+            height = canvasSim.height = canvasField.height = document.getElementById('canvas-container').clientHeight;
+            cellW = width / config.gridSize;
+            cellH = height / config.gridSize;
+        }
+
+        function initAgents() {
+            agents.length = 0;
+            for (let i = 0; i < config.populationSize; i++) {
+                agents.push(new Agent());
+            }
+        }
+
+        function calculateField() {
+            // Reset density field
+            densityField = Array(config.gridSize).fill().map(() => Array(config.gridSize).fill(0));
+            
+            // Calculate Center of Mass
+            let sumX = 0, sumY = 0;
+
+            // Bin agents
+            agents.forEach(a => {
+                const cx = Math.floor(a.x / cellW);
+                const cy = Math.floor(a.y / cellH);
+                if (cx >= 0 && cx < config.gridSize && cy >= 0 && cy < config.gridSize) {
+                    densityField[cy][cx] += 1;
+                }
+                sumX += a.x;
+                sumY += a.y;
+            });
+
+            // Normalize density (0 to 1)
+            let maxDens = 1;
+            for(let y=0; y<config.gridSize; y++) {
+                for(let x=0; x<config.gridSize; x++) {
+                   maxDens = Math.max(maxDens, densityField[y][x]);
+                }
+            }
+            for(let y=0; y<config.gridSize; y++) {
+                for(let x=0; x<config.gridSize; x++) {
+                   densityField[y][x] /= maxDens;
+                }
+            }
+
+            return { x: sumX / agents.length, y: sumY / agents.length };
+        }
+
+        function drawField() {
+            // Clear
+            ctxField.clearRect(0, 0, width, height);
+            
+            // Draw Heatmap
+            for(let y=0; y<config.gridSize; y++) {
+                for(let x=0; x<config.gridSize; x++) {
+                    const d = densityField[y][x];
+                    if (d > 0.05) {
+                        // Color ramp: Purple (low) -> Cyan (mid) -> White (high)
+                        const alpha = d * 0.4; // Max opacity
+                        ctxField.fillStyle = `rgba(0, 255, 255, ${alpha})`;
+                        ctxField.fillRect(x * cellW, y * cellH, cellW + 1, cellH + 1);
+                    }
+                }
+            }
+
+            // Draw Disruption Points
+            disruptionPoints.forEach((p, index) => {
+                p.life--;
+                const r = 10 + (Math.sin(frameCount * 0.2) * 5);
+                
+                ctxField.beginPath();
+                ctxField.arc(p.x, p.y, r, 0, Math.PI*2);
+                ctxField.strokeStyle = p.type === 'attract' ? '#00ff88' : '#ff4444';
+                ctxField.lineWidth = 2;
+                ctxField.stroke();
+
+                ctxField.beginPath();
+                ctxField.arc(p.x, p.y, r * 2 * (p.life/200), 0, Math.PI*2);
+                ctxField.strokeStyle = p.type === 'attract' ? 'rgba(0,255,136,0.3)' : 'rgba(255,68,68,0.3)';
+                ctxField.stroke();
+            });
+
+            // Remove old points
+            disruptionPoints = disruptionPoints.filter(p => p.life > 0);
+        }
+
+        function calculateMetrics(centerOfMass) {
+            // Cohesion: Average distance from Center of Mass (lower is better)
+            // Volatility: Average velocity magnitude
+            let totalDist = 0;
+            let totalVel = 0;
+            
+            agents.forEach(a => {
+                totalDist += Math.hypot(a.x - centerOfMass.x, a.y - centerOfMass.y);
+                totalVel += Math.hypot(a.vx, a.vy);
+            });
+
+            const avgDist = totalDist / agents.length;
+            const avgVel = totalVel / agents.length;
+
+            // Normalize for display
+            const cohesion = Math.max(0, 100 - (avgDist / 5)); // 100 = perfect dot
+            const volatility = avgVel * 10;
+
+            document.getElementById('stat-cohesion').innerText = cohesion.toFixed(1);
+            document.getElementById('stat-volatility').innerText = volatility.toFixed(1);
+
+            // Update Chart
+            if (frameCount % 5 === 0) {
+                historyCohesion.push(cohesion);
+                historyCohesion.shift();
+                historyVolatility.push(volatility);
+                historyVolatility.shift();
+                metricsChart.update();
+            }
+        }
+
+        // --- MAIN LOOP ---
+
+        function loop() {
+            // 1. Calculate Field and Center Mass
+            const com = calculateField();
+            
+            // 2. Clear Sim Canvas
+            ctxSim.fillStyle = 'rgba(5, 5, 5, 0.3)'; // Trails
+            ctxSim.fillRect(0, 0, width, height);
+
+            // 3. Update & Draw Agents
+            agents.forEach(a => {
+                a.update(densityField, com);
+                a.draw();
+            });
+
+            // 4. Draw Field Overlay
+            drawField();
+
+            // 5. Metrics
+            calculateMetrics(com);
+
+            frameCount++;
+            requestAnimationFrame(loop);
+        }
+
+        // --- INIT & EVENTS ---
+
+        window.addEventListener('resize', resize);
+        
+        // Canvas Interaction
+        document.getElementById('canvas-container').addEventListener('mousedown', (e) => {
+            const rect = canvasSim.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            disruptionPoints.push({
+                x: x,
+                y: y,
+                type: config.interactionMode,
+                life: 150 // Frames to live
+            });
+        });
+
+        // UI Binding
+        const bindSlider = (id, configKey, displayId) => {
+            const el = document.getElementById(id);
+            el.addEventListener('input', (e) => {
+                let val = parseFloat(e.target.value);
+                if (configKey === 'populationSize' || configKey === 'noise') {
+                    config[configKey] = val;
+                }
+                if (displayId) {
+                    const suffix = (configKey.includes('Ratio')) ? '%' : '';
+                    document.getElementById(displayId).innerText = val + suffix;
+                }
+                // If pop size changes, re-init
+                if (configKey === 'populationSize') initAgents();
+            });
+        };
+
+        bindSlider('slider-pop-size', 'populationSize', 'val-pop-size');
+        bindSlider('slider-noise', 'noise', 'val-noise');
+
+        // Distribution Sliders (Normalize on Apply)
+        document.getElementById('btn-reset-pop').addEventListener('click', () => {
+            const c = parseInt(document.getElementById('slider-catalysts').value);
+            const s = parseInt(document.getElementById('slider-stabilizers').value);
+            const f = parseInt(document.getElementById('slider-synergists').value);
+            const total = c + s + f;
+
+            if (total === 0) return;
+
+            config.catalystRatio = c / total;
+            config.stabilizerRatio = s / total;
+            config.synergistRatio = f / total;
+
+            // Update Displays
+            document.getElementById('val-catalysts').innerText = Math.round(config.catalystRatio * 100) + '%';
+            document.getElementById('val-stabilizers').innerText = Math.round(config.stabilizerRatio * 100) + '%';
+            document.getElementById('val-synergists').innerText = Math.round(config.synergistRatio * 100) + '%';
+
+            initAgents();
+        });
+
+        // Interaction Modes
+        const btnAttract = document.getElementById('mode-attract');
+        const btnRepel = document.getElementById('mode-repel');
+
+        const setMode = (mode) => {
+            config.interactionMode = mode;
+            if (mode === 'attract') {
+                btnAttract.classList.add('active', 'border-green-500', 'text-green-400', 'bg-gray-800');
+                btnAttract.classList.remove('border-gray-700', 'text-gray-400', 'bg-transparent');
+                
+                btnRepel.classList.remove('active', 'border-red-500', 'text-red-400', 'bg-gray-800');
+                btnRepel.classList.add('border-gray-700', 'text-gray-400', 'bg-transparent');
+            } else {
+                btnRepel.classList.add('active', 'border-red-500', 'text-red-400', 'bg-gray-800');
+                btnRepel.classList.remove('border-gray-700', 'text-gray-400', 'bg-transparent');
+
+                btnAttract.classList.remove('active', 'border-green-500', 'text-green-400', 'bg-gray-800');
+                btnAttract.classList.add('border-gray-700', 'text-gray-400', 'bg-transparent');
+            }
+        };
+
+        btnAttract.addEventListener('click', () => setMode('attract'));
+        btnRepel.addEventListener('click', () => setMode('repel'));
+
+        // Chart Setup
+        const ctxChart = document.getElementById('chart-metrics').getContext('2d');
+        const metricsChart = new Chart(ctxChart, {
+            type: 'line',
+            data: {
+                labels: Array(50).fill(''),
+                datasets: [{
+                    label: 'Cohesion',
+                    data: historyCohesion,
+                    borderColor: '#00ffff',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    tension: 0.4
+                }, {
+                    label: 'Volatility',
+                    data: historyVolatility,
+                    borderColor: '#ff9900',
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                animation: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { display: false },
+                    y: { 
+                        display: true,
+                        grid: { color: '#222' },
+                        ticks: { color: '#666', font: {size: 9} }
+                    }
+                }
+            }
+        });
+
+        // Initialize
+        resize();
+        initAgents();
+        setMode('attract');
+        loop();
+
+    </script>
+</body>
+</html>

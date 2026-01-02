@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architecture - MPN Conductor</title>
+    <link rel="stylesheet" href="wiki.css">
+</head>
+
+<body>
+    <div class="wiki-container">
+        <nav class="wiki-sidebar">
+            <a href="index.html" class="wiki-logo">MPN DOCS</a>
+            <div class="wiki-logo-sub">Musical Psychometric Notation</div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Getting Started</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="index.html" class="wiki-nav-link">Home</a></li>
+                    <li><a href="quickstart.html" class="wiki-nav-link">Quick Start</a></li>
+                    <li><a href="features.html" class="wiki-nav-link">Features</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Architecture</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="architecture.html" class="wiki-nav-link active">System Overview</a></li>
+                    <li><a href="components.html" class="wiki-nav-link">Components</a></li>
+                    <li><a href="file-index.html" class="wiki-nav-link">File Index</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Reference</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="api-reference.html" class="wiki-nav-link">API Reference</a></li>
+                    <li><a href="theory.html" class="wiki-nav-link">Theory</a></li>
+                    <li><a href="testing.html" class="wiki-nav-link">Testing</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Deployment</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="deployment.html" class="wiki-nav-link">Deployment Guide</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="wiki-content">
+            <div class="wiki-breadcrumb">
+                <a href="index.html">Docs</a> / Architecture
+            </div>
+
+            <h1 class="wiki-title">System Architecture</h1>
+            <p class="wiki-subtitle">Technical design and component relationships</p>
+
+            <section class="wiki-section">
+                <h2>High-Level Architecture</h2>
+                <pre><code>┌─────────────────────────────────────────────────────────────┐
+│                     MPN CONDUCTOR v3.0                      │
+├─────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │                   PRESENTATION LAYER                  │   │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────────┐   │   │
+│  │  │ Conductor  │ │ Reference  │ │   MPN Lab      │   │   │
+│  │  │   Score    │ │ Dictionary │ │ Experiments    │   │   │
+│  │  └────────────┘ └────────────┘ └────────────────┘   │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                              │                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │                   ORCHESTRATION LAYER                 │   │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────────┐   │   │
+│  │  │   Score    │ │   Genius   │ │   Leitmotif    │   │   │
+│  │  │Orchestrator│ │  Composer  │ │   Generator    │   │   │
+│  │  └────────────┘ └────────────┘ └────────────────┘   │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                              │                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │                     CALCULUS LAYER                    │   │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────────┐   │   │
+│  │  │Psychometric│ │  Reference │ │   Reference    │   │   │
+│  │  │  Calculus  │ │   Lookup   │ │     Data       │   │   │
+│  │  └────────────┘ └────────────┘ └────────────────┘   │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                              │                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │                    OUTPUT LAYER                       │   │
+│  │  ┌────────────┐ ┌────────────┐ ┌────────────────┐   │   │
+│  │  │   Tone.js  │ │ Three.js   │ │    Nivo/       │   │   │
+│  │  │  Synth     │ │ Visuals    │ │   XYFlow       │   │   │
+│  │  └────────────┘ └────────────┘ └────────────────┘   │   │
+│  └──────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Core Data Flow</h2>
+                <pre><code>Literary Scenario
+      │
+      ▼
+┌─────────────────┐
+│  Script Frame   │ (speaker, text, chord, analysis)
+│  trauma/entropy │
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐     ┌─────────────────┐
+│  Psychometric   │────▶│  Reference      │
+│    Calculus     │     │    Lookup       │
+└────────┬────────┘     └─────────────────┘
+         │
+         ▼
+┌─────────────────┐
+│      Score      │ (tempo, key, dynamics, mode)
+│   Orchestrator  │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+┌───────┐ ┌───────┐
+│Melody │ │ Chord │
+│Compose│ │Compose│
+└───┬───┘ └───┬───┘
+    │         │
+    └────┬────┘
+         ▼
+┌─────────────────┐
+│  Score Frame    │ (multi-stave output)
+│  Per Actor      │
+└────────┬────────┘
+         │
+    ┌────┴────┐
+    ▼         ▼
+┌───────┐ ┌───────┐
+│Tone.js│ │Visual │
+│ Audio │ │Render │
+└───────┘ └───────┘</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Layer Descriptions</h2>
+
+                <h3>Presentation Layer</h3>
+                <p>React/Next.js pages that render the user interface:</p>
+                <ul>
+                    <li><strong>Conductor Score</strong> - Multi-stave musical score with playback controls</li>
+                    <li><strong>Reference Dictionary</strong> - Interactive mapping explorer</li>
+                    <li><strong>MPN Lab</strong> - Experimental visualizations and tools</li>
+                </ul>
+
+                <h3>Orchestration Layer</h3>
+                <p>Coordinates score generation across multiple actors:</p>
+                <ul>
+                    <li><strong>ScoreOrchestrator</strong> - Manages actor staves, processes frames, generates output
+                    </li>
+                    <li><strong>GeniusComposer</strong> - Creates melodies and orchestrates chords</li>
+                    <li><strong>LeitmotifGenerator</strong> - Generates unique motifs per actor based on DISC profile
+                    </li>
+                </ul>
+
+                <h3>Calculus Layer</h3>
+                <p>Transforms psychometric input to musical parameters:</p>
+                <ul>
+                    <li><strong>PsychometricCalculus</strong> - Core transformation engine</li>
+                    <li><strong>ReferenceLookup</strong> - Queries MPN dictionary for mappings</li>
+                    <li><strong>ReferenceData</strong> - 55+ entries across 10 categories</li>
+                </ul>
+
+                <h3>Output Layer</h3>
+                <p>Renders audio and visual output:</p>
+                <ul>
+                    <li><strong>Tone.js</strong> - Web Audio synthesis</li>
+                    <li><strong>Three.js</strong> - 3D visualizations (Tonnetz, Lorenz)</li>
+                    <li><strong>Nivo/XYFlow</strong> - Charts and graph visualizations</li>
+                </ul>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Key Interfaces</h2>
+
+                <h3>PsychometricState</h3>
+                <pre><code>interface PsychometricState {
+    trauma: number;      // 0-1 (Riemann curvature)
+    entropy: number;     // 0-1 (Shannon entropy)
+    rsi: {
+        real: number;      // 0-1 (Lacanian Real)
+        symbolic: number;  // 0-1 (Lacanian Symbolic)
+        imaginary: number; // 0-1 (Lacanian Imaginary)
+    };
+    disc?: {
+        D: number;  // Dominance
+        I: number;  // Influence
+        S: number;  // Steadiness
+        C: number;  // Conscientiousness
+    };
+    darkTriad?: {
+        machiavellianism: number;
+        narcissism: number;
+        psychopathy: number;
+    };
+}</code></pre>
+
+                <h3>MusicalParams</h3>
+                <pre><code>interface MusicalParams {
+    tempo: number;           // BPM (60-180)
+    timeSignature: string;   // "4/4", "3/4", etc.
+    key: string;             // "C Major", "D minor"
+    mode: string;            // "ionian", "phrygian"
+    dynamic: number;         // MIDI velocity 0-127
+    dynamicLabel: string;    // "pp", "mf", "ff"
+    articulation: string;    // legato, staccato, etc.
+    instrumentFamily: string; // brass, woodwind, etc.
+    timbre: TimbreParams;
+    chordType: string;
+    tension: number;         // 0-1
+}</code></pre>
+
+                <h3>ScoreFrame</h3>
+                <pre><code>interface PsychometricScoreFrame {
+    frameIndex: number;
+    timestamp: number;
+    speaker: string;
+    global: {
+        tempo: number;
+        timeSignature: string;
+        key: string;
+        mode: string;
+        dynamics: string;
+    };
+    staves: ActorStaveData[];
+    harmony: { chord: string; tension: number };
+    graph: { nodes: Node[]; edges: Edge[] };
+}</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Design Patterns</h2>
+
+                <h3>Singleton Pattern</h3>
+                <p><code>ScoreOrchestrator</code> uses singleton to maintain state across components:</p>
+                <pre><code>// Get the singleton instance
+const orchestrator = getOrchestrator();
+orchestrator.registerActor(profile);
+const output = await orchestrator.processFrame(script, trauma, entropy);</code></pre>
+
+                <h3>Registry Pattern</h3>
+                <p><code>LeitmotifGenerator</code> maintains a registry of actor motifs:</p>
+                <pre><code>registerLeitmotif(actorProfile);
+const motif = getLeitmotif(actorId);
+const ensured = ensureLeitmotif(actorProfile);</code></pre>
+
+                <h3>Strategy Pattern</h3>
+                <p>Orchestration modes change composition behavior:</p>
+                <pre><code>orchestrator.setOrchestrationMode('FULL_ORCHESTRA');
+orchestrator.setOrchestrationMode('CHAMBER_QUARTET');
+orchestrator.setOrchestrationMode('LEITMOTIF_WAGNERIAN');</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Related Documentation</h2>
+                <ul>
+                    <li><a href="components.html">Components Reference</a> - Detailed component docs</li>
+                    <li><a href="api-reference.html">API Reference</a> - Function signatures</li>
+                    <li><a href="file-index.html">File Index</a> - Complete file listing</li>
+                </ul>
+            </section>
+
+            <footer class="wiki-footer">
+                <p>MPN Conductor Documentation v1.0 | <a href="index.html">Back to Index</a></p>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>

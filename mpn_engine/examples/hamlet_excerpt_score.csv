@@ -1,0 +1,50 @@
+BEAT,SPEAKER,TEXT,TRAUMA_R,ENTROPY_H,BASELINE_B,ARRHYTHMIA_α,NEO_RIEMANNIAN_OP,CLINICAL_HEALTH_SCORE
+1,NARRATOR,"HAMLET, PRINCE OF DENMARK",0.02,0.3,0.98,0.5,R,9/10
+2,SCENE,ACT I,0.03,0.3,0.96,0.7,R,9/10
+3,SCENE,SCENE I. Elsinore. A platform before the Castle.,0.05,0.3,0.94,0.2,R,9/10
+4,STAGE,"Enter Francisco and Barnardo, two sentinels.",0.07,0.3,0.92,0.7,R,9/10
+5,BARNARDO,Who's there?,0.08,0.5,0.9,0.7,R,9/10
+6,FRANCISCO,"Nay, answer me. Stand and unfold yourself.",0.1,0.3,0.88,0.7,R,9/10
+7,BARNARDO,Long live the King!,0.11,0.45,0.86,0.7,R,8/10
+8,FRANCISCO,Barnardo?,0.13,0.5,0.84,0.7,R,8/10
+9,BARNARDO,He.,0.15,0.3,0.82,0.7,R,8/10
+10,FRANCISCO,You come most carefully upon your hour.,0.16,0.3,0.8,0.7,R,8/10
+11,BARNARDO,"'Tis now struck twelve. Get thee to bed, Francisco.",0.18,0.3,0.78,0.7,R,8/10
+12,FRANCISCO,"For this relief much thanks. 'Tis bitter cold, and I am sick at heart.",0.2,0.3,0.76,0.7,R,8/10
+13,BARNARDO,Have you had quiet guard?,0.21,0.5,0.73,0.7,R,7/10
+14,FRANCISCO,Not a mouse stirring.,0.23,0.3,0.71,0.7,R,7/10
+15,BARNARDO,"Well, good night. If you do meet Horatio and Marcellus, the rivals of my watch, bid them make haste.",0.24,0.3,0.69,0.7,R,7/10
+16,FRANCISCO,"I think I hear them. Stand, ho! Who is there?",0.26,0.65,0.67,0.7,R,7/10
+17,STAGE,Enter Horatio and Marcellus.,0.28,0.3,0.65,0.7,R,7/10
+18,HORATIO,Friends to this ground.,0.29,0.3,0.63,0.7,R,7/10
+19,MARCELLUS,And liegemen to the Dane.,0.31,0.3,0.61,0.7,L,6/10
+20,FRANCISCO,Give you good night.,0.33,0.3,0.59,0.7,L,6/10
+21,MARCELLUS,"O, farewell, honest soldier. Who hath reliev'd you?",0.34,0.5,0.57,0.7,L,6/10
+22,FRANCISCO,Barnardo has my place. Give you good-night.,0.36,0.3,0.55,0.7,L,6/10
+23,MARCELLUS,"Holla, Barnardo!",0.38,0.45,0.53,0.7,L,6/10
+24,BARNARDO,"Say, what, is Horatio there?",0.39,0.5,0.51,0.7,L,6/10
+25,HORATIO,A piece of him.,0.41,0.3,0.49,0.7,L,5/10
+26,BARNARDO,"Welcome, Horatio. Welcome, good Marcellus.",0.42,0.3,0.47,0.7,L,5/10
+27,MARCELLUS,"What, has this thing appear'd again tonight?",0.44,0.5,0.45,0.7,L,5/10
+28,BARNARDO,I have seen nothing.,0.46,0.3,0.43,0.7,L,5/10
+29,MARCELLUS,"Horatio says 'tis but our fantasy, and will not let belief take hold of him.",0.47,0.3,0.41,0.7,L,5/10
+30,SCENE,SCENE V. A more remote part of the Castle.,0.49,0.3,0.39,0.7,L,5/10
+31,STAGE,Enter Ghost and Hamlet.,0.51,0.3,0.37,0.7,L,4/10
+32,HAMLET,"Whither wilt thou lead me? Speak, I'll go no further.",0.52,0.5,0.35,0.7,L,4/10
+33,GHOST,Mark me.,0.54,0.3,0.33,0.7,L,4/10
+34,HAMLET,I will.,0.56,0.3,0.31,0.7,L,4/10
+35,GHOST,"My hour is almost come, when I to sulph'rous and tormenting flames must render up myself.",0.57,0.3,0.29,0.7,L,4/10
+36,HAMLET,"Alas, poor ghost!",0.59,0.45,0.27,0.7,L,4/10
+37,GHOST,"Pity me not, but lend thy serious hearing to what I shall unfold.",0.6,0.3,0.24,0.7,P,3/10
+38,HAMLET,"Speak, I am bound to hear.",0.62,0.3,0.22,0.7,P,3/10
+39,GHOST,"So art thou to revenge, when thou shalt hear.",0.72,0.3,0.2,0.7,P,2/10
+40,HAMLET,What?,0.65,0.5,0.18,0.7,P,3/10
+41,GHOST,"I am thy father's spirit, doom'd for a certain term to walk the night.",0.75,0.3,0.16,0.7,P,2/10
+42,HAMLET,O God!,0.69,0.45,0.14,0.7,P,3/10
+43,GHOST,"But that I am forbid to tell the secrets of my prison-house, I could a tale unfold whose lightest word would harrow up thy soul.",0.7,0.3,0.12,0.7,P,2/10
+44,HAMLET,Murder?,0.82,0.5,0.1,0.7,PLP,1/10
+45,GHOST,"Murder most foul, as in the best it is, but this most foul, strange, and unnatural.",0.83,0.3,0.08,0.7,PLP,1/10
+46,HAMLET,"Haste me to know't, that I with wings as swift as meditation or the thoughts of love may sweep to my revenge.",0.83,0.3,0.06,0.7,PLP,1/10
+47,GHOST,"Now, Hamlet, hear. 'Tis given out that, sleeping in my orchard, a serpent stung me. But know, thou noble youth, the serpent that did sting thy father's life now wears his crown.",0.77,0.3,0.04,0.7,P,2/10
+48,HAMLET,O my prophetic soul! My uncle!,0.78,0.6,0.02,0.7,P,2/10
+49,GHOST,"Ay, that incestuous, that adulterate beast.",0.8,0.3,0.0,0.7,PLP,1/10

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Testing - MPN Conductor</title>
+    <link rel="stylesheet" href="wiki.css">
+</head>
+
+<body>
+    <div class="wiki-container">
+        <nav class="wiki-sidebar">
+            <a href="index.html" class="wiki-logo">MPN DOCS</a>
+            <div class="wiki-logo-sub">Musical Psychometric Notation</div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Getting Started</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="index.html" class="wiki-nav-link">Home</a></li>
+                    <li><a href="quickstart.html" class="wiki-nav-link">Quick Start</a></li>
+                    <li><a href="features.html" class="wiki-nav-link">Features</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Architecture</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="architecture.html" class="wiki-nav-link">System Overview</a></li>
+                    <li><a href="components.html" class="wiki-nav-link">Components</a></li>
+                    <li><a href="file-index.html" class="wiki-nav-link">File Index</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Reference</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="api-reference.html" class="wiki-nav-link">API Reference</a></li>
+                    <li><a href="theory.html" class="wiki-nav-link">Theory</a></li>
+                    <li><a href="testing.html" class="wiki-nav-link active">Testing</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Deployment</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="deployment.html" class="wiki-nav-link">Deployment Guide</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="wiki-content">
+            <div class="wiki-breadcrumb"><a href="index.html">Docs</a> / Testing</div>
+
+            <h1 class="wiki-title">Testing Guide</h1>
+            <p class="wiki-subtitle">Unit tests, E2E tests, and verification procedures</p>
+
+            <section class="wiki-section">
+                <h2>Test Summary</h2>
+                <table>
+                    <tr>
+                        <th>Category</th>
+                        <th>Tests</th>
+                        <th>Framework</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Unit Tests</td>
+                        <td>132</td>
+                        <td>Vitest</td>
+                        <td><span class="badge badge-success">PASS</span></td>
+                    </tr>
+                    <tr>
+                        <td>E2E Tests</td>
+                        <td>12</td>
+                        <td>Playwright</td>
+                        <td><span class="badge badge-success">PASS</span></td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Running Tests</h2>
+
+                <h3>Unit Tests (Vitest)</h3>
+                <pre><code># Run all tests
+npm run test
+
+# Run with watch mode
+npm run test -- --watch
+
+# Run with UI
+npm run test -- --ui
+
+# Run specific test file
+npm run test -- psychometric_calculus
+
+# Run with coverage
+npm run test -- --coverage</code></pre>
+
+                <h3>E2E Tests (Playwright)</h3>
+                <pre><code># Run all E2E tests
+npm run test:e2e
+
+# Run with UI
+npx playwright test --ui
+
+# Run specific test
+npx playwright test e2e.spec.ts
+
+# Generate report
+npx playwright show-report</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Test Coverage by Module</h2>
+                <table>
+                    <tr>
+                        <th>Module</th>
+                        <th>File</th>
+                        <th>Tests</th>
+                    </tr>
+                    <tr>
+                        <td>Psychometric Calculus</td>
+                        <td><code>psychometric_calculus.test.ts</code></td>
+                        <td>33</td>
+                    </tr>
+                    <tr>
+                        <td>Leitmotif Generator</td>
+                        <td><code>leitmotif_generator.test.ts</code></td>
+                        <td>22</td>
+                    </tr>
+                    <tr>
+                        <td>Score Orchestrator</td>
+                        <td><code>score_orchestrator.test.ts</code></td>
+                        <td>15</td>
+                    </tr>
+                    <tr>
+                        <td>Genius Composer</td>
+                        <td><code>genius_composer.test.ts</code></td>
+                        <td>18</td>
+                    </tr>
+                    <tr>
+                        <td>Reference Data</td>
+                        <td><code>reference_data.test.ts</code></td>
+                        <td>19</td>
+                    </tr>
+                    <tr>
+                        <td>Literary Data</td>
+                        <td><code>literary_data.test.ts</code></td>
+                        <td>18</td>
+                    </tr>
+                    <tr>
+                        <td>MPN Calculus</td>
+                        <td><code>mpn_calculus.test.ts</code></td>
+                        <td>7</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Test Structure</h2>
+                <pre><code>src/
+├── __tests__/
+│   ├── setup.ts                      # Global mocks
+│   ├── psychometric_calculus.test.ts
+│   ├── leitmotif_generator.test.ts
+│   ├── score_orchestrator.test.ts
+│   ├── genius_composer.test.ts
+│   ├── reference_data.test.ts
+│   └── literary_data.test.ts
+├── components/mpn-lab/__tests__/
+│   └── mpn_calculus.test.ts
+tests/
+└── e2e.spec.ts                       # Playwright E2E</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Writing Tests</h2>
+
+                <h3>Unit Test Example</h3>
+                <pre><code>import { describe, it, expect } from 'vitest';
+import { traumaToDynamics } from '@/components/mpn-lab/psychometric_calculus';
+
+describe('traumaToDynamics', () => {
+    it('should return soft dynamics for low trauma', () => {
+        const result = traumaToDynamics(0.1);
+        expect(result.label).toMatch(/pp|p|mp/);
+        expect(result.velocity).toBeLessThan(70);
+    });
+
+    it('should return loud dynamics for high trauma', () => {
+        const result = traumaToDynamics(0.9);
+        expect(result.label).toMatch(/f|ff|fff/);
+        expect(result.velocity).toBeGreaterThan(80);
+    });
+});</code></pre>
+
+                <h3>E2E Test Example</h3>
+                <pre><code>import { test, expect } from '@playwright/test';
+
+test('conductor page loads and shows controls', async ({ page }) => {
+    await page.goto('/mpn-conductor');
+    
+    // Check title
+    await expect(page.locator('h1')).toContainText('CONDUCTOR');
+    
+    // Check play button exists
+    await expect(page.getByRole('button', { name: /play/i })).toBeVisible();
+    
+    // Check scenario selector
+    await expect(page.locator('select')).toBeVisible();
+});</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Test Setup</h2>
+                <p>The <code>setup.ts</code> file provides global mocks:</p>
+                <pre><code>// Audio API mocks
+global.AudioContext = vi.fn();
+global.GainNode = vi.fn();
+
+// Canvas API mocks
+HTMLCanvasElement.prototype.getContext = vi.fn();
+
+// WebGL mocks
+WebGLRenderingContext.prototype = { ... };
+
+// ResizeObserver mock
+global.ResizeObserver = vi.fn();</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Configuration Files</h2>
+
+                <h3>vitest.config.ts</h3>
+                <pre><code>export default defineConfig({
+    plugins: [react()],
+    test: {
+        globals: true,
+        environment: 'jsdom',
+        setupFiles: './src/__tests__/setup.ts',
+        include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+        coverage: {
+            provider: 'v8',
+            reporter: ['text', 'json', 'html'],
+        },
+    },
+    resolve: {
+        alias: {
+            '@': resolve(__dirname, './src'),
+        },
+    },
+});</code></pre>
+
+                <h3>playwright.config.ts</h3>
+                <pre><code>export default defineConfig({
+    testDir: './tests',
+    fullyParallel: true,
+    use: {
+        baseURL: 'http://localhost:3002',
+        trace: 'on-first-retry',
+    },
+    webServer: {
+        command: 'npm run dev -- --port 3002',
+        url: 'http://localhost:3002',
+        reuseExistingServer: !process.env.CI,
+    },
+});</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>CI/CD Integration</h2>
+                <pre><code># .github/workflows/test.yml
+name: Tests
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - run: npm ci
+      - run: npm run test
+      - run: npx playwright install
+      - run: npm run test:e2e</code></pre>
+            </section>
+
+            <footer class="wiki-footer">
+                <p>MPN Conductor Documentation v1.0 | <a href="index.html">Back to Index</a></p>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>

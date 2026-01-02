@@ -1,0 +1,80 @@
+BEAT,SPEAKER,TEXT,TRAUMA_R,ENTROPY_H,BASELINE_B,ARRHYTHMIA_α,NEO_RIEMANNIAN_OP,CLINICAL_HEALTH_SCORE
+1,NARRATOR,*** START OF THE PROJECT GUTENBERG EBOOK OEDIPUS KING OF THEBES ***,0.01,0.3,0.99,0.5,R,9/10
+2,NARRATOR,"Produced by Sigal Alon, Turgut Dincer, R. Cedron and the",0.02,0.3,0.97,0.2,R,9/10
+3,NARRATOR,Online Distributed Proofreading Team at https://www.pgdp.net,0.03,0.3,0.96,0.2,R,9/10
+4,NARRATOR,OEDIPUS,0.04,0.3,0.95,0.2,R,9/10
+5,NARRATOR,KING OF THEBES,0.05,0.3,0.94,0.2,R,9/10
+6,NARRATOR,BY,0.06,0.3,0.92,0.2,R,9/10
+7,NARRATOR,SOPHOCLES,0.07,0.3,0.91,0.2,R,9/10
+8,NARRATOR,TRANSLATED INTO ENGLISH RHYMING VERSE,0.08,0.3,0.9,0.2,R,9/10
+9,NARRATOR,WITH EXPLANATORY NOTES BY,0.09,0.3,0.89,0.2,R,9/10
+10,NARRATOR,GILBERT MURRAY,0.1,0.3,0.87,0.2,R,8/10
+11,LL,"D., D.LITT., F.B.A.",0.11,0.3,0.86,0.7,R,8/10
+12,LL,REGIUS PROFESSOR OF GREEK IN THE UNIVERSITY OF OXFORD,0.12,0.3,0.85,0.2,R,8/10
+13,LL,FOURTEENTH THOUSAND,0.13,0.3,0.84,0.2,R,8/10
+14,LONDON,GEORGE ALLEN & UNWIN LTD.,0.14,0.3,0.82,0.7,R,8/10
+15,LONDON,"RUSKIN HOUSE 40 MUSEUM STREET, W.C.1",0.15,0.3,0.81,0.2,R,8/10
+16,LONDON,_First published_      _February 1911_,0.16,0.3,0.8,0.2,R,8/10
+17,LONDON,_Reprinted_            _January  1912_,0.17,0.3,0.78,0.2,R,8/10
+18,LONDON,"""                  _   ""     1912_",0.18,0.3,0.77,0.2,R,8/10
+19,LONDON,"""                  _February 1912_",0.19,0.3,0.76,0.2,R,8/10
+20,LONDON,"""                  _July     1917_",0.2,0.3,0.75,0.2,R,7/10
+21,LONDON,PREFACE,0.21,0.3,0.73,0.2,R,7/10
+22,LONDON,If I have turned aside from Euripides for a moment and attempted a,0.22,0.3,0.72,0.2,R,7/10
+23,LONDON,"translation of the great stage masterpiece of Sophocles, my excuse must",0.23,0.3,0.71,0.2,R,7/10
+24,LONDON,"be the fascination of this play, which has thrown its spell on me as on",0.24,0.3,0.7,0.2,R,7/10
+25,LONDON,many other translators. Yet I may plead also that as a rule every,0.25,0.3,0.68,0.2,R,7/10
+26,LONDON,diligent student of these great works can add something to the,0.26,0.3,0.67,0.2,R,7/10
+27,LONDON,"discoveries of his predecessors, and I think I have been able to bring",0.27,0.3,0.66,0.2,R,7/10
+28,LONDON,"out a few new points in the old and much-studied _Oedipus_, chiefly",0.28,0.3,0.65,0.2,R,7/10
+29,LONDON,points connected with the dramatic technique and the religious,0.29,0.3,0.63,0.2,R,7/10
+30,LONDON,atmosphere.,0.3,0.3,0.62,0.2,L,6/10
+31,LONDON,Mythologists tell us that Oedipus was originally a daemon haunting Mount,0.31,0.3,0.61,0.2,L,6/10
+32,LONDON,"Kithairon, and Jocasta a form of that Earth-Mother who, as Aeschylus",0.32,0.3,0.59,0.2,L,6/10
+33,LONDON,"puts it, ""bringeth all things to being, and when she hath reared them",0.33,0.3,0.58,0.2,L,6/10
+34,LONDON,"receiveth again their seed into her body"" (_Choephori_, 127: cf.",0.34,0.3,0.57,0.2,L,6/10
+35,LONDON,"Crusius, _Beitraege z. Gr. Myth_, 21). That stage of the story lies very",0.35,0.3,0.56,0.2,L,6/10
+36,LONDON,far behind the consciousness of Sophocles. But there does cling about,0.36,0.3,0.54,0.2,L,6/10
+37,LONDON,both his hero and his heroine a great deal of very primitive atmosphere.,0.37,0.3,0.53,0.2,L,6/10
+38,LONDON,"There are traces in Oedipus of the pre-hellenic Medicine King, the",0.38,0.3,0.52,0.2,L,6/10
+39,LONDON,"_Basileus_ who is also a _Theos_, and can make rain or blue sky,",0.39,0.3,0.51,0.2,L,6/10
+40,LONDON,pestilence or fertility. This explains many things in the Priest's first,0.41,0.3,0.49,0.2,L,5/10
+41,LONDON,"speech, in the attitude of the Chorus, and in Oedipus' own language",0.42,0.3,0.48,0.2,L,5/10
+42,LONDON,"after the discovery. It partly explains the hostility of Apollo, who is",0.43,0.3,0.47,0.2,L,5/10
+43,LONDON,not a mere motiveless Destroyer but a true Olympian crushing his,0.44,0.3,0.46,0.2,L,5/10
+44,LONDON,"Earth-born rival. And in the same way the peculiar royalty of Jocasta,",0.45,0.3,0.44,0.2,L,5/10
+45,LONDON,which makes Oedipus at times seem not the King but the Consort of the,0.46,0.3,0.43,0.2,L,5/10
+46,LONDON,"Queen, brings her near to that class of consecrated queens described in",0.47,0.3,0.42,0.2,L,5/10
+47,LONDON,"Dr. Frazer's _Lectures on the Kingship_, who are ""honoured as no woman",0.48,0.3,0.41,0.2,L,5/10
+48,LONDON,"now living on the earth.""",0.49,0.3,0.39,0.2,L,5/10
+49,LONDON,"The story itself, and the whole spirit in which Sophocles has treated",0.5,0.3,0.38,0.2,L,5/10
+50,LONDON,"it, belong not to the fifth century but to that terrible and romantic",0.51,0.3,0.37,0.2,L,4/10
+51,LONDON,past from which the fifth century poets usually drew their material. The,0.52,0.3,0.35,0.2,L,4/10
+52,LONDON,"atmosphere of brooding dread, the pollution, the curses; the ""insane and",0.61,0.3,0.34,0.2,P,3/10
+53,LONDON,"beastlike cruelty,"" as an ancient Greek commentator calls it, of",0.54,0.3,0.33,0.2,L,4/10
+54,LONDON,piercing the exposed child's feet in order to ensure its death and yet,0.65,0.3,0.32,0.2,P,3/10
+55,LONDON,"avoid having actually murdered it (_Schol. Eur. Phoen._, 26); the whole",0.66,0.3,0.3,0.2,P,3/10
+56,LONDON,"treatment of the parricide and incest, not as moral offences capable of",0.57,0.3,0.29,0.2,L,4/10
+57,LONDON,"being rationally judged or even excused as unintentional, but as",0.58,0.3,0.28,0.2,L,4/10
+58,LONDON,"monstrous and inhuman pollutions, the last limit of imaginable horror:",0.65,0.3,0.27,0.2,P,3/10
+59,LONDON,all these things take us back to dark regions of pre-classical and even,0.6,0.3,0.25,0.2,L,4/10
+60,LONDON,pre-homeric belief. We have no right to suppose that Sophocles thought,0.61,0.3,0.24,0.2,P,3/10
+61,LONDON,of the involuntary parricide and metrogamy as the people in his play do.,0.62,0.3,0.23,0.2,P,3/10
+62,LONDON,"Indeed, considering the general tone of his contemporaries and friends,",0.63,0.3,0.22,0.2,P,3/10
+63,LONDON,we may safely assume that he did not. But at any rate he has allowed no,0.64,0.3,0.2,0.2,P,3/10
+64,LONDON,breath of later enlightenment to disturb the primaeval gloom of his,0.65,0.3,0.19,0.2,P,3/10
+65,LONDON,atmosphere.,0.66,0.3,0.18,0.2,P,3/10
+66,LONDON,Does this in any way make the tragedy insincere? I think not. We know,0.67,0.5,0.16,0.2,P,3/10
+67,LONDON,"that people did feel and think about ""pollution"" in the way which",0.68,0.3,0.15,0.2,P,3/10
+68,LONDON,"Sophocles represents; and if they so felt, then the tragedy was there.",0.69,0.3,0.14,0.2,P,3/10
+69,LONDON,*       *       *       *       *,0.7,0.3,0.13,0.2,P,3/10
+70,LONDON,I think these considerations explain the remarkable absence from this,0.71,0.3,0.11,0.2,P,2/10
+71,LONDON,play of any criticism of life or any definite moral judgment. I know,0.72,0.3,0.1,0.2,P,2/10
+72,LONDON,"that some commentators have found in it a ""humble and unquestioning",0.73,0.3,0.09,0.2,P,2/10
+73,LONDON,"piety,"" but I cannot help suspecting that what they saw was only a",0.74,0.3,0.08,0.2,P,2/10
+74,LONDON,reflection from their own pious and unquestioning minds. Man is indeed,0.75,0.3,0.06,0.2,P,2/10
+75,LONDON,"shown as a ""plaything of Gods,"" but of Gods strangely and",0.76,0.3,0.05,0.2,P,2/10
+76,LONDON,"incomprehensibly malignant, whose ways there is no attempt to explain or",0.77,0.3,0.04,0.2,P,2/10
+77,LONDON,"justify. The original story, indeed, may have had one of its roots in a",0.78,0.3,0.03,0.2,P,2/10
+78,LONDON,"Theban ""moral tale."" Aelian (_Varia Historia_, 2, 7) tells us that the",0.79,0.3,0.01,0.2,P,2/10
+79,LONDON,exposure of a child was forbidden by Theban Law. The state of feeling,0.8,0.3,0.0,0.2,PLP,1/10

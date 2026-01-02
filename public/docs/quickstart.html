@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Start - MPN Conductor</title>
+    <link rel="stylesheet" href="wiki.css">
+</head>
+
+<body>
+    <div class="wiki-container">
+        <nav class="wiki-sidebar">
+            <a href="index.html" class="wiki-logo">MPN DOCS</a>
+            <div class="wiki-logo-sub">Musical Psychometric Notation</div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Getting Started</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="index.html" class="wiki-nav-link">Home</a></li>
+                    <li><a href="quickstart.html" class="wiki-nav-link active">Quick Start</a></li>
+                    <li><a href="features.html" class="wiki-nav-link">Features</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Architecture</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="architecture.html" class="wiki-nav-link">System Overview</a></li>
+                    <li><a href="components.html" class="wiki-nav-link">Components</a></li>
+                    <li><a href="file-index.html" class="wiki-nav-link">File Index</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Reference</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="api-reference.html" class="wiki-nav-link">API Reference</a></li>
+                    <li><a href="theory.html" class="wiki-nav-link">Theory</a></li>
+                    <li><a href="testing.html" class="wiki-nav-link">Testing</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Deployment</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="deployment.html" class="wiki-nav-link">Deployment Guide</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="wiki-content">
+            <div class="wiki-breadcrumb">
+                <a href="index.html">Docs</a> / Quick Start
+            </div>
+
+            <h1 class="wiki-title">Quick Start Guide</h1>
+            <p class="wiki-subtitle">Get MPN Conductor running in under 5 minutes</p>
+
+            <section class="wiki-section">
+                <h2>Prerequisites</h2>
+                <ul>
+                    <li><strong>Node.js</strong> 20.0.0 or higher</li>
+                    <li><strong>npm</strong> 9.0+ or equivalent package manager</li>
+                    <li><strong>Git</strong> for cloning the repository</li>
+                    <li><strong>Docker</strong> (optional, for containerized deployment)</li>
+                </ul>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">Recommended</div>
+                    <p>Use Node.js 20 LTS for best compatibility with Next.js 16 and React 19.</p>
+                </div>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Installation</h2>
+
+                <h3>1. Clone the Repository</h3>
+                <pre><code>git clone https://github.com/your-org/mpn-conductor-standalone.git
+cd mpn-conductor-standalone</code></pre>
+
+                <h3>2. Install Dependencies</h3>
+                <pre><code>npm install</code></pre>
+
+                <div class="callout callout-warning">
+                    <div class="callout-title">Peer Dependency Note</div>
+                    <p>If you encounter peer dependency warnings, the project includes an <code>.npmrc</code>
+                        file with <code>legacy-peer-deps=true</code> to handle this automatically.</p>
+                </div>
+
+                <h3>3. Configure Environment Variables</h3>
+                <pre><code># Copy the example environment file
+cp .env.example .env.local
+
+# Edit with your API keys (optional for basic usage)
+nano .env.local</code></pre>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Variable</th>
+                            <th>Required</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>OPENROUTER_API_KEY</code></td>
+                            <td>Optional</td>
+                            <td>For AI-enhanced melody generation</td>
+                        </tr>
+                        <tr>
+                            <td><code>HUGGINGFACE_API_KEY</code></td>
+                            <td>Optional</td>
+                            <td>For music model inference</td>
+                        </tr>
+                        <tr>
+                            <td><code>ELEVENLABS_API_KEY</code></td>
+                            <td>Optional</td>
+                            <td>For text-to-speech narration</td>
+                        </tr>
+                        <tr>
+                            <td><code>DATABASE_URL</code></td>
+                            <td>Optional</td>
+                            <td>PostgreSQL connection string</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Running the Application</h2>
+
+                <h3>Development Mode</h3>
+                <pre><code># Start development server
+npm run dev
+
+# Or on a specific port
+npm run dev -- --port 3002</code></pre>
+                <p>Open <a href="http://localhost:3000" target="_blank">http://localhost:3000</a> in your browser.</p>
+
+                <h3>Production Build</h3>
+                <pre><code># Build for production
+npm run build
+
+# Start production server
+npm start</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Docker Deployment</h2>
+                <pre><code># Build and run with Docker Compose
+docker-compose up -d
+
+# View logs
+docker-compose logs -f mpn-app</code></pre>
+
+                <p>Application will be available at <a href="http://localhost:3001"
+                        target="_blank">http://localhost:3001</a></p>
+
+                <div class="callout">
+                    <div class="callout-title">Docker Services</div>
+                    <p>Docker Compose starts both the Next.js application and a PostgreSQL database with the MPN schema
+                        pre-configured.</p>
+                </div>
+            </section>
+
+            <section class="wiki-section">
+                <h2>First Steps</h2>
+
+                <h3>1. Landing Page</h3>
+                <p>Navigate to <code>/</code> to see the MPN landing page with links to all sections.</p>
+
+                <h3>2. Conductor Score</h3>
+                <p>Go to <code>/mpn-conductor</code> to access the main conductor's score interface:</p>
+                <ul>
+                    <li>Select a literary scenario (Hamlet, Macbeth, Oedipus)</li>
+                    <li>Press <strong>Play</strong> to auto-advance through frames</li>
+                    <li>Enable <strong>Audio</strong> for real-time synthesis</li>
+                    <li>Toggle <strong>AI</strong> for enhanced melody generation</li>
+                </ul>
+
+                <h3>3. Reference Dictionary</h3>
+                <p>Visit <code>/mpn-reference</code> to explore all musical-psychometric mappings.</p>
+
+                <h3>4. Lab Experiments</h3>
+                <p>Check <code>/mpn-lab</code> for experimental visualizations and tools.</p>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Running Tests</h2>
+                <pre><code># Run unit tests
+npm run test
+
+# Run with UI
+npm run test -- --ui
+
+# Run E2E tests
+npm run test:e2e</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Next Steps</h2>
+                <ul>
+                    <li><a href="features.html">Explore Features</a> - Full capability breakdown</li>
+                    <li><a href="architecture.html">System Architecture</a> - Understand the design</li>
+                    <li><a href="api-reference.html">API Reference</a> - Core functions and types</li>
+                    <li><a href="theory.html">Theory Guide</a> - McKenney-Lacan foundations</li>
+                </ul>
+            </section>
+
+            <footer class="wiki-footer">
+                <p>MPN Conductor Documentation v1.0 | <a href="index.html">Back to Index</a></p>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Index - MPN Conductor</title>
+    <link rel="stylesheet" href="wiki.css">
+</head>
+
+<body>
+    <div class="wiki-container">
+        <nav class="wiki-sidebar">
+            <a href="index.html" class="wiki-logo">MPN DOCS</a>
+            <div class="wiki-logo-sub">Musical Psychometric Notation</div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Getting Started</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="index.html" class="wiki-nav-link">Home</a></li>
+                    <li><a href="quickstart.html" class="wiki-nav-link">Quick Start</a></li>
+                    <li><a href="features.html" class="wiki-nav-link">Features</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Architecture</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="architecture.html" class="wiki-nav-link">System Overview</a></li>
+                    <li><a href="components.html" class="wiki-nav-link">Components</a></li>
+                    <li><a href="file-index.html" class="wiki-nav-link active">File Index</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Reference</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="api-reference.html" class="wiki-nav-link">API Reference</a></li>
+                    <li><a href="theory.html" class="wiki-nav-link">Theory</a></li>
+                    <li><a href="testing.html" class="wiki-nav-link">Testing</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Deployment</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="deployment.html" class="wiki-nav-link">Deployment Guide</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="wiki-content">
+            <div class="wiki-breadcrumb"><a href="index.html">Docs</a> / File Index</div>
+
+            <h1 class="wiki-title">File Index</h1>
+            <p class="wiki-subtitle">Complete file listing with descriptions</p>
+
+            <section class="wiki-section">
+                <h2>Root Files</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>package.json</code></td>
+                        <td>Dependencies and scripts</td>
+                    </tr>
+                    <tr>
+                        <td><code>next.config.ts</code></td>
+                        <td>Next.js configuration</td>
+                    </tr>
+                    <tr>
+                        <td><code>tsconfig.json</code></td>
+                        <td>TypeScript configuration</td>
+                    </tr>
+                    <tr>
+                        <td><code>vitest.config.ts</code></td>
+                        <td>Unit test configuration</td>
+                    </tr>
+                    <tr>
+                        <td><code>playwright.config.ts</code></td>
+                        <td>E2E test configuration</td>
+                    </tr>
+                    <tr>
+                        <td><code>docker-compose.yml</code></td>
+                        <td>Container orchestration</td>
+                    </tr>
+                    <tr>
+                        <td><code>Dockerfile</code></td>
+                        <td>Production build</td>
+                    </tr>
+                    <tr>
+                        <td><code>.env.example</code></td>
+                        <td>Environment template</td>
+                    </tr>
+                    <tr>
+                        <td><code>.npmrc</code></td>
+                        <td>NPM configuration</td>
+                    </tr>
+                    <tr>
+                        <td><code>README.md</code></td>
+                        <td>Project documentation</td>
+                    </tr>
+                    <tr>
+                        <td><code>IMPLEMENTATION_PLAN.md</code></td>
+                        <td>Full implementation guide</td>
+                    </tr>
+                    <tr>
+                        <td><code>LICENSE</code></td>
+                        <td>MIT License</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>src/app/ - Pages</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Lines</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>layout.tsx</code></td>
+                        <td>~30</td>
+                        <td>Root layout with fonts</td>
+                    </tr>
+                    <tr>
+                        <td><code>globals.css</code></td>
+                        <td>~370</td>
+                        <td>Design system and animations</td>
+                    </tr>
+                    <tr>
+                        <td><code>page.tsx</code></td>
+                        <td>~120</td>
+                        <td>Landing page</td>
+                    </tr>
+                    <tr>
+                        <td><code>mpn-conductor/page.tsx</code></td>
+                        <td>673</td>
+                        <td>Main conductor interface</td>
+                    </tr>
+                    <tr>
+                        <td><code>mpn-reference/page.tsx</code></td>
+                        <td>~680</td>
+                        <td>Reference dictionary</td>
+                    </tr>
+                    <tr>
+                        <td><code>mpn-lab/page.tsx</code></td>
+                        <td>~500</td>
+                        <td>Lab experiments</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>src/components/mpn-lab/ - Core Modules</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Lines</th>
+                        <th>Purpose</th>
+                    </tr>
+                    <tr>
+                        <td><code>psychometric_calculus.ts</code></td>
+                        <td>~400</td>
+                        <td>Psychometric → Musical transformation</td>
+                    </tr>
+                    <tr>
+                        <td><code>score_orchestrator.ts</code></td>
+                        <td>~400</td>
+                        <td>Multi-stave coordination</td>
+                    </tr>
+                    <tr>
+                        <td><code>leitmotif_generator.ts</code></td>
+                        <td>~300</td>
+                        <td>Actor motif generation</td>
+                    </tr>
+                    <tr>
+                        <td><code>GeniusComposer.ts</code></td>
+                        <td>~290</td>
+                        <td>Melody/chord composition</td>
+                    </tr>
+                    <tr>
+                        <td><code>mpn_reference_data.ts</code></td>
+                        <td>~1470</td>
+                        <td>55+ mapping entries</td>
+                    </tr>
+                    <tr>
+                        <td><code>mpn_reference_lookup.ts</code></td>
+                        <td>~200</td>
+                        <td>Query functions</td>
+                    </tr>
+                    <tr>
+                        <td><code>literary_data.ts</code></td>
+                        <td>~300</td>
+                        <td>Scenarios (Hamlet, Oedipus, Macbeth)</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNSynthesizer.ts</code></td>
+                        <td>~200</td>
+                        <td>Tone.js audio hook</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>src/components/mpn-lab/ - Type Definitions</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>types.ts</code></td>
+                        <td>Core interfaces (LiteraryScenario, ScenarioFrame)</td>
+                    </tr>
+                    <tr>
+                        <td><code>score_types.ts</code></td>
+                        <td>Score interfaces (ActorStaveData, ScoreFrame)</td>
+                    </tr>
+                    <tr>
+                        <td><code>mpn_reference_types.ts</code></td>
+                        <td>Reference dictionary types</td>
+                    </tr>
+                    <tr>
+                        <td><code>mpn_preset_types.ts</code></td>
+                        <td>Preset configuration types</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>src/components/mpn-lab/ - Visualizations</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Technology</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>ConductorScore.tsx</code></td>
+                        <td>SVG</td>
+                        <td>Multi-stave score</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_TonnetzGrid.tsx</code></td>
+                        <td>Three.js</td>
+                        <td>Harmonic space</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_LorenzAttractor.tsx</code></td>
+                        <td>Three.js</td>
+                        <td>Phase trajectory</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_BorromeanKnot.tsx</code></td>
+                        <td>Three.js</td>
+                        <td>Lacan topology</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_DialecticGraph.tsx</code></td>
+                        <td>XYFlow</td>
+                        <td>Actor network</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_SevenBandWaveform.tsx</code></td>
+                        <td>Nivo</td>
+                        <td>7D waveform</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_SpectralWaterfall.tsx</code></td>
+                        <td>Canvas</td>
+                        <td>Spectrum</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_PersistenceBarcode.tsx</code></td>
+                        <td>D3</td>
+                        <td>Persistence</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_StateEvolution7D.tsx</code></td>
+                        <td>Nivo</td>
+                        <td>State evolution</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_TensorHypercube.tsx</code></td>
+                        <td>Three.js</td>
+                        <td>Hypercube</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_NeuralPlasma.tsx</code></td>
+                        <td>Three.js</td>
+                        <td>Neural field</td>
+                    </tr>
+                    <tr>
+                        <td><code>MPNExperiment_EpidemicPhase.tsx</code></td>
+                        <td>Nivo</td>
+                        <td>Epidemic model</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>src/lib/ - Utilities</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>db.ts</code></td>
+                        <td>PostgreSQL connection pool</td>
+                    </tr>
+                    <tr>
+                        <td><code>utils.ts</code></td>
+                        <td>Utility functions (cn, clsx)</td>
+                    </tr>
+                    <tr>
+                        <td><code>openrouter_client.ts</code></td>
+                        <td>OpenRouter API client</td>
+                    </tr>
+                    <tr>
+                        <td><code>ai_music_client.ts</code></td>
+                        <td>AI music generation</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>src/__tests__/ - Test Suite</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Tests</th>
+                        <th>Coverage</th>
+                    </tr>
+                    <tr>
+                        <td><code>psychometric_calculus.test.ts</code></td>
+                        <td>33</td>
+                        <td>Core transformations</td>
+                    </tr>
+                    <tr>
+                        <td><code>leitmotif_generator.test.ts</code></td>
+                        <td>22</td>
+                        <td>Motif system</td>
+                    </tr>
+                    <tr>
+                        <td><code>score_orchestrator.test.ts</code></td>
+                        <td>15</td>
+                        <td>Orchestration</td>
+                    </tr>
+                    <tr>
+                        <td><code>genius_composer.test.ts</code></td>
+                        <td>18</td>
+                        <td>Composition</td>
+                    </tr>
+                    <tr>
+                        <td><code>reference_data.test.ts</code></td>
+                        <td>19</td>
+                        <td>Dictionary</td>
+                    </tr>
+                    <tr>
+                        <td><code>literary_data.test.ts</code></td>
+                        <td>18</td>
+                        <td>Scenarios</td>
+                    </tr>
+                    <tr>
+                        <td><code>setup.ts</code></td>
+                        <td>-</td>
+                        <td>Test mocks</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>public/docs/ - Documentation</h2>
+                <table>
+                    <tr>
+                        <th>File</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>index.html</code></td>
+                        <td>Wiki home</td>
+                    </tr>
+                    <tr>
+                        <td><code>quickstart.html</code></td>
+                        <td>Installation guide</td>
+                    </tr>
+                    <tr>
+                        <td><code>architecture.html</code></td>
+                        <td>System design</td>
+                    </tr>
+                    <tr>
+                        <td><code>features.html</code></td>
+                        <td>Capabilities</td>
+                    </tr>
+                    <tr>
+                        <td><code>api-reference.html</code></td>
+                        <td>API docs</td>
+                    </tr>
+                    <tr>
+                        <td><code>components.html</code></td>
+                        <td>Component library</td>
+                    </tr>
+                    <tr>
+                        <td><code>file-index.html</code></td>
+                        <td>This page</td>
+                    </tr>
+                    <tr>
+                        <td><code>theory.html</code></td>
+                        <td>McKenney-Lacan</td>
+                    </tr>
+                    <tr>
+                        <td><code>testing.html</code></td>
+                        <td>Test guide</td>
+                    </tr>
+                    <tr>
+                        <td><code>deployment.html</code></td>
+                        <td>Production</td>
+                    </tr>
+                    <tr>
+                        <td><code>wiki.css</code></td>
+                        <td>Wiki stylesheet</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>public/theory/ - Research Documents</h2>
+                <p>302 markdown files covering McKenney-Lacan theory, organized by topic:</p>
+                <ul>
+                    <li><code>RSCH-39-*</code> - Core MPN specification</li>
+                    <li><code>RSCH-40-*</code> - Orchestral dynamics</li>
+                    <li><code>RSCH-41-*</code> - Seven-staff fugue</li>
+                    <li><code>RSCH-42-*</code> - AI model framework</li>
+                    <li><code>RSCH-43-*</code> - Psychometric calculus</li>
+                    <li><code>01-17_*</code> - Reference categories</li>
+                    <li><code>20-29_*</code> - Detailed references</li>
+                    <li><code>30-31_*</code> - Process flows</li>
+                    <li><code>40-42_*</code> - Architecture specs</li>
+                    <li><code>50-53_*</code> - Appendices</li>
+                </ul>
+            </section>
+
+            <footer class="wiki-footer">
+                <p>MPN Conductor Documentation v1.0 | <a href="index.html">Back to Index</a></p>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>

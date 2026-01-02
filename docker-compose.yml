@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  mpn-conductor:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mpn-conductor-app
+    ports:
+      - "3001:3000"
+    environment:
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY}
+      - ELEVENLABS_API_KEY=${ELEVENLABS_API_KEY}
+      - DATABASE_URL=postgresql://mpn_user:mpn_secure_password@postgres:5432/mpn_conductor
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - mpn-network
+
+  # Local PostgreSQL Database (REQUIRED)
+  postgres:
+    image: postgres:15-alpine
+    container_name: mpn-postgres
+    environment:
+      POSTGRES_USER: mpn_user
+      POSTGRES_PASSWORD: mpn_secure_password
+      POSTGRES_DB: mpn_conductor
+    volumes:
+      - mpn-db-data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/01_init.sql:ro
+    ports:
+      - "5433:5432"  # External port 5433 to avoid conflicts
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mpn_user -d mpn_conductor"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - mpn-network
+
+networks:
+  mpn-network:
+    driver: bridge
+
+volumes:
+  mpn-db-data:

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Reference - MPN Conductor</title>
+    <link rel="stylesheet" href="wiki.css">
+</head>
+
+<body>
+    <div class="wiki-container">
+        <nav class="wiki-sidebar">
+            <a href="index.html" class="wiki-logo">MPN DOCS</a>
+            <div class="wiki-logo-sub">Musical Psychometric Notation</div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Getting Started</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="index.html" class="wiki-nav-link">Home</a></li>
+                    <li><a href="quickstart.html" class="wiki-nav-link">Quick Start</a></li>
+                    <li><a href="features.html" class="wiki-nav-link">Features</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Architecture</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="architecture.html" class="wiki-nav-link">System Overview</a></li>
+                    <li><a href="components.html" class="wiki-nav-link">Components</a></li>
+                    <li><a href="file-index.html" class="wiki-nav-link">File Index</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Reference</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="api-reference.html" class="wiki-nav-link active">API Reference</a></li>
+                    <li><a href="theory.html" class="wiki-nav-link">Theory</a></li>
+                    <li><a href="testing.html" class="wiki-nav-link">Testing</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Deployment</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="deployment.html" class="wiki-nav-link">Deployment Guide</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="wiki-content">
+            <div class="wiki-breadcrumb"><a href="index.html">Docs</a> / API Reference</div>
+
+            <h1 class="wiki-title">API Reference</h1>
+            <p class="wiki-subtitle">Core functions, types, and interfaces</p>
+
+            <section class="wiki-section">
+                <h2>Psychometric Calculus</h2>
+                <p>Location: <code>src/components/mpn-lab/psychometric_calculus.ts</code></p>
+
+                <h3>psychometricToMusical()</h3>
+                <pre><code>function psychometricToMusical(state: PsychometricState): MusicalParams
+
+// Transform complete psychometric state to musical parameters
+const params = psychometricToMusical({
+    trauma: 0.7,
+    entropy: 0.5,
+    rsi: { real: 0.5, symbolic: 0.3, imaginary: 0.2 }
+});
+// Returns: { tempo, key, dynamic, mode, timbre, ... }</code></pre>
+
+                <h3>traumaToDynamics()</h3>
+                <pre><code>function traumaToDynamics(trauma: number): { velocity: number; label: string }
+
+traumaToDynamics(0.1) // { velocity: 30, label: 'pp' }
+traumaToDynamics(0.9) // { velocity: 115, label: 'ff' }</code></pre>
+
+                <h3>entropyToRhythm()</h3>
+                <pre><code>function entropyToRhythm(entropy: number): { tempo: number; timeSignature: string }
+
+entropyToRhythm(0.2) // { tempo: 50, timeSignature: '4/4' }
+entropyToRhythm(0.9) // { tempo: 160, timeSignature: '7/8' }</code></pre>
+
+                <h3>rsiToMode()</h3>
+                <pre><code>function rsiToMode(rsi: RSI): string
+
+rsiToMode({ real: 0.8, symbolic: 0.1, imaginary: 0.1 }) // 'phrygian'
+rsiToMode({ real: 0.1, symbolic: 0.8, imaginary: 0.1 }) // 'ionian'
+rsiToMode({ real: 0.1, symbolic: 0.1, imaginary: 0.8 }) // 'lydian'</code></pre>
+
+                <h3>discToInstrument()</h3>
+                <pre><code>function discToInstrument(disc?: DISC): string
+
+discToInstrument({ D: 0.9, I: 0.2, S: 0.1, C: 0.3 }) // 'trumpet'
+discToInstrument({ D: 0.1, I: 0.9, S: 0.2, C: 0.3 }) // 'flute'
+discToInstrument(undefined) // 'piano' (fallback)</code></pre>
+
+                <h3>analyzeRSI()</h3>
+                <pre><code>function analyzeRSI(text: string): RSI
+
+// Analyze text for Lacanian register weights
+analyzeRSI('death blood murder trauma')
+// { real: 0.7, symbolic: 0.2, imaginary: 0.1 }
+
+analyzeRSI('law order king crown duty')
+// { real: 0.1, symbolic: 0.8, imaginary: 0.1 }</code></pre>
+
+                <h3>chordToTension()</h3>
+                <pre><code>function chordToTension(chord: string): number
+
+chordToTension('C Major')  // 0.1
+chordToTension('Cm')       // 0.3
+chordToTension('Cdim')     // 0.7
+chordToTension('C7#9')     // 0.9</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Leitmotif Generator</h2>
+                <p>Location: <code>src/components/mpn-lab/leitmotif_generator.ts</code></p>
+
+                <h3>generateLeitmotif()</h3>
+                <pre><code>function generateLeitmotif(profile: ActorProfile): Leitmotif
+
+const motif = generateLeitmotif({
+    id: 'hamlet',
+    name: 'Prince Hamlet',
+    disc: { D: 0.3, I: 0.4, S: 0.5, C: 0.7 }
+});
+// Returns: { id, actorId, actorName, pitchClasses, rhythm, ... }</code></pre>
+
+                <h3>transformLeitmotif()</h3>
+                <pre><code>function transformLeitmotif(
+    motif: Leitmotif,
+    transformation: LeitmotifTransformation
+): Leitmotif
+
+const inverted = transformLeitmotif(motif, 'inverted');
+const retrograde = transformLeitmotif(motif, 'retrograde');</code></pre>
+
+                <h3>selectTransformation()</h3>
+                <pre><code>function selectTransformation(
+    trauma: number,
+    entropy: number,
+    rsi: RSI
+): LeitmotifTransformation
+
+selectTransformation(0.9, 0.5, rsi) // 'fragmented'
+selectTransformation(0.7, 0.3, rsi) // 'inverted'
+selectTransformation(0.1, 0.1, rsi) // 'original'</code></pre>
+
+                <h3>Registry Functions</h3>
+                <pre><code>function registerLeitmotif(profile: ActorProfile): Leitmotif
+function getLeitmotif(actorId: string): Leitmotif | undefined
+function ensureLeitmotif(profile: ActorProfile): Leitmotif
+function clearLeitmotifRegistry(): void</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Score Orchestrator</h2>
+                <p>Location: <code>src/components/mpn-lab/score_orchestrator.ts</code></p>
+
+                <h3>getOrchestrator()</h3>
+                <pre><code>function getOrchestrator(): ScoreOrchestrator
+
+// Get singleton instance
+const orchestrator = getOrchestrator();</code></pre>
+
+                <h3>ScoreOrchestrator Methods</h3>
+                <pre><code>class ScoreOrchestrator {
+    registerActor(profile: ActorProfile): void
+    
+    async processFrame(
+        script: ScriptData,
+        trauma: number,
+        entropy: number
+    ): Promise&lt;ScoreOutput&gt;
+    
+    setOrchestrationMode(mode: OrchestrationMode): void
+    
+    setAIConfig(enabled: boolean, temperature: number): void
+    
+    updateAdjustments(adjustments: Record&lt;string, number&gt;): void
+    
+    reset(): void
+    
+    getActorStaves(): ActorStaveData[]
+    
+    generateGraph(): { nodes: Node[]; edges: Edge[] }
+}</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Type Definitions</h2>
+
+                <h3>PsychometricState</h3>
+                <pre><code>interface PsychometricState {
+    trauma: number;      // 0-1
+    entropy: number;     // 0-1
+    rsi: {
+        real: number;      // 0-1
+        symbolic: number;  // 0-1
+        imaginary: number; // 0-1
+    };
+}</code></pre>
+
+                <h3>ActorProfile</h3>
+                <pre><code>interface ActorProfile {
+    id: string;
+    name: string;
+    disc?: {
+        D: number; I: number; S: number; C: number;
+    };
+    ocean?: {
+        O: number; C: number; E: number; A: number; N: number;
+    };
+    darkTriad?: {
+        machiavellianism: number;
+        narcissism: number;
+        psychopathy: number;
+    };
+}</code></pre>
+
+                <h3>MusicalParams</h3>
+                <pre><code>interface MusicalParams {
+    tempo: number;
+    timeSignature: string;
+    key: string;
+    mode: string;
+    dynamic: number;
+    dynamicLabel: string;
+    tension: number;
+    timbre: TimbreParams;
+}</code></pre>
+
+                <h3>Leitmotif</h3>
+                <pre><code>interface Leitmotif {
+    id: string;
+    actorId: string;
+    actorName: string;
+    pitchClasses: number[];
+    rhythm: number[];
+    baseOctave: number;
+    instrument: string;
+    currentTransformation: LeitmotifTransformation;
+}</code></pre>
+
+                <h3>ScoreFrame</h3>
+                <pre><code>interface PsychometricScoreFrame {
+    frameIndex: number;
+    timestamp: number;
+    speaker: string;
+    global: {
+        tempo: number;
+        timeSignature: string;
+        key: string;
+        mode: string;
+        dynamics: string;
+    };
+    staves: ActorStaveData[];
+    harmony: { chord: string; tension: number };
+    graph: { nodes: Node[]; edges: Edge[] };
+}</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Reference Lookup</h2>
+                <p>Location: <code>src/components/mpn-lab/mpn_reference_lookup.ts</code></p>
+
+                <pre><code>// Get entries by category
+getEntriesByCategory('instrument')
+getEntriesByCategory('mode')
+
+// Get single entry
+getEntryById('instr-001')
+
+// Search entries
+searchEntries('trumpet')
+
+// Get adjustable parameters
+getAdjustableEntries()
+
+// Lookup functions
+lookupInstrument('D')    // Returns instrument for DISC type
+lookupMode('real')       // Returns mode for RSI dominant
+lookupDynamic(0.7)       // Returns dynamic label for trauma</code></pre>
+            </section>
+
+            <footer class="wiki-footer">
+                <p>MPN Conductor Documentation v1.0 | <a href="index.html">Back to Index</a></p>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,21 @@
+# Sample conversation for MPN analysis
+# Format: SPEAKER: Dialogue
+
+ALICE: Hello! How are you doing today?
+BOB: I'm doing well, thank you. How about yourself?
+ALICE: Pretty good. I wanted to talk about the project deadline.
+BOB: Ah yes, the deadline. That's been stressing me out quite a bit.
+ALICE: I noticed you seemed worried in the meeting. Is everything okay?
+BOB: To be honest, I'm not sure we can deliver on time. There are too many unknowns.
+ALICE: What unknowns are you most concerned about?
+BOB: The integration with the legacy system! It's a nightmare. Every time we fix one thing, three more break.
+ALICE: That sounds frustrating. Have you escalated this to management?
+BOB: I tried, but they don't seem to understand the technical complexity.
+ALICE: Maybe we should document the risks more clearly?
+BOB: Good idea. But I fear it might be too late. The deadline is in two weeks!
+ALICE: Let's stay calm and work through this together. What can we do right now?
+BOB: I suppose we could prioritize the critical path items and defer the rest.
+ALICE: Exactly. Let's make a plan and present it tomorrow.
+BOB: Alright. Thanks for listening. I feel a bit better now.
+ALICE: Of course. We're a team. We'll figure this out together.
+BOB: I appreciate that. Let's get started.

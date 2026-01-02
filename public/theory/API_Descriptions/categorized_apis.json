@@ -1,0 +1,2967 @@
+{
+  "01_SBOM_Analysis": [
+    {
+      "method": "POST",
+      "path": "/api/v2/sbom/sboms",
+      "summary": "Create Sbom",
+      "description": "Create a new SBOM for the customer.\n\nRequires WRITE access level.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms",
+      "summary": "List Sboms",
+      "description": "List SBOMs with filters and customer isolation.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms/{sbom_id}",
+      "summary": "Get Sbom",
+      "description": "Get SBOM by ID with customer isolation.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/sbom/sboms/{sbom_id}",
+      "summary": "Delete Sbom",
+      "description": "Delete an SBOM and all its components.\n\nRequires WRITE access level.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms/{sbom_id}/risk-summary",
+      "summary": "Get Sbom Risk Summary",
+      "description": "Get comprehensive risk summary for an SBOM.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/sbom/components",
+      "summary": "Create Component",
+      "description": "Create a new software component.\n\nRequires WRITE access level.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/components/{component_id}",
+      "summary": "Get Component",
+      "description": "Get component by ID with customer isolation.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/components/search",
+      "summary": "Search Components",
+      "description": "Search components with semantic search and filters.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/sbom/components/search",
+      "summary": "Semantic search for SBOM components",
+      "description": "Semantic search across SBOM components using Qdrant vector similarity.\n    Enables natural language queries like \"find all Apache components with vulnerabilities\".\n\n    **ICE Score: 7.29**\n    - Impact: 8 (Useful for discovery)\n    - Confidence: 9 (Proven vector search)\n    - Ease: 8 (Qdrant integration)",
+      "tags": [
+        "SBOM"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/components/vulnerable",
+      "summary": "Get Vulnerable Components",
+      "description": "Get all components with vulnerabilities above CVSS threshold.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/components/high-risk",
+      "summary": "Get High Risk Components",
+      "description": "Get all high-risk components (critical vulns, high license risk, or deprecated).",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms/{sbom_id}/components",
+      "summary": "Get Components By Sbom",
+      "description": "Get all components for a specific SBOM.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/sbom/dependencies",
+      "summary": "Create Dependency",
+      "description": "Create a new dependency relation.\n\nRequires WRITE access level.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/components/{component_id}/dependencies",
+      "summary": "Get Dependency Tree",
+      "description": "Get dependency tree for a component.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/components/{component_id}/dependents",
+      "summary": "Get Dependents",
+      "description": "Get all components that depend on this component (reverse dependencies).",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/components/{component_id}/impact",
+      "summary": "Get Impact Analysis",
+      "description": "Analyze the impact if a component has a vulnerability.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms/{sbom_id}/cycles",
+      "summary": "Detect Cycles",
+      "description": "Detect circular dependencies in an SBOM.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/dependencies/path",
+      "summary": "Find Dependency Path",
+      "description": "Find shortest dependency path between two components.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms/{sbom_id}/graph-stats",
+      "summary": "Get Graph Stats",
+      "description": "Get comprehensive dependency graph statistics for an SBOM.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/sbom/vulnerabilities",
+      "summary": "Create Vulnerability",
+      "description": "Create a new vulnerability record.\n\nRequires WRITE access level.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/vulnerabilities/{vulnerability_id}",
+      "summary": "Get Vulnerability",
+      "description": "Get vulnerability by ID.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/vulnerabilities/search",
+      "summary": "Search Vulnerabilities",
+      "description": "Search vulnerabilities with semantic search and filters.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/vulnerabilities/critical",
+      "summary": "Get Critical Vulnerabilities",
+      "description": "Get all critical vulnerabilities (CISA KEV, in-the-wild, or CVSS >= 9.0).",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/vulnerabilities/kev",
+      "summary": "Get Kev Vulnerabilities",
+      "description": "Get all CISA Known Exploited Vulnerabilities (KEV).",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/vulnerabilities/epss-prioritized",
+      "summary": "Get Epss Prioritized Vulns",
+      "description": "Get vulnerabilities prioritized by EPSS score (exploit probability).",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/vulnerabilities/by-apt",
+      "summary": "Get Apt Vulnerability Report",
+      "description": "Get vulnerability report grouped by APT groups.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/components/{component_id}/vulnerabilities",
+      "summary": "Get Vulnerabilities By Component",
+      "description": "Get all vulnerabilities for a specific component.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/sbom/vulnerabilities/{vulnerability_id}/acknowledge",
+      "summary": "Acknowledge Vulnerability",
+      "description": "Acknowledge a vulnerability (mark as reviewed).\n\nRequires WRITE access level.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms/{sbom_id}/remediation",
+      "summary": "Get Remediation Report",
+      "description": "Generate remediation report for an SBOM.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms/{sbom_id}/license-compliance",
+      "summary": "Get License Compliance",
+      "description": "Get license compliance analysis for an SBOM.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/dashboard/summary",
+      "summary": "Get Dashboard Summary",
+      "description": "Get customer-wide dashboard summary.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/sboms/{sbom_id}/vulnerable-paths",
+      "summary": "Get Vulnerable Paths",
+      "description": "Find all paths to vulnerable components in an SBOM.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/sbom/sboms/{sbom_id}/correlate-equipment",
+      "summary": "Correlate With Equipment",
+      "description": "Correlate SBOM vulnerabilities with E15 equipment.\n\nLinks software vulnerabilities to physical equipment for risk assessment.",
+      "tags": [
+        "sbom-analysis"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/sbom/analyze",
+      "summary": "Analyze and store SBOM",
+      "description": "Parse SBOM file (CycloneDX or SPDX format), extract components and dependencies,\n    store in Neo4j graph database, and create Qdrant embeddings for semantic search.\n\n    **ICE Score: 8.1**\n    - Impact: 9 (Critical for vulnerability tracking)\n    - Confidence: 9 (Well-defined SBOM standards)\n    - Ease: 7 (Complex parsing and storage)",
+      "tags": [
+        "SBOM"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/{sbom_id}",
+      "summary": "Get SBOM details",
+      "description": "Retrieve detailed SBOM information including components, vulnerabilities, and metadata.\n\n    **ICE Score: 9.0**\n    - Impact: 9 (Essential for SBOM inspection)\n    - Confidence: 10 (Straightforward graph query)\n    - Ease: 9 (Simple Neo4j query)",
+      "tags": [
+        "SBOM"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/sbom/summary",
+      "summary": "Get SBOM summary statistics",
+      "description": "Aggregate SBOM statistics including total counts and vulnerability risk levels.\n\n    **ICE Score: 8.0**\n    - Impact: 8 (Important for dashboards)\n    - Confidence: 10 (Simple aggregation)\n    - Ease: 8 (Straightforward query)",
+      "tags": [
+        "SBOM"
+      ]
+    }
+  ],
+  "02_Vendor_Equipment": [
+    {
+      "method": "POST",
+      "path": "/api/v2/vendor-equipment/vendors",
+      "summary": "Create Vendor",
+      "description": "Create a new vendor for the customer.\n\nRequires WRITE access level.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/vendors",
+      "summary": "Search Vendors",
+      "description": "Search vendors with filters and customer isolation.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/vendors/{vendor_id}",
+      "summary": "Get Vendor",
+      "description": "Get vendor by ID with customer isolation.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/vendors/{vendor_id}/risk-summary",
+      "summary": "Get Vendor Risk Summary",
+      "description": "Get comprehensive risk summary for a vendor.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/vendors/high-risk",
+      "summary": "Get High Risk Vendors",
+      "description": "Get all vendors with high risk scores.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/vendor-equipment/equipment",
+      "summary": "Create Equipment",
+      "description": "Create a new equipment model for the customer.\n\nRequires WRITE access level.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/equipment",
+      "summary": "Search Equipment",
+      "description": "Search equipment with filters and customer isolation.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/equipment/{model_id}",
+      "summary": "Get Equipment",
+      "description": "Get equipment model by ID with customer isolation.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/equipment/approaching-eol",
+      "summary": "Get Equipment Approaching Eol",
+      "description": "Get all equipment approaching EOL within specified days.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/equipment/eol",
+      "summary": "Get Eol Equipment",
+      "description": "Get all equipment that has passed EOL.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/maintenance-schedule",
+      "summary": "Get Maintenance Schedule",
+      "description": "Get prioritized maintenance schedule.\n\nPrioritized by:\n1. EOL proximity\n2. Vulnerability count\n3. Criticality",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/vendor-equipment/vulnerabilities/flag",
+      "summary": "Flag Vendor Vulnerability",
+      "description": "Flag a supply chain vulnerability affecting a vendor.\n\nAll equipment from the affected vendor will be flagged.\nRequires WRITE access level.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/vendor-equipment/maintenance-windows",
+      "summary": "Create Maintenance Window",
+      "description": "Create a new maintenance window.\n\nRequires WRITE access level.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/maintenance-windows",
+      "summary": "List Maintenance Windows",
+      "description": "List maintenance windows with optional filters.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/maintenance-windows/{window_id}",
+      "summary": "Get Maintenance Window",
+      "description": "Get maintenance window by ID.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/vendor-equipment/maintenance-windows/{window_id}",
+      "summary": "Delete Maintenance Window",
+      "description": "Delete a maintenance window.\n\nRequires WRITE access level.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/vendor-equipment/maintenance-windows/check-conflict",
+      "summary": "Check Maintenance Conflict",
+      "description": "Check for scheduling conflicts with existing maintenance windows.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/predictive-maintenance/{equipment_id}",
+      "summary": "Predict Maintenance",
+      "description": "Get maintenance predictions for specific equipment.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/predictive-maintenance/forecast",
+      "summary": "Get Maintenance Forecast",
+      "description": "Get comprehensive maintenance forecast.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/vendor-equipment/work-orders",
+      "summary": "Create Work Order",
+      "description": "Create a new work order.\n\nRequires WRITE access level.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/work-orders",
+      "summary": "List Work Orders",
+      "description": "List work orders with optional filters.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/work-orders/{work_order_id}",
+      "summary": "Get Work Order",
+      "description": "Get work order by ID.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/v2/vendor-equipment/work-orders/{work_order_id}/status",
+      "summary": "Update Work Order Status",
+      "description": "Update work order status.\n\nRequires WRITE access level.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/vendor-equipment/work-orders/summary",
+      "summary": "Get Work Order Summary",
+      "description": "Get work order summary with status and priority breakdowns.",
+      "tags": [
+        "vendor-equipment"
+      ]
+    }
+  ],
+  "03_Threat_Intelligence": [
+    {
+      "method": "POST",
+      "path": "/api/v2/threat-intel/actors",
+      "summary": "Create Threat Actor",
+      "description": "Create a new threat actor.\n\nRequires WRITE access level.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/actors/{actor_id}",
+      "summary": "Get Threat Actor",
+      "description": "Get threat actor by ID with customer isolation.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/actors/search",
+      "summary": "Search Threat Actors",
+      "description": "Search threat actors with semantic search and filters.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/actors/active",
+      "summary": "Get Active Threat Actors",
+      "description": "Get all currently active threat actors.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/actors/by-sector/{sector}",
+      "summary": "Get Actors By Sector",
+      "description": "Get threat actors targeting a specific sector.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/actors/{actor_id}/campaigns",
+      "summary": "Get Actor Campaigns",
+      "description": "Get campaigns associated with a threat actor.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/actors/{actor_id}/cves",
+      "summary": "Get Actor Cves",
+      "description": "Get CVEs associated with a threat actor.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/threat-intel/campaigns",
+      "summary": "Create Campaign",
+      "description": "Create a new campaign.\n\nRequires WRITE access level.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/campaigns/{campaign_id}",
+      "summary": "Get Campaign",
+      "description": "Get campaign by ID with customer isolation.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/campaigns/search",
+      "summary": "Search Campaigns",
+      "description": "Search campaigns with semantic search and filters.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/campaigns/active",
+      "summary": "Get Active Campaigns",
+      "description": "Get all currently active campaigns.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/campaigns/{campaign_id}/iocs",
+      "summary": "Get Campaign Iocs",
+      "description": "Get IOCs associated with a campaign.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/threat-intel/mitre/mappings",
+      "summary": "Create Mitre Mapping",
+      "description": "Create a new MITRE ATT&CK mapping.\n\nRequires WRITE access level.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/mitre/mappings/entity/{entity_type}/{entity_id}",
+      "summary": "Get Entity Mitre Mappings",
+      "description": "Get MITRE ATT&CK mappings for an entity.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/mitre/techniques/{technique_id}/actors",
+      "summary": "Get Actors Using Technique",
+      "description": "Get threat actors using a specific MITRE ATT&CK technique.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/mitre/coverage",
+      "summary": "Get Mitre Coverage",
+      "description": "Get MITRE ATT&CK coverage summary.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/mitre/gaps",
+      "summary": "Get Mitre Gaps",
+      "description": "Get MITRE ATT&CK coverage gaps.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/threat-intel/iocs",
+      "summary": "Create Ioc",
+      "description": "Create a new IOC.\n\nRequires WRITE access level.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/threat-intel/iocs/bulk",
+      "summary": "Bulk Import Iocs",
+      "description": "Bulk import IOCs.\n\nRequires WRITE access level.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/iocs/search",
+      "summary": "Search Iocs",
+      "description": "Search IOCs with semantic search and filters.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/iocs/active",
+      "summary": "Get Active Iocs",
+      "description": "Get all currently active IOCs.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/iocs/by-type/{ioc_type}",
+      "summary": "Get Iocs By Type",
+      "description": "Get IOCs by type.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/threat-intel/feeds",
+      "summary": "Create Threat Feed",
+      "description": "Create a new threat feed.\n\nRequires WRITE access level.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/feeds",
+      "summary": "List Threat Feeds",
+      "description": "List threat feeds.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/threat-intel/feeds/{feed_id}/refresh",
+      "summary": "Trigger Feed Refresh",
+      "description": "Trigger threat feed refresh.\n\nRequires WRITE access level.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/threat-intel/dashboard/summary",
+      "summary": "Get Threat Intel Summary",
+      "description": "Get threat intelligence dashboard summary.",
+      "tags": [
+        "threat-intelligence"
+      ]
+    }
+  ],
+  "04_Risk_Scoring": [
+    {
+      "method": "POST",
+      "path": "/api/v2/risk/scores",
+      "summary": "Calculate Risk Score",
+      "description": "Calculate and store risk score for an entity.\n\nRequires WRITE access level.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/scores/{entity_type}/{entity_id}",
+      "summary": "Get Risk Score",
+      "description": "Get most recent risk score for entity with customer isolation.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/scores/high-risk",
+      "summary": "Get High Risk Entities",
+      "description": "Get all entities with high or critical risk scores.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/scores/trending",
+      "summary": "Get Trending Entities",
+      "description": "Get entities with specific risk trend.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/scores/search",
+      "summary": "Search Risk Scores",
+      "description": "Search risk scores with filters and customer isolation.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/risk/scores/recalculate/{entity_type}/{entity_id}",
+      "summary": "Recalculate Risk Score",
+      "description": "Force recalculation of risk score using existing factors.\n\nRequires WRITE access level.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/scores/history/{entity_type}/{entity_id}",
+      "summary": "Get Risk History",
+      "description": "Get risk score history for entity.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/risk/assets/criticality",
+      "summary": "Set Asset Criticality",
+      "description": "Set asset criticality rating.\n\nRequires WRITE access level.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/assets/{asset_id}/criticality",
+      "summary": "Get Asset Criticality",
+      "description": "Get asset criticality rating with customer isolation.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/risk/assets/{asset_id}/criticality",
+      "summary": "Update Asset Criticality",
+      "description": "Update asset criticality rating.\n\nRequires WRITE access level.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/assets/mission-critical",
+      "summary": "Get Mission Critical Assets",
+      "description": "Get all mission-critical assets.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/assets/by-criticality/{level}",
+      "summary": "Get Assets By Criticality",
+      "description": "Get assets by criticality level.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/assets/criticality/summary",
+      "summary": "Get Criticality Summary",
+      "description": "Get criticality distribution summary.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/risk/exposure",
+      "summary": "Calculate Exposure Score",
+      "description": "Calculate exposure score for asset.\n\nRequires WRITE access level.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/exposure/{asset_id}",
+      "summary": "Get Exposure Score",
+      "description": "Get asset exposure score with customer isolation.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/exposure/internet-facing",
+      "summary": "Get Internet Facing Assets",
+      "description": "Get all internet-facing assets.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/exposure/high-exposure",
+      "summary": "Get High Exposure Assets",
+      "description": "Get assets with high exposure scores.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/exposure/attack-surface",
+      "summary": "Get Attack Surface Summary",
+      "description": "Get attack surface summary.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/aggregation/by-vendor",
+      "summary": "Get Risk By Vendor",
+      "description": "Get risk aggregated by vendor.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/aggregation/by-sector",
+      "summary": "Get Risk By Sector",
+      "description": "Get risk aggregated by sector.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/aggregation/by-asset-type",
+      "summary": "Get Risk By Asset Type",
+      "description": "Get risk aggregated by asset type.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/aggregation/{aggregation_type}/{group_id}",
+      "summary": "Get Risk Aggregation",
+      "description": "Get specific risk aggregation.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/dashboard/summary",
+      "summary": "Get Dashboard Summary",
+      "description": "Get comprehensive risk dashboard summary.",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/risk/dashboard/risk-matrix",
+      "summary": "Get Risk Matrix",
+      "description": "Get risk matrix data (likelihood vs impact).",
+      "tags": [
+        "risk-scoring"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/value/risk-adjusted",
+      "summary": "Get Risk Adjusted Value",
+      "description": "Get risk-adjusted business value\n\nAdjusts business value based on risk exposure and vulnerability.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    }
+  ],
+  "05_Remediation": [
+    {
+      "method": "POST",
+      "path": "/api/v2/remediation/tasks",
+      "summary": "Create Task",
+      "description": "Create a new remediation task.\n\nCreates a remediation task for vulnerability remediation with SLA tracking.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/tasks/{task_id}",
+      "summary": "Get Task",
+      "description": "Get task details by ID.\n\nReturns detailed information about a specific remediation task.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/tasks/search",
+      "summary": "Search Tasks",
+      "description": "Search remediation tasks.\n\nSearch tasks with optional filters and semantic search.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/tasks/open",
+      "summary": "Get Open Tasks",
+      "description": "Get all open tasks.\n\nReturns tasks that are not completed (open, in_progress, pending_verification).",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/tasks/overdue",
+      "summary": "Get Overdue Tasks",
+      "description": "Get overdue tasks.\n\nReturns tasks that have breached their SLA deadline.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/tasks/by-priority/{priority}",
+      "summary": "Get Tasks By Priority",
+      "description": "Get tasks by priority level.\n\nReturns all tasks with the specified priority (critical, high, medium, low, emergency).",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/tasks/by-status/{status}",
+      "summary": "Get Tasks By Status",
+      "description": "Get tasks by status.\n\nReturns all tasks with the specified status.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/remediation/tasks/{task_id}/status",
+      "summary": "Update Task Status",
+      "description": "Update task status.\n\nChanges task status with audit trail recording.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/remediation/tasks/{task_id}/assign",
+      "summary": "Assign Task",
+      "description": "Assign task to user or team.\n\nUpdates task assignment with audit trail.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/tasks/{task_id}/history",
+      "summary": "Get Task History",
+      "description": "Get task action history.\n\nReturns complete audit trail for a task.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/remediation/plans",
+      "summary": "Create Plan",
+      "description": "Create a remediation plan.\n\nCreates a plan to coordinate multiple remediation tasks.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/plans",
+      "summary": "List Plans",
+      "description": "List all remediation plans.\n\nReturns plans with optional status filter.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/plans/{plan_id}",
+      "summary": "Get Plan",
+      "description": "Get plan details by ID.\n\nReturns detailed information about a remediation plan.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/plans/active",
+      "summary": "Get Active Plans",
+      "description": "Get active remediation plans.\n\nReturns plans with status ACTIVE.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/remediation/plans/{plan_id}/status",
+      "summary": "Update Plan Status",
+      "description": "Update plan status.\n\nChanges plan status (DRAFT, ACTIVE, COMPLETED, CANCELLED).",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/plans/{plan_id}/progress",
+      "summary": "Get Plan Progress",
+      "description": "Get plan progress metrics.\n\nReturns completion percentage and task status breakdown.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/remediation/sla/policies",
+      "summary": "Create Sla Policy",
+      "description": "Create SLA policy.\n\nDefines remediation SLA thresholds by severity.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/sla/policies",
+      "summary": "List Sla Policies",
+      "description": "List SLA policies.\n\nReturns all SLA policies for the customer.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/sla/policies/{policy_id}",
+      "summary": "Get Sla Policy",
+      "description": "Get SLA policy by ID.\n\nReturns detailed SLA policy configuration.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/remediation/sla/policies/{policy_id}",
+      "summary": "Update Sla Policy",
+      "description": "Update SLA policy.\n\nModifies SLA policy configuration.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/sla/breaches",
+      "summary": "Get Sla Breaches",
+      "description": "Get SLA breaches.\n\nReturns tasks that have breached SLA deadlines.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/sla/at-risk",
+      "summary": "Get At Risk Tasks",
+      "description": "Get tasks at risk of SLA breach.\n\nReturns tasks with less than 20% time remaining.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/metrics/summary",
+      "summary": "Get Metrics Summary",
+      "description": "Get remediation metrics summary.\n\nReturns overall remediation performance metrics.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/metrics/mttr",
+      "summary": "Get Mttr By Severity",
+      "description": "Get Mean Time To Remediate by severity.\n\nReturns average remediation time for each severity level.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/metrics/sla-compliance",
+      "summary": "Get Sla Compliance",
+      "description": "Get SLA compliance rate.\n\nReturns percentage of tasks completed within SLA.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/metrics/backlog",
+      "summary": "Get Backlog Metrics",
+      "description": "Get vulnerability backlog metrics.\n\nReturns backlog size and trend.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/metrics/trends",
+      "summary": "Get Remediation Trends",
+      "description": "Get remediation trends over time.\n\nReturns time-series metrics for the specified period.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/dashboard/summary",
+      "summary": "Get Dashboard Summary",
+      "description": "Get remediation dashboard summary.\n\nReturns comprehensive dashboard data for remediation overview.",
+      "tags": [
+        "remediation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/remediation/dashboard/workload",
+      "summary": "Get Workload Distribution",
+      "description": "Get team workload distribution.\n\nReturns task distribution by assignee and team.",
+      "tags": [
+        "remediation"
+      ]
+    }
+  ],
+  "06_Compliance": [
+    {
+      "method": "POST",
+      "path": "/api/v2/compliance/controls",
+      "summary": "Create Control",
+      "description": "Create a new compliance control.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/controls",
+      "summary": "List Controls",
+      "description": "List controls with optional filters.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/controls/{control_id}",
+      "summary": "Get Control",
+      "description": "Get control by ID with customer isolation.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/compliance/controls/{control_id}",
+      "summary": "Update Control",
+      "description": "Update an existing control.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/compliance/controls/{control_id}",
+      "summary": "Delete Control",
+      "description": "Delete a control.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/controls/by-framework/{framework}",
+      "summary": "Get Controls By Framework",
+      "description": "Get controls for a specific framework.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/compliance/controls/search",
+      "summary": "Search Controls Semantic",
+      "description": "Semantic search controls.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/compliance/mappings",
+      "summary": "Create Mapping",
+      "description": "Create a new framework mapping.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/mappings/{mapping_id}",
+      "summary": "Get Mapping",
+      "description": "Get mapping by ID with customer isolation.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/compliance/mappings/{mapping_id}",
+      "summary": "Delete Mapping",
+      "description": "Delete mapping by ID with customer isolation.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/mappings/between/{source}/{target}",
+      "summary": "Get Cross Framework Mappings",
+      "description": "Get cross-framework mappings.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/mappings/by-control/{control_id}",
+      "summary": "Get Mappings For Control",
+      "description": "Get all mappings for a control.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/compliance/mappings/auto-map",
+      "summary": "Auto Generate Mappings",
+      "description": "Auto-generate framework mappings using semantic similarity.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/compliance/assessments",
+      "summary": "Create Assessment",
+      "description": "Create a new compliance assessment.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/assessments",
+      "summary": "List Assessments",
+      "description": "List assessments with optional filters.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/assessments/{assessment_id}",
+      "summary": "Get Assessment",
+      "description": "Get assessment by ID with customer isolation.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/compliance/assessments/{assessment_id}",
+      "summary": "Update Assessment",
+      "description": "Update an existing assessment.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/assessments/by-framework/{framework}",
+      "summary": "Get Assessments By Framework",
+      "description": "Get assessments for a specific framework.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/compliance/assessments/{assessment_id}/complete",
+      "summary": "Complete Assessment",
+      "description": "Mark an assessment as completed.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/compliance/evidence",
+      "summary": "Upload Evidence",
+      "description": "Upload compliance evidence.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/evidence/{evidence_id}",
+      "summary": "Get Evidence",
+      "description": "Get evidence by ID with customer isolation.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/compliance/evidence/{evidence_id}",
+      "summary": "Delete Evidence",
+      "description": "Delete evidence.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/evidence/by-control/{control_id}",
+      "summary": "Get Evidence For Control",
+      "description": "Get evidence for a specific control.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/compliance/gaps",
+      "summary": "Create Gap",
+      "description": "Create a new compliance gap.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/gaps",
+      "summary": "List Gaps",
+      "description": "List gaps with optional filters.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/gaps/by-framework/{framework}",
+      "summary": "Get Gaps By Framework",
+      "description": "Get gaps for a specific framework.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/compliance/gaps/{gap_id}/remediate",
+      "summary": "Update Gap Remediation",
+      "description": "Update gap remediation status.\n\nRequires WRITE access level.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/dashboard/summary",
+      "summary": "Get Compliance Summary",
+      "description": "Get compliance dashboard summary.",
+      "tags": [
+        "compliance"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/compliance/dashboard/posture",
+      "summary": "Get Compliance Posture",
+      "description": "Get compliance posture analysis.",
+      "tags": [
+        "compliance"
+      ]
+    }
+  ],
+  "12_Psychometrics": [
+    {
+      "method": "POST",
+      "path": "/api/v2/psychometrics/traits",
+      "summary": "List Traits",
+      "description": "List all psychological traits\n\nReturns all PsychTrait nodes with optional filtering.\nSupports both GET and POST methods.",
+      "tags": [
+        "psychometrics"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/psychometrics/traits",
+      "summary": "List Traits",
+      "description": "List all psychological traits\n\nReturns all PsychTrait nodes with optional filtering.\nSupports both GET and POST methods.",
+      "tags": [
+        "psychometrics"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/psychometrics/traits/{trait_id}",
+      "summary": "Get Trait Details",
+      "description": "Get detailed information about a specific trait\n\nIncludes related actors and trait relationships",
+      "tags": [
+        "psychometrics"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/psychometrics/actors/{actor_id}/profile",
+      "summary": "Get Actor Profile",
+      "description": "Get psychological profile for a threat actor\n\nReturns all traits associated with the actor",
+      "tags": [
+        "psychometrics"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/psychometrics/actors/by-trait/{trait_id}",
+      "summary": "Get Actors By Trait",
+      "description": "Get all actors exhibiting a specific trait\n\nReturns threat actors associated with the given trait",
+      "tags": [
+        "psychometrics"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/psychometrics/biases",
+      "summary": "List Biases",
+      "description": "List all cognitive biases\n\nReturns all Cognitive_Bias nodes with optional filtering",
+      "tags": [
+        "psychometrics"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/psychometrics/biases/{bias_id}",
+      "summary": "Get Bias Details",
+      "description": "Get detailed information about a specific cognitive bias\n\nIncludes related actors and examples",
+      "tags": [
+        "psychometrics"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/psychometrics/lacanian/registers",
+      "summary": "Get Lacanian Registers",
+      "description": "Get Lacanian psychoanalytic framework registers\n\nReturns the three registers: Real, Imaginary, Symbolic with associated traits",
+      "tags": [
+        "psychometrics"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/psychometrics/dashboard",
+      "summary": "Get Dashboard",
+      "description": "Get psychometric dashboard statistics\n\nReturns comprehensive overview of all psychometric data",
+      "tags": [
+        "psychometrics"
+      ]
+    }
+  ],
+  "07_Alert_Management": [
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts",
+      "summary": "Create Alert",
+      "description": "Create a new alert.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts",
+      "summary": "List Alerts",
+      "description": "List alerts with optional filters.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/{alert_id}",
+      "summary": "Get Alert",
+      "description": "Get alert by ID with customer isolation.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/alerts/{alert_id}",
+      "summary": "Update Alert",
+      "description": "Update an existing alert.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/alerts/{alert_id}",
+      "summary": "Delete Alert",
+      "description": "Delete an alert.\n\nRequires ADMIN access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/by-severity/{severity}",
+      "summary": "Get Alerts By Severity",
+      "description": "Get alerts by severity level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/by-status/{status}",
+      "summary": "Get Alerts By Status",
+      "description": "Get alerts by status.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/{alert_id}/acknowledge",
+      "summary": "Acknowledge Alert",
+      "description": "Acknowledge an alert.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/{alert_id}/resolve",
+      "summary": "Resolve Alert",
+      "description": "Resolve an alert.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/{alert_id}/assign",
+      "summary": "Assign Alert",
+      "description": "Assign an alert to a user.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/search",
+      "summary": "Search Alerts Semantic",
+      "description": "Semantic search for alerts.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/rules",
+      "summary": "Create Alert Rule",
+      "description": "Create a new alert rule.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/rules",
+      "summary": "List Alert Rules",
+      "description": "List alert rules.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/rules/{rule_id}",
+      "summary": "Get Alert Rule",
+      "description": "Get alert rule by ID.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/alerts/rules/{rule_id}",
+      "summary": "Update Alert Rule",
+      "description": "Update an alert rule.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/alerts/rules/{rule_id}",
+      "summary": "Delete Alert Rule",
+      "description": "Delete an alert rule.\n\nRequires ADMIN access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/rules/{rule_id}/enable",
+      "summary": "Enable Alert Rule",
+      "description": "Enable an alert rule.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/rules/{rule_id}/disable",
+      "summary": "Disable Alert Rule",
+      "description": "Disable an alert rule.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/notifications",
+      "summary": "Create Notification Rule",
+      "description": "Create a new notification rule.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/notifications",
+      "summary": "List Notification Rules",
+      "description": "List notification rules.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/notifications/{notification_id}",
+      "summary": "Get Notification Rule",
+      "description": "Get notification rule by ID.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/alerts/notifications/{notification_id}",
+      "summary": "Update Notification Rule",
+      "description": "Update a notification rule.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/alerts/notifications/{notification_id}",
+      "summary": "Delete Notification Rule",
+      "description": "Delete a notification rule.\n\nRequires ADMIN access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/escalations",
+      "summary": "Create Escalation Policy",
+      "description": "Create a new escalation policy.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/escalations",
+      "summary": "List Escalation Policies",
+      "description": "List escalation policies.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/escalations/{policy_id}",
+      "summary": "Get Escalation Policy",
+      "description": "Get escalation policy by ID.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/alerts/escalations/{policy_id}",
+      "summary": "Update Escalation Policy",
+      "description": "Update an escalation policy.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/alerts/escalations/{policy_id}",
+      "summary": "Delete Escalation Policy",
+      "description": "Delete an escalation policy.\n\nRequires ADMIN access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/alerts/correlations",
+      "summary": "Create Alert Correlation",
+      "description": "Create a new alert correlation.\n\nRequires WRITE access level.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/correlations",
+      "summary": "List Alert Correlations",
+      "description": "List alert correlations.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/correlations/{correlation_id}",
+      "summary": "Get Alert Correlation",
+      "description": "Get alert correlation by ID.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/alerts/dashboard/summary",
+      "summary": "Get Alert Summary",
+      "description": "Get alert dashboard summary.",
+      "tags": [
+        "alert-management"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/dashboard/alerts",
+      "summary": "Get Demographic Alerts",
+      "description": "GET /api/v2/demographics/dashboard/alerts\n\nGet demographic alerts and anomalies.\n\nReturns active alerts for demographic concerns requiring attention.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/dashboard/alerts",
+      "summary": "Get Dashboard Alerts",
+      "description": "Get economic alerts and threshold violations\n\nActive alerts for budget overruns, low ROI, high risk exposure.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    }
+  ],
+  "09_Demographics": [
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/population/summary",
+      "summary": "Get Population Summary",
+      "description": "GET /api/v2/demographics/population/summary\n\nGet population demographics summary.\n\nReturns total population, active employees, contractors, growth rate,\nand stability index.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/population/distribution",
+      "summary": "Get Population Distribution",
+      "description": "GET /api/v2/demographics/population/distribution\n\nGet population distribution by category.\n\nReturns distribution by age group, tenure, education, and department.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/population/{org_unit_id}/profile",
+      "summary": "Get Org Unit Population Profile",
+      "description": "GET /api/v2/demographics/population/{org_unit_id}/profile\n\nGet organization unit population profile.\n\nReturns demographic profile for specific organizational unit.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/population/trends",
+      "summary": "Get Population Trends",
+      "description": "GET /api/v2/demographics/population/trends\n\nGet population trend analysis.\n\nReturns historical trends and 90-day forecast.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/demographics/population/query",
+      "summary": "Query Population",
+      "description": "POST /api/v2/demographics/population/query\n\nExecute custom population query.\n\nSupports filters, grouping, and aggregations for flexible querying.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/workforce/composition",
+      "summary": "Get Workforce Composition",
+      "description": "GET /api/v2/demographics/workforce/composition\n\nGet workforce composition breakdown.\n\nReturns composition by role, department, and turnover metrics.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/workforce/skills",
+      "summary": "Get Skills Inventory",
+      "description": "GET /api/v2/demographics/workforce/skills\n\nGet skills inventory and distribution.\n\nReturns skills by category, critical skills, and skill gaps.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/workforce/turnover",
+      "summary": "Get Turnover Metrics",
+      "description": "GET /api/v2/demographics/workforce/turnover\n\nGet turnover metrics and predictions.\n\nReturns current turnover rate, predictions, and high-risk employees.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/workforce/{team_id}/profile",
+      "summary": "Get Team Profile",
+      "description": "GET /api/v2/demographics/workforce/{team_id}/profile\n\nGet team demographic profile.\n\nReturns team demographics, cohesion score, and diversity index.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/workforce/capacity",
+      "summary": "Get Capacity Metrics",
+      "description": "GET /api/v2/demographics/workforce/capacity\n\nGet capacity and utilization metrics.\n\nReturns total capacity, utilization, and overutilized teams.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/organization/hierarchy",
+      "summary": "Get Organization Hierarchy",
+      "description": "GET /api/v2/demographics/organization/hierarchy\n\nGet organization hierarchy map.\n\nReturns complete organizational structure with units and relationships.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/organization/units",
+      "summary": "List Organization Units",
+      "description": "GET /api/v2/demographics/organization/units\n\nList all organizational units.\n\nReturns all units with basic information and employee counts.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/organization/{unit_id}/details",
+      "summary": "Get Unit Details",
+      "description": "GET /api/v2/demographics/organization/{unit_id}/details\n\nGet organization unit details with demographics.\n\nReturns detailed unit information including demographics and criticality.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/organization/relationships",
+      "summary": "Get Organization Relationships",
+      "description": "GET /api/v2/demographics/organization/relationships\n\nGet inter-unit relationships.\n\nReturns relationships between organizational units.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/demographics/organization/analyze",
+      "summary": "Analyze Organization Structure",
+      "description": "POST /api/v2/demographics/organization/analyze\n\nAnalyze organization structure.\n\nSupports various analysis types: span of control, depth analysis,\nbottleneck detection, communication efficiency.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/roles/distribution",
+      "summary": "Get Role Distribution",
+      "description": "GET /api/v2/demographics/roles/distribution\n\nGet role distribution across organization.\n\nReturns all roles with counts and security relevance.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/roles/{role_id}/demographics",
+      "summary": "Get Role Demographics",
+      "description": "GET /api/v2/demographics/roles/{role_id}/demographics\n\nGet demographics for specific role.\n\nReturns demographic profile for employees in the specified role.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/roles/security-relevant",
+      "summary": "Get Security Relevant Roles",
+      "description": "GET /api/v2/demographics/roles/security-relevant\n\nGet security-relevant roles analysis.\n\nReturns roles with security implications and coverage metrics.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/roles/access-patterns",
+      "summary": "Get Access Patterns",
+      "description": "GET /api/v2/demographics/roles/access-patterns\n\nGet role-based access patterns.\n\nReturns normal access patterns and detected anomalies.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/dashboard/summary",
+      "summary": "Get Dashboard Summary",
+      "description": "GET /api/v2/demographics/dashboard/summary\n\nGet demographics dashboard summary.\n\nReturns comprehensive dashboard with population, workforce, and\norganization summaries.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/dashboard/baseline",
+      "summary": "Get Baseline Metrics",
+      "description": "GET /api/v2/demographics/dashboard/baseline\n\nGet baseline metrics for psychohistory.\n\nReturns key metrics used for psychohistory calculations:\n- Population stability index\n- Role diversity score\n- Skill concentration risk\n- Succession coverage\n- Insider threat baseline",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/dashboard/indicators",
+      "summary": "Get Demographic Indicators",
+      "description": "GET /api/v2/demographics/dashboard/indicators\n\nGet key demographic indicators.\n\nReturns monitored indicators with thresholds and health status.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/demographics/dashboard/trends",
+      "summary": "Get Trend Analysis",
+      "description": "GET /api/v2/demographics/dashboard/trends\n\nGet demographic trend analysis.\n\nReturns trend analysis with forecasting for key demographic metrics.",
+      "tags": [
+        "demographics-baseline"
+      ]
+    }
+  ],
+  "10_Economic_Impact": [
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/costs/summary",
+      "summary": "Get Cost Summary",
+      "description": "Get cost summary dashboard\n\nShows total costs, breakdown by category, and trends for specified period.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/costs/by-category",
+      "summary": "Get Costs By Category",
+      "description": "Get costs by category (equipment, personnel, downtime, etc.)\n\nGroups all costs by category with detailed breakdown.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/costs/{entity_id}/breakdown",
+      "summary": "Get Entity Cost Breakdown",
+      "description": "Get detailed cost breakdown for specific entity\n\nShows direct costs, indirect costs, and allocated overhead.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/economic-impact/costs/calculate",
+      "summary": "Calculate Costs",
+      "description": "Calculate costs for scenario\n\nEstimates direct, indirect, and opportunity costs for given scenario.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/costs/historical",
+      "summary": "Get Historical Costs",
+      "description": "Get historical cost trends\n\nShows cost trends over time with direction and percentage change.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/roi/summary",
+      "summary": "Get Roi Summary",
+      "description": "Get ROI summary for all investments\n\nShows aggregated ROI metrics, best/worst performers, and category breakdown.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/roi/{investment_id}",
+      "summary": "Get Roi By Id",
+      "description": "Get ROI for specific investment\n\nReturns detailed ROI calculation including NPV, IRR, and payback period.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/economic-impact/roi/calculate",
+      "summary": "Calculate Roi",
+      "description": "Calculate ROI for proposed investment\n\nCalculates ROI percentage, NPV, IRR, and payback period for investment proposal.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/roi/by-category",
+      "summary": "Get Roi By Category",
+      "description": "Get ROI grouped by investment category\n\nShows average ROI for each investment type (security tools, infrastructure, etc.)",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/roi/projections",
+      "summary": "Get Roi Projections",
+      "description": "Get future ROI projections\n\nProjects future ROI with confidence intervals based on growth assumptions.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/economic-impact/roi/comparison",
+      "summary": "Compare Investments",
+      "description": "Compare multiple investment options\n\nSide-by-side comparison with ranking and recommendations.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/value/metrics",
+      "summary": "Get Value Metrics",
+      "description": "Get business value metrics dashboard\n\nShows total asset value, critical assets, and value distribution.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/value/{asset_id}/assessment",
+      "summary": "Get Value Assessment",
+      "description": "Get value assessment for specific asset\n\nDetailed business value calculation with confidence score.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/economic-impact/value/calculate",
+      "summary": "Calculate Business Value",
+      "description": "Calculate business value for entity\n\nCalculates total business value from multiple factors.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/value/by-sector",
+      "summary": "Get Value By Sector",
+      "description": "Get value metrics by industry sector\n\nIndustry-specific value analysis with benchmarking.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/economic-impact/impact/model",
+      "summary": "Model Impact",
+      "description": "Model financial impact of incident\n\nSimulates financial impact of security incident with detailed breakdown.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/impact/scenarios",
+      "summary": "List Impact Scenarios",
+      "description": "List available impact scenarios\n\nShows all defined impact scenarios with estimated costs.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/economic-impact/impact/simulate",
+      "summary": "Run Impact Simulation",
+      "description": "Run Monte Carlo impact simulation\n\nRuns multiple simulations to establish confidence intervals.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/impact/{scenario_id}/results",
+      "summary": "Get Simulation Results",
+      "description": "Get simulation results for scenario\n\nRetrieves detailed results from previous simulation.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/impact/historical",
+      "summary": "Get Historical Impacts",
+      "description": "Get historical impact data\n\nShows actual vs estimated costs from past incidents.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/dashboard/summary",
+      "summary": "Get Dashboard Summary",
+      "description": "Get economic dashboard summary\n\nComprehensive dashboard with all key economic metrics.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/dashboard/trends",
+      "summary": "Get Dashboard Trends",
+      "description": "Get economic trends over time\n\nTime-series data for costs, ROI, value, and incident impacts.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/dashboard/kpis",
+      "summary": "Get Dashboard Kpis",
+      "description": "Get key performance indicators\n\nCritical KPIs for security investment performance.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/dashboard/executive",
+      "summary": "Get Executive Summary",
+      "description": "Get executive summary view\n\nHigh-level summary for executive reporting and decision-making.",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/economic-impact/health",
+      "summary": "Health Check",
+      "description": "Health check endpoint",
+      "tags": [
+        "Economic Impact Modeling"
+      ]
+    }
+  ],
+  "08_Automated_Scanning": [
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/profiles",
+      "summary": "Create Scan Profile",
+      "description": "Create a new scan profile",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/profiles",
+      "summary": "List Scan Profiles",
+      "description": "List scan profiles with optional filters",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/profiles/{profile_id}",
+      "summary": "Get Scan Profile",
+      "description": "Get scan profile by ID",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/scanning/profiles/{profile_id}",
+      "summary": "Update Scan Profile",
+      "description": "Update scan profile",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/scanning/profiles/{profile_id}",
+      "summary": "Delete Scan Profile",
+      "description": "Delete scan profile",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/profiles/by-type/{scan_type}",
+      "summary": "Get Profiles By Type",
+      "description": "Get all profiles of a specific scan type",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/profiles/{profile_id}/clone",
+      "summary": "Clone Scan Profile",
+      "description": "Clone an existing scan profile",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/schedules",
+      "summary": "Create Schedule",
+      "description": "Create a new scan schedule",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/schedules",
+      "summary": "List Schedules",
+      "description": "List scan schedules with optional filters",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/schedules/{schedule_id}",
+      "summary": "Get Schedule",
+      "description": "Get schedule by ID",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/scanning/schedules/{schedule_id}",
+      "summary": "Update Schedule",
+      "description": "Update scan schedule",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/scanning/schedules/{schedule_id}",
+      "summary": "Delete Schedule",
+      "description": "Delete scan schedule",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/schedules/{schedule_id}/enable",
+      "summary": "Enable Schedule",
+      "description": "Enable a scan schedule",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/schedules/{schedule_id}/disable",
+      "summary": "Disable Schedule",
+      "description": "Disable a scan schedule",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/jobs",
+      "summary": "Start Scan Job",
+      "description": "Start a new scan job",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/jobs",
+      "summary": "List Scan Jobs",
+      "description": "List scan jobs with optional filters",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/jobs/{job_id}",
+      "summary": "Get Scan Job Status",
+      "description": "Get scan job status and details",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/jobs/{job_id}/cancel",
+      "summary": "Cancel Scan Job",
+      "description": "Cancel a running scan job",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/jobs/{job_id}/findings",
+      "summary": "Get Job Findings",
+      "description": "Get all findings for a specific job",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/jobs/running",
+      "summary": "List Running Jobs",
+      "description": "List all currently running scan jobs",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/findings",
+      "summary": "List Findings",
+      "description": "List all findings with optional filters",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/findings/{finding_id}",
+      "summary": "Get Finding",
+      "description": "Get finding by ID",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/scanning/findings/{finding_id}/status",
+      "summary": "Update Finding Status",
+      "description": "Update finding status",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/findings/by-severity/{severity}",
+      "summary": "Get Findings By Severity",
+      "description": "Get findings by severity level",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/findings/search",
+      "summary": "Search Findings",
+      "description": "Search findings with advanced filters",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/scanning/targets",
+      "summary": "Create Target",
+      "description": "Create a new scan target",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/targets",
+      "summary": "List Targets",
+      "description": "List scan targets with optional filters",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "PUT",
+      "path": "/api/v2/scanning/targets/{target_id}",
+      "summary": "Update Target",
+      "description": "Update scan target",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/v2/scanning/targets/{target_id}",
+      "summary": "Delete Target",
+      "description": "Delete scan target",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/scanning/dashboard/summary",
+      "summary": "Get Dashboard Summary",
+      "description": "Get comprehensive scanning dashboard summary",
+      "tags": [
+        "E08 Automated Scanning"
+      ]
+    }
+  ],
+  "13_Customer_Isolation": [
+    {
+      "method": "POST",
+      "path": "/api/v2/search/semantic",
+      "summary": "Customer-Isolated Semantic Search",
+      "description": "Semantic search with automatic customer isolation.\n\n    All results are filtered by customer_id to ensure multi-tenant data isolation.\n    Optionally includes SYSTEM entities (shared CVEs, CWEs, CAPECs).\n\n    **Hierarchical Filtering:**\n    - Tier 1: label_filter (60 NER labels)\n    - Tier 2: fine_grained_filter (566 fine-grained types)\n\n    **Required Headers:**\n    - X-Customer-ID: Customer identifier\n\n    **Optional Headers:**\n    - X-Namespace: Customer namespace\n    - X-User-ID: User identifier for audit",
+      "tags": [
+        "semantic-search",
+        "customer-isolation"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/search/semantic/body",
+      "summary": "Semantic Search with JSON Body",
+      "description": "Alternative endpoint accepting full request body.",
+      "tags": [
+        "semantic-search",
+        "customer-isolation"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/search/semantic",
+      "summary": "Semantic Search",
+      "description": "Semantic search with hierarchical filtering (Task 1.5).\n\nSearch entities using semantic similarity with hierarchical taxonomy filtering:\n- Tier 1 filtering: label_filter (60 NER labels)\n- Tier 2 filtering: fine_grained_filter (566 fine-grained types) - KEY FEATURE\n- Confidence filtering: confidence_threshold\n\nExample queries:\n- \"ransomware attack\" \u2192 Find semantically similar malware entities\n- \"SCADA systems\" with fine_grained_filter=\"SCADA_SERVER\" \u2192 Precise infrastructure search\n- \"threat actors\" with label_filter=\"THREAT_ACTOR\" \u2192 Category-filtered search\n\nReturns results with complete hierarchy_path for each entity.",
+      "tags": []
+    }
+  ],
+  "14_Core_NER": [
+    {
+      "method": "GET",
+      "path": "/api/v2/search/health",
+      "summary": "Service Health Check",
+      "description": "Check semantic search service health.",
+      "tags": [
+        "semantic-search",
+        "customer-isolation"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/search/customers/{customer_id}/stats",
+      "summary": "Customer Search Statistics",
+      "description": "Get search statistics for a specific customer.\n\nReturns entity counts and metadata for the customer's isolated data.",
+      "tags": [
+        "semantic-search",
+        "customer-isolation"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/ner",
+      "summary": "Extract Entities",
+      "description": "Extract named entities from text using enhanced multi-layer NER approach.\n\nStrategy (in priority order):\n1. Pattern-based extraction (HIGH confidence for CVE, APT, MITRE patterns)\n2. Fallback model (en_core_web_trf) for general NER\n3. Custom NER11 model for cybersecurity-specific entities\n\nThe pattern-based extraction addresses the context-dependency issue where\ntransformer models require longer context to identify short entities like\n\"APT29\", \"CVE-2024-12345\", or \"T1566\".",
+      "tags": []
+    },
+    {
+      "method": "POST",
+      "path": "/search/hybrid",
+      "summary": "Hybrid Search",
+      "description": "Hybrid search combining semantic similarity (Qdrant) with graph expansion (Neo4j).\n\nThis is the core Phase 3 feature that provides:\n1. Semantic search via Qdrant vector similarity\n2. Graph expansion via Neo4j relationship traversal\n3. Re-ranking based on combined scores\n4. Hierarchical filtering (Tier 1 + Tier 2)\n\nExample usage:\n```\nPOST /search/hybrid\n{\n    \"query\": \"APT29 ransomware attack\",\n    \"expand_graph\": true,\n    \"hop_depth\": 2,\n    \"relationship_types\": [\"USES\", \"TARGETS\", \"ATTRIBUTED_TO\"]\n}\n```\n\nReturns entities with their graph context and related entities.\nPerformance target: <500ms.",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/health",
+      "summary": "Health Check",
+      "description": "Health check endpoint with service status and model validation.",
+      "tags": []
+    },
+    {
+      "method": "GET",
+      "path": "/info",
+      "summary": "Model Info",
+      "description": "Model information and capabilities.",
+      "tags": []
+    }
+  ],
+  "11_Prioritization": [
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/now/items",
+      "summary": "Get Now Items",
+      "description": "Get all items requiring immediate action (NOW category).",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/now/summary",
+      "summary": "Get Now Summary",
+      "description": "Get NOW category summary with SLA metrics.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/now/{item_id}/details",
+      "summary": "Get Now Item Details",
+      "description": "Get detailed item information with urgency factors.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/now/escalate",
+      "summary": "Escalate To Now",
+      "description": "Escalate item to NOW priority.\n\nRequires WRITE access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/now/sla-status",
+      "summary": "Get Now Sla Status",
+      "description": "Get NOW items by SLA status.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/now/complete",
+      "summary": "Complete Now Item",
+      "description": "Mark NOW item as complete (archives it).\n\nRequires WRITE access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/next/items",
+      "summary": "Get Next Items",
+      "description": "Get all items scheduled for next action cycle.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/next/summary",
+      "summary": "Get Next Summary",
+      "description": "Get NEXT category summary.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/next/{item_id}/details",
+      "summary": "Get Next Item Details",
+      "description": "Get detailed NEXT item information with scheduling.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/next/schedule",
+      "summary": "Schedule For Next",
+      "description": "Schedule item for NEXT priority.\n\nRequires WRITE access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/next/queue",
+      "summary": "Get Next Queue",
+      "description": "Get ordered NEXT queue by priority score.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/next/promote",
+      "summary": "Promote Next To Now",
+      "description": "Promote NEXT item to NOW priority.\n\nRequires WRITE access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/never/items",
+      "summary": "Get Never Items",
+      "description": "Get all items designated as NEVER priority.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/never/summary",
+      "summary": "Get Never Summary",
+      "description": "Get NEVER category summary.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/never/classify",
+      "summary": "Classify As Never",
+      "description": "Classify item as NEVER priority.\n\nRequires WRITE access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/never/reconsider",
+      "summary": "Reconsider Never Item",
+      "description": "Move NEVER item for reconsideration (promotes to NEXT).\n\nRequires WRITE access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/score/calculate",
+      "summary": "Calculate Priority Score",
+      "description": "Calculate priority score for entity.\n\nRequires WRITE access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/score/{entity_id}/breakdown",
+      "summary": "Get Score Breakdown",
+      "description": "Get priority score breakdown by factors.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/score/factors",
+      "summary": "List Scoring Factors",
+      "description": "List all available scoring factors and their weights.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/score/weights",
+      "summary": "Configure Scoring Weights",
+      "description": "Configure scoring weights for customer.\n\nRequires ADMIN access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/score/thresholds",
+      "summary": "Get Priority Thresholds",
+      "description": "Get priority thresholds configuration.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "POST",
+      "path": "/api/v2/prioritization/score/batch",
+      "summary": "Batch Priority Calculation",
+      "description": "Batch priority calculation for multiple entities.\n\nRequires WRITE access level.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/dashboard/summary",
+      "summary": "Get Dashboard Summary",
+      "description": "Get comprehensive prioritization dashboard summary.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/dashboard/distribution",
+      "summary": "Get Priority Distribution",
+      "description": "Get NOW/NEXT/NEVER distribution.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/dashboard/trends",
+      "summary": "Get Priority Trends",
+      "description": "Get priority trends over time.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/dashboard/efficiency",
+      "summary": "Get Remediation Efficiency",
+      "description": "Get remediation efficiency metrics.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/dashboard/backlog",
+      "summary": "Get Backlog Analysis",
+      "description": "Get backlog analysis with aging buckets.",
+      "tags": [
+        "prioritization"
+      ]
+    },
+    {
+      "method": "GET",
+      "path": "/api/v2/prioritization/dashboard/executive",
+      "summary": "Get Executive View",
+      "description": "Get executive prioritization dashboard view.",
+      "tags": [
+        "prioritization"
+      ]
+    }
+  ]
+}

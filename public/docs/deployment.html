@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment - MPN Conductor</title>
+    <link rel="stylesheet" href="wiki.css">
+</head>
+
+<body>
+    <div class="wiki-container">
+        <nav class="wiki-sidebar">
+            <a href="index.html" class="wiki-logo">MPN DOCS</a>
+            <div class="wiki-logo-sub">Musical Psychometric Notation</div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Getting Started</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="index.html" class="wiki-nav-link">Home</a></li>
+                    <li><a href="quickstart.html" class="wiki-nav-link">Quick Start</a></li>
+                    <li><a href="features.html" class="wiki-nav-link">Features</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Architecture</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="architecture.html" class="wiki-nav-link">System Overview</a></li>
+                    <li><a href="components.html" class="wiki-nav-link">Components</a></li>
+                    <li><a href="file-index.html" class="wiki-nav-link">File Index</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Reference</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="api-reference.html" class="wiki-nav-link">API Reference</a></li>
+                    <li><a href="theory.html" class="wiki-nav-link">Theory</a></li>
+                    <li><a href="testing.html" class="wiki-nav-link">Testing</a></li>
+                </ul>
+            </div>
+            <div class="wiki-nav-section">
+                <div class="wiki-nav-title">Deployment</div>
+                <ul class="wiki-nav-list">
+                    <li><a href="deployment.html" class="wiki-nav-link active">Deployment Guide</a></li>
+                </ul>
+            </div>
+        </nav>
+
+        <main class="wiki-content">
+            <div class="wiki-breadcrumb"><a href="index.html">Docs</a> / Deployment</div>
+
+            <h1 class="wiki-title">Deployment Guide</h1>
+            <p class="wiki-subtitle">Docker, production, and infrastructure</p>
+
+            <section class="wiki-section">
+                <h2>Docker Deployment</h2>
+
+                <h3>Quick Start</h3>
+                <pre><code># Build and run all services
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop services
+docker-compose down</code></pre>
+
+                <h3>Services</h3>
+                <table>
+                    <tr>
+                        <th>Service</th>
+                        <th>Port</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td>mpn-app</td>
+                        <td>3001</td>
+                        <td>Next.js application</td>
+                    </tr>
+                    <tr>
+                        <td>postgres</td>
+                        <td>5432</td>
+                        <td>PostgreSQL database</td>
+                    </tr>
+                </table>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Docker Compose Configuration</h2>
+                <pre><code>version: '3.8'
+
+services:
+  mpn-app:
+    build: .
+    ports:
+      - "3001:3000"
+    environment:
+      - DATABASE_URL=postgresql://mpn_user:mpn_pass@postgres:5432/mpn_conductor
+      - NODE_ENV=production
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: mpn_user
+      POSTGRES_PASSWORD: mpn_pass
+      POSTGRES_DB: mpn_conductor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mpn_user -d mpn_conductor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Dockerfile</h2>
+                <pre><code># Multi-stage build
+FROM node:20-alpine AS deps
+WORKDIR /app
+COPY package*.json .npmrc ./
+RUN npm ci --legacy-peer-deps
+
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+RUN npm run build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+ENV NODE_ENV=production
+
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next/standalone ./
+COPY --from=builder /app/.next/static ./.next/static
+
+EXPOSE 3000
+CMD ["node", "server.js"]</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Environment Variables</h2>
+                <table>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Required</th>
+                        <th>Default</th>
+                        <th>Description</th>
+                    </tr>
+                    <tr>
+                        <td><code>NODE_ENV</code></td>
+                        <td>No</td>
+                        <td>development</td>
+                        <td>Environment mode</td>
+                    </tr>
+                    <tr>
+                        <td><code>DATABASE_URL</code></td>
+                        <td>No</td>
+                        <td>-</td>
+                        <td>PostgreSQL connection</td>
+                    </tr>
+                    <tr>
+                        <td><code>OPENROUTER_API_KEY</code></td>
+                        <td>No</td>
+                        <td>-</td>
+                        <td>AI melody generation</td>
+                    </tr>
+                    <tr>
+                        <td><code>HUGGINGFACE_API_KEY</code></td>
+                        <td>No</td>
+                        <td>-</td>
+                        <td>Music model inference</td>
+                    </tr>
+                    <tr>
+                        <td><code>ELEVENLABS_API_KEY</code></td>
+                        <td>No</td>
+                        <td>-</td>
+                        <td>Text-to-speech</td>
+                    </tr>
+                </table>
+
+                <div class="callout callout-info">
+                    <div class="callout-title">API Keys Optional</div>
+                    <p>All core functionality works without API keys. AI features are optional enhancements.</p>
+                </div>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Database Schema</h2>
+                <p>The <code>scripts/init_db.sql</code> creates the following tables:</p>
+                <pre><code>-- Actors table
+CREATE TABLE actors (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    disc JSONB,
+    dark_triad JSONB,
+    ocean JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Scores table
+CREATE TABLE scores (
+    id UUID PRIMARY KEY,
+    scenario_id VARCHAR(255),
+    frame_index INTEGER,
+    global_params JSONB,
+    staves JSONB,
+    harmony JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+-- Presets table
+CREATE TABLE presets (
+    id UUID PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    adjustments JSONB,
+    created_at TIMESTAMP DEFAULT NOW()
+);</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Production Build</h2>
+                <pre><code># Build for production
+npm run build
+
+# Start production server
+npm start
+
+# Or with PM2
+pm2 start npm --name "mpn-conductor" -- start</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Cloud Deployment</h2>
+
+                <h3>Vercel</h3>
+                <pre><code># Install Vercel CLI
+npm i -g vercel
+
+# Deploy
+vercel
+
+# Set environment variables
+vercel env add OPENROUTER_API_KEY</code></pre>
+
+                <h3>Railway</h3>
+                <pre><code># railway.json
+{
+  "build": {
+    "builder": "NIXPACKS"
+  },
+  "deploy": {
+    "startCommand": "npm start",
+    "healthcheckPath": "/"
+  }
+}</code></pre>
+
+                <h3>AWS ECS</h3>
+                <pre><code># Build and push to ECR
+aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_URL
+docker build -t mpn-conductor .
+docker tag mpn-conductor:latest $ECR_URL/mpn-conductor:latest
+docker push $ECR_URL/mpn-conductor:latest</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Health Checks</h2>
+                <pre><code># Application health
+curl http://localhost:3001/
+
+# Database health (via app)
+curl http://localhost:3001/api/health
+
+# Docker health
+docker-compose ps</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Monitoring</h2>
+                <pre><code># View application logs
+docker-compose logs -f mpn-app
+
+# View database logs
+docker-compose logs -f postgres
+
+# Resource usage
+docker stats</code></pre>
+            </section>
+
+            <section class="wiki-section">
+                <h2>Backup & Restore</h2>
+                <pre><code># Backup database
+docker-compose exec postgres pg_dump -U mpn_user mpn_conductor > backup.sql
+
+# Restore database
+cat backup.sql | docker-compose exec -T postgres psql -U mpn_user mpn_conductor</code></pre>
+            </section>
+
+            <footer class="wiki-footer">
+                <p>MPN Conductor Documentation v1.0 | <a href="index.html">Back to Index</a></p>
+            </footer>
+        </main>
+    </div>
+</body>
+
+</html>
