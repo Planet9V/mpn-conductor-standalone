@@ -16,7 +16,7 @@ import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import {
     ChevronDown, Music, Activity, Layers, Zap, Play, Pause, SkipForward,
-    BookOpen, Volume2, VolumeX, RotateCcw, BarChart, Users, Brain, AlertTriangle
+    BookOpen, Volume2, VolumeX, RotateCcw, BarChart, Users, Brain, AlertTriangle, FileDown
 } from 'lucide-react';
 import Link from 'next/link';
 import { OXOTLogo } from '@/components/branding/OXOTLogo';
@@ -29,6 +29,7 @@ import { ORCHESTRATION_MODES, type OrchestrationMode } from '@/components/mpn-la
 import { LITERARY_SCENARIOS } from '@/components/mpn-lab/literary_data';
 import { LiteraryScenario, ScenarioFrame } from '@/components/mpn-lab/types';
 import { PsychometricScoreFrame, ActorStaveData, ActorProfile } from '@/components/mpn-lab/score_types';
+import { downloadScorePDF } from '@/components/mpn-lab/score_exporter';
 
 // Instrument assignment based on DISC profile (from reference dictionary)
 const DISC_INSTRUMENTS: Record<string, string> = {
@@ -455,6 +456,37 @@ export default function MPNConductorPage() {
                         <BookOpen className="w-4 h-4" />
                         <span className="hidden md:inline text-xs font-mono uppercase tracking-wider">Reference</span>
                     </Link>
+
+                    {/* PDF Export */}
+                    <button
+                        onClick={async () => {
+                            // Build a minimal score object for PDF export
+                            const score = {
+                                id: `score_${Date.now()}`,
+                                title: selectedScenario.title,
+                                source: selectedScenario.author,
+                                generatedAt: new Date().toISOString(),
+                                version: '1.0',
+                                actors: actorProfiles,
+                                leitmotifs: {},
+                                frames: processedFrames,
+                                statistics: {
+                                    totalFrames: selectedScenario.frames.length,
+                                    duration: selectedScenario.frames.length * 4000,
+                                    averageTrauma: selectedScenario.frames.reduce((sum, f) => sum + f.trauma, 0) / selectedScenario.frames.length,
+                                    averageEntropy: selectedScenario.frames.reduce((sum, f) => sum + f.entropy, 0) / selectedScenario.frames.length,
+                                    dominantKey: scoreFrame?.global?.key || 'C Major',
+                                    dominantMode: 'Ionian'
+                                }
+                            };
+                            await downloadScorePDF(score as any, { title: selectedScenario.title });
+                        }}
+                        className="flex items-center gap-2 px-3 py-1.5 rounded bg-green-600/20 hover:bg-green-600/40 text-green-400 hover:text-green-300 transition-colors border border-green-500/30"
+                        title="Export Score as PDF"
+                    >
+                        <FileDown className="w-4 h-4" />
+                        <span className="hidden md:inline text-xs font-mono uppercase tracking-wider">PDF</span>
+                    </button>
                 </div>
             </section>
 
