@@ -20,6 +20,7 @@ let VexFlowModule: typeof import('vexflow') | null = null;
 
 interface ConductorScoreProps {
     frame?: PsychometricScoreFrame;
+    frames?: PsychometricScoreFrame[]; // Multi-measure support
     showChordSymbols?: boolean;
     showDynamics?: boolean;
     scrolling?: boolean;
@@ -87,6 +88,7 @@ function velocityToDynamic(velocity: number): string {
 
 export default function ConductorScoreVexFlow({
     frame,
+    frames,
     showChordSymbols = true,
     showDynamics = true,
     scrolling = true,
@@ -100,7 +102,8 @@ export default function ConductorScoreVexFlow({
     const [error, setError] = useState<string | null>(null);
 
     // Calculate dimensions based on stave count
-    const staveCount = frame?.staves?.length || 1;
+    const framesToRender = frames || (frame ? [frame] : []);
+    const staveCount = framesToRender[0]?.staves?.length || 1;
     const staveHeight = 100;
     const requiredHeight = staveCount * staveHeight + 120;
     const width = 1200; // Wider canvas for more frames
@@ -137,13 +140,15 @@ export default function ConductorScoreVexFlow({
             context.setFillStyle('#faf8f0'); // Cream/ivory like real sheet music
             context.fillRect(0, 0, width, requiredHeight);
 
-            if (!frame || !frame.staves || frame.staves.length === 0) {
+            if (framesToRender.length === 0 || !framesToRender[0].staves || framesToRender[0].staves.length === 0) {
                 // Draw placeholder text
                 context.setFillStyle('#555');
                 context.setFont('Arial', 14, 'italic');
                 context.fillText('Awaiting score data...', 20, 60);
                 return;
             }
+
+            const currentFrameData = framesToRender[0];
 
 
 
@@ -155,35 +160,70 @@ export default function ConductorScoreVexFlow({
             context.setFillStyle('#555');
             context.setFont('Georgia', 11);
             context.fillText(
-                `Frame ${frame.frameIndex} | ${frame.global.key} | ${frame.global.tempo} BPM | ${frame.global.timeSignature}`,
+                `Frame ${currentFrameData.frameIndex} | ${currentFrameData.global.key} | ${currentFrameData.global.tempo} BPM | ${currentFrameData.global.timeSignature}`,
                 200, 25
             );
 
             // Chord symbol (top right)
-            if (showChordSymbols && frame.harmony) {
+            if (showChordSymbols && currentFrameData.harmony) {
                 context.setFillStyle('#333');
                 context.setFont('Georgia', 16, 'bold');
-                context.fillText(frame.harmony.chord, width - 100, 25);
+                context.fillText(currentFrameData.harmony.chord, width - 100, 25);
             }
 
-            // Render each actor's stave
-            frame.staves.forEach((stave, index) => {
-                const y = 50 + index * staveHeight;
-                renderActorStave(context, stave, 80, y, width - 100, showDynamics, VexFlowModule!);
+            // Render staves for each actor across multiple measures (frames)
+            // Layout: Rows = Actors, Columns = Measures (Frames)
+
+            // Iterate over the first frame's staves to establish the rows (actors)
+            currentFrameData.staves.forEach((firstStave, rowIndex) => {
+                const y = 50 + rowIndex * staveHeight;
+
+                // Effective width for notation area (minus margins)
+                const totalNotationWidth = width - 180;
+                const measureWidth = totalNotationWidth / framesToRender.length;
+
+                // Iterate over each frame (measure)
+                framesToRender.forEach((frameData, colIndex) => {
+                    const stave = frameData.staves[rowIndex];
+                    if (!stave) return; // Should not happen if actor lists are consistent
+
+                    const x = 80 + colIndex * measureWidth;
+
+                    // Only show keys/clefs on the first measure
+                    const isFirstMeasure = colIndex === 0;
+
+                    renderActorStave(
+                        context,
+                        stave,
+                        x,
+                        y,
+                        measureWidth,
+                        showDynamics,
+                        VexFlowModule!,
+                        isFirstMeasure, // addClef
+                        isFirstMeasure  // showLabels (actor name)
+                    );
+                });
             });
 
-            // Playback cursor
-            if (isPlaying && frame.staves.length > 0) {
-                const maxNotes = Math.max(...frame.staves.map(s => s.notes?.length || 1));
-                const noteWidth = (width - 180) / maxNotes;
-                const cursorX = 100 + (currentBeat % maxNotes) * noteWidth;
+            // Playback cursor (only relevant if playing and usually on the first measure/beat)
+            if (isPlaying && framesToRender.length > 0) {
+                // If we are scrolling frames, the cursor is likely within the first measure?
+                // Or if we show [current, next, next], cursor is in first measure.
+                const activeFrame = framesToRender[0];
+                if (activeFrame.staves.length > 0) {
+                    const maxNotes = Math.max(...activeFrame.staves.map(s => s.notes?.length || 1));
+                    const measureWidth = (width - 180) / framesToRender.length;
+                    const noteWidth = measureWidth / maxNotes;
+                    const cursorX = 100 + (currentBeat % maxNotes) * noteWidth;
 
-                context.setStrokeStyle('#facc15');
-                context.setLineWidth(2);
-                context.beginPath();
-                context.moveTo(cursorX, 45);
-                context.lineTo(cursorX, 45 + frame.staves.length * staveHeight);
-                context.stroke();
+                    context.setStrokeStyle('#facc15');
+                    context.setLineWidth(2);
+                    context.beginPath();
+                    context.moveTo(cursorX, 45);
+                    context.lineTo(cursorX, 45 + activeFrame.staves.length * staveHeight);
+                    context.stroke();
+                }
             }
 
         } catch (err) {
@@ -281,14 +321,18 @@ function renderActorStave(
     y: number,
     width: number,
     showDynamics: boolean,
-    Flow: any
+    Flow: any,
+    addClef: boolean = true,
+    showLabels: boolean = true
 ) {
     const { Stave, StaveNote, Voice, Formatter, Accidental, Annotation, TextNote, Beam } = Flow;
     const isActive = stave.isSpeaking || stave.activation > 0.3;
 
     // Create the stave with professional engraving style
     const vexStave = new Stave(x, y, width);
-    vexStave.addClef('treble');
+    if (addClef) {
+        vexStave.addClef('treble');
+    }
 
     // Professional black staff lines
     vexStave.setStyle({
@@ -298,15 +342,17 @@ function renderActorStave(
 
     vexStave.setContext(context).draw();
 
-    // Actor name label - professional typography
-    context.setFillStyle(stave.isSpeaking ? '#b91c1c' : '#333');
-    context.setFont('Georgia', 10, stave.isSpeaking ? 'bold' : 'normal');
-    context.fillText(stave.actorName.substring(0, 14), x - 75, y + 30);
+    // Actor name label - professional typography (Only if showLabels is true)
+    if (showLabels) {
+        context.setFillStyle(stave.isSpeaking ? '#b91c1c' : '#333');
+        context.setFont('Georgia', 10, stave.isSpeaking ? 'bold' : 'normal');
+        context.fillText(stave.actorName.substring(0, 14), x - 75, y + 30);
 
-    // Instrument label
-    context.setFillStyle('#666');
-    context.setFont('Georgia', 8, 'italic');
-    context.fillText(stave.instrument, x - 75, y + 42);
+        // Instrument label
+        context.setFillStyle('#666');
+        context.setFont('Georgia', 8, 'italic');
+        context.fillText(stave.instrument, x - 75, y + 42);
+    }
 
     // Dynamic marking - traditional italic style
     if (showDynamics) {

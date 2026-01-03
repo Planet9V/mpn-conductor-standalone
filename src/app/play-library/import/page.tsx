@@ -4,6 +4,7 @@ import React, { useState, useCallback } from 'react';
 import { Upload, FileText, Check, AlertTriangle, ArrowLeft, Sparkles, Save, Download, BookOpen, Library } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import AIScriptValidator from '@/components/mpn-lab/AIScriptValidator';
 
 interface ParsedFrame {
     speaker: string;
@@ -30,6 +31,10 @@ export default function ImportPlayPage() {
     const [isProcessing, setIsProcessing] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
+
+    // NEW: AI Validation State
+    const [showAIValidator, setShowAIValidator] = useState(false);
+    const [validatedScript, setValidatedScript] = useState<any>(null);
 
     // Parse the raw play text (Secondary Feature)
     const parsePlay = useCallback(() => {
@@ -285,30 +290,33 @@ export default function ImportPlayPage() {
                             <div className="opacity-75 hover:opacity-100 transition">
                                 <h4 className="text-sm font-semibold text-gray-300 mb-2 flex items-center gap-2">
                                     <Sparkles className="w-3 h-3 text-purple-400" />
-                                    Experimental Processing
+                                    AI-Powered Validation
                                 </h4>
                                 <p className="text-xs text-gray-500 mb-4">
-                                    Analyze text structure to generate a preliminary playable scenario.
+                                    Let AI analyze your script format, extract structure, and validate before processing.
                                 </p>
 
-                                {!parseResult ? (
+                                {!validatedScript ? (
                                     <button
-                                        onClick={parsePlay}
-                                        disabled={isProcessing || !rawText}
-                                        className="w-full py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 text-sm font-medium transition flex items-center justify-center gap-2"
+                                        onClick={() => setShowAIValidator(true)}
+                                        disabled={!rawText || !title}
+                                        className="w-full py-2.5 rounded-lg bg-gradient-to-r from-purple-600/20 to-blue-600/20 hover:from-purple-600/30 hover:to-blue-600/30 border border-purple-500/30 text-purple-300 text-sm font-medium transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                                     >
-                                        Analyze Structure
+                                        <Sparkles className="w-4 h-4" />
+                                        Validate with AI
                                     </button>
                                 ) : (
                                     <div className="space-y-3 animate-in fade-in slide-in-from-top-2">
                                         <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-xs text-green-300">
-                                            ✓ Found {parseResult.frameCount} scenes & {parseResult.characters.length} characters
+                                            ✓ Validated: {validatedScript.format} format
+                                            <br />
+                                            {validatedScript.acts.length} acts, {validatedScript.characters.length} characters
                                         </div>
                                         <button
                                             onClick={() => handleSaveToLibrary(true)}
                                             className="w-full py-2.5 rounded-lg bg-green-600/20 hover:bg-green-600/30 border border-green-500/30 text-green-400 text-sm font-medium transition"
                                         >
-                                            Save as Musical Scenario
+                                            Save Validated Script
                                         </button>
                                     </div>
                                 )}
@@ -318,6 +326,22 @@ export default function ImportPlayPage() {
                     </div>
                 </div>
             </div>
+
+            {/* AI Validation Modal */}
+            {showAIValidator && (
+                <AIScriptValidator
+                    rawText={rawText}
+                    playId={title.toLowerCase().replace(/[^a-z0-9]+/g, '_')}
+                    onValidated={(structure) => {
+                        setValidatedScript(structure);
+                        setShowAIValidator(false);
+                        // Auto-populate metadata if detected
+                        if (structure.metadata.title) setTitle(structure.metadata.title);
+                        if (structure.metadata.author) setAuthor(structure.metadata.author);
+                    }}
+                    onCancel={() => setShowAIValidator(false)}
+                />
+            )}
         </main>
     );
 }
