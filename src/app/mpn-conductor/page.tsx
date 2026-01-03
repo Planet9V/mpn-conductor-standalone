@@ -460,16 +460,39 @@ export default function MPNConductorPage() {
                     {/* PDF Export */}
                     <button
                         onClick={async () => {
-                            // Build a minimal score object for PDF export
+                            // Derive actors from scoreFrame staves
+                            const actors = (scoreFrame?.staves || []).map(s => ({
+                                id: s.actorId,
+                                name: s.actorName,
+                                disc: { D: 0.5, I: 0.5, S: 0.5, C: 0.5 },
+                                archetype: 'hero' as const
+                            }));
+
+                            // Build minimal score object for PDF export
                             const score = {
                                 id: `score_${Date.now()}`,
                                 title: selectedScenario.title,
                                 source: selectedScenario.author,
                                 generatedAt: new Date().toISOString(),
                                 version: '1.0',
-                                actors: actorProfiles,
+                                actors: actors,
                                 leitmotifs: {},
-                                frames: processedFrames,
+                                frames: selectedScenario.frames.map((f, i) => ({
+                                    frameIndex: i,
+                                    timestamp: i * 4000,
+                                    scriptLine: f.script?.text || f.description,
+                                    speaker: f.script?.speaker || f.name,
+                                    global: {
+                                        key: scoreFrame?.global?.key || 'C Major',
+                                        tempo: scoreFrame?.global?.tempo || 80,
+                                        timeSignature: '4/4',
+                                        mode: 'Ionian',
+                                        dynamics: 'mf'
+                                    },
+                                    harmony: { chord: f.script?.chord || 'Cmaj' },
+                                    staves: [],
+                                    graph: { nodes: [], edges: [] }
+                                })),
                                 statistics: {
                                     totalFrames: selectedScenario.frames.length,
                                     duration: selectedScenario.frames.length * 4000,
@@ -491,31 +514,33 @@ export default function MPNConductorPage() {
             </section>
 
             {/* Script Dialog Panel */}
-            {currentFrame?.script && (
-                <section className="px-6 py-4 bg-black/40 border-b border-white/10">
-                    <div className="max-w-7xl mx-auto">
-                        <div className="bg-gray-900/80 rounded-xl border border-white/10 p-4">
-                            <div className="flex items-center gap-3 mb-2">
-                                <Users className="w-4 h-4 text-oxot-gold" />
-                                <span className="text-oxot-gold font-bold text-sm uppercase">
-                                    {currentFrame.script.speaker}
-                                </span>
-                                <span className="text-gray-600 text-xs">
-                                    {currentFrame.name}
-                                </span>
-                            </div>
-                            <p className="text-white italic text-sm leading-relaxed">
-                                "{currentFrame.script.text}"
-                            </p>
-                            {currentFrame.script.analysis && (
-                                <p className="text-gray-500 text-xs mt-2 font-mono">
-                                    Analysis: {currentFrame.script.analysis}
+            {
+                currentFrame?.script && (
+                    <section className="px-6 py-4 bg-black/40 border-b border-white/10">
+                        <div className="max-w-7xl mx-auto">
+                            <div className="bg-gray-900/80 rounded-xl border border-white/10 p-4">
+                                <div className="flex items-center gap-3 mb-2">
+                                    <Users className="w-4 h-4 text-oxot-gold" />
+                                    <span className="text-oxot-gold font-bold text-sm uppercase">
+                                        {currentFrame.script.speaker}
+                                    </span>
+                                    <span className="text-gray-600 text-xs">
+                                        {currentFrame.name}
+                                    </span>
+                                </div>
+                                <p className="text-white italic text-sm leading-relaxed">
+                                    "{currentFrame.script.text}"
                                 </p>
-                            )}
+                                {currentFrame.script.analysis && (
+                                    <p className="text-gray-500 text-xs mt-2 font-mono">
+                                        Analysis: {currentFrame.script.analysis}
+                                    </p>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                </section>
-            )}
+                    </section>
+                )
+            }
 
             {/* Psychometric Analysis Dashboard */}
             <section className="px-6 py-6 border-b border-white/10">
@@ -701,6 +726,6 @@ export default function MPNConductorPage() {
                 <p>MPN Conductor Score v3.0 | Based on McKenney-Lacan Theory</p>
                 <p className="mt-1">Canon v2.3 | {LITERARY_SCENARIOS.length} Scenarios | Full Psychometric Analysis</p>
             </footer>
-        </main>
+        </main >
     );
 }
