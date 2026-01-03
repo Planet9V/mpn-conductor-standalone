@@ -145,6 +145,8 @@ export default function ConductorScoreVexFlow({
                 return;
             }
 
+
+
             // Title bar - dark text on cream background
             context.setFillStyle('#1a1a1a');
             context.setFont('Georgia', 14, 'bold');
@@ -321,12 +323,38 @@ function renderActorStave(
         context.fillText(`(${stave.leitmotif.currentTransformation})`, x + width - 80, y + 75);
     }
 
+    // Generate notes to render - use actual notes or generate demo notes for active staves
+    let notesToRender = stave.notes || [];
+
+    // If no notes but actor is speaking/active, generate visual demo notes
+    if (notesToRender.length === 0 && isActive) {
+        // Generate demo notes based on leitmotif or default pattern
+        const pitchClasses = stave.leitmotif?.pitchClasses || [0, 2, 4, 5, 7]; // C major scale
+        const baseOctave = stave.leitmotif?.baseOctave || 4;
+        const demoNotes: NoteEvent[] = [];
+
+        // Create 4 notes for the measure
+        for (let i = 0; i < 4; i++) {
+            const pitch = pitchClasses[i % pitchClasses.length];
+            const noteName = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][pitch % 12];
+            demoNotes.push({
+                pitch: `${noteName}${baseOctave}`,
+                midiNote: pitch + (baseOctave + 1) * 12,
+                duration: 0.25, // quarter notes
+                startBeat: i,
+                velocity: stave.dynamic || 72,
+                articulation: 'legato'
+            });
+        }
+        notesToRender = demoNotes;
+    }
+
     // Create notes
-    if (stave.notes && stave.notes.length > 0) {
+    if (notesToRender.length > 0) {
         const vexNotes: any[] = [];
         const beamableNotes: any[] = []; // Collect 8th/16th notes for beaming
 
-        stave.notes.forEach((note: NoteEvent) => {
+        notesToRender.forEach((note: NoteEvent) => {
             const vexPitch = pitchToVexFlow(note.pitch);
             const vexDuration = durationToVexFlow(note.duration);
 
@@ -335,10 +363,11 @@ function renderActorStave(
                 duration: vexDuration,
             });
 
-            // Professional black note engraving
+            // Color notes differently for speaking actor
+            const noteColor = stave.isSpeaking ? '#dc2626' : '#1a1a1a'; // Red for speaking, black for others
             staveNote.setStyle({
-                fillStyle: '#1a1a1a',
-                strokeStyle: '#1a1a1a'
+                fillStyle: noteColor,
+                strokeStyle: noteColor
             });
 
             // Add accidental if present
@@ -390,8 +419,8 @@ function renderActorStave(
                 console.debug('Beaming skipped:', e);
             }
         }
-    } else if (!isActive) {
-        // Draw rest for inactive actors
+    } else {
+        // Draw rest for completely inactive actors
         const restNote = new StaveNote({
             keys: ['b/4'],
             duration: 'wr' // whole rest

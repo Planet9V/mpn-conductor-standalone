@@ -22,6 +22,9 @@ export default function HomePage() {
             </div>
           </div>
           <nav className="flex items-center gap-4">
+            <Link href="/play-library" className="text-sm font-medium text-amber-500 hover:text-amber-400 transition animate-pulse">
+              Library (New)
+            </Link>
             <Link href="/mpn-conductor" className="text-sm text-white/60 hover:text-white transition">
               Conductor
             </Link>
@@ -49,7 +52,20 @@ export default function HomePage() {
           </p>
 
           {/* Application Cards */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <Link
+              href="/play-library"
+              className="group p-6 rounded-xl border border-amber-500/30 hover:border-amber-500 bg-amber-500/5 hover:bg-amber-500/10 transition-all"
+            >
+              <div className="w-12 h-12 rounded-lg bg-amber-500/20 flex items-center justify-center mb-4 mx-auto group-hover:bg-amber-500/30 transition">
+                <FileText className="w-6 h-6 text-amber-500" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2 text-amber-500">Play Library</h3>
+              <p className="text-sm text-white/50">
+                Import raw scripts, manage your collection, and apply psychometric processing.
+              </p>
+            </Link>
+
             <Link
               href="/mpn-conductor"
               className="group p-6 rounded-xl border border-white/10 hover:border-[#FFD700]/50 bg-white/5 hover:bg-white/10 transition-all"

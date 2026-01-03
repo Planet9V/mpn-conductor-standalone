@@ -364,6 +364,7 @@ export class ScoreOrchestrator {
         };
 
         this.frameIndex++;
+
         return output;
     }
 

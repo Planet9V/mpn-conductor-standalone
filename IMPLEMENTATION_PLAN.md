@@ -6,11 +6,11 @@
 
 | Property | Value |
 |----------|-------|
-| Version | 3.0 |
-| Canon | v2.4 |
-| Tests | 132 passing |
+| Version | 3.1 |
+| Canon | v3.1 |
+| Tests | 200+ (E2E + Unit) |
 | Components | 44 |
-| Reference Entries | 55+ |
+| Reference Entries | 151 |
 | Literary Scenarios | 3 |
 
 ---
@@ -37,7 +37,7 @@
 | Score Orchestrator | `score_orchestrator.ts` | ~400 | Multi-stave coordination |
 | Leitmotif Generator | `leitmotif_generator.ts` | ~300 | Actor motif system |
 | Genius Composer | `GeniusComposer.ts` | ~290 | Melody/chord generation |
-| Reference Data | `mpn_reference_data.ts` | ~1470 | 55+ entry dictionary |
+| Reference Data | `mpn_reference_data.ts` | ~3500 | 151 entry dictionary |
 | Reference Lookup | `mpn_reference_lookup.ts` | ~200 | Query functions |
 
 ---
@@ -208,9 +208,16 @@ mpn-conductor-standalone/
 - [x] Tone.js audio synthesis
 - [x] 3D visualizations (Tonnetz, Lorenz)
 - [x] 3 literary scenarios
-- [x] 132 unit tests passing
+- [x] 200+ tests passing (Vitest + Playwright)
 - [x] Docker deployment ready
 - [x] Wiki documentation
+- [x] OCEAN (Big Five) mappings (15 entries)
+- [x] Cognitive Bias system (30 entries)
+- [x] Dark Triad expansion (12 entries)
+- [x] Lacanian enhancement (6 entries)
+- [x] Supporting dimensions (31 entries)
+- [x] AI Integration (OpenRouter + HuggingFace)
+- [x] Voice Leading rhythmic patterns
 
 ### Next Steps: Enhancements
 
@@ -218,9 +225,8 @@ mpn-conductor-standalone/
 |----------|---------|-------------|
 | HIGH | MIDI Export | Export scores to MIDI files |
 | HIGH | Custom Scenarios | Upload/create new literary scenarios |
-| MEDIUM | Voice Leading | Automatic voice leading rules |
-| MEDIUM | Chord Progression AI | ML-enhanced harmonic generation |
-| MEDIUM | Real-time NLP | Analyze text input for RSI values |
+| HIGH | Multi-measure Display | Show 4-8 bars in VexFlow |
+| MEDIUM | UI Enhancements | Premium glass-morphism interface |
 | LOW | VR Conductor Mode | Immersive conducting experience |
 | LOW | Mobile Responsive | Touch-optimized interface |
 
@@ -287,4 +293,4 @@ DATABASE_URL=postgresql://mpn_user:mpn_pass@localhost:5432/mpn_conductor
 
 ---
 
-*MPN Conductor v3.0 | Canon v2.4 | January 2026*
+*MPN Conductor v3.1 | Canon v3.1 | 151 Entries | January 2026*

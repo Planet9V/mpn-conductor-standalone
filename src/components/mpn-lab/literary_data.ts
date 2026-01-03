@@ -1,6 +1,8 @@
 import { LiteraryScenario } from './types';
+import { ADDITIONAL_SCENARIOS } from './additional_plays';
 
 export const LITERARY_SCENARIOS: LiteraryScenario[] = [
+    ...ADDITIONAL_SCENARIOS,
     {
         id: 'hamlet',
         title: 'Hamlet',

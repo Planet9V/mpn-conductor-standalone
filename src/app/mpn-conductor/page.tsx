@@ -16,7 +16,7 @@ import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import {
     ChevronDown, Music, Activity, Layers, Zap, Play, Pause, SkipForward,
-    BookOpen, Volume2, VolumeX, RotateCcw, BarChart, Users, Brain, AlertTriangle, FileDown
+    BookOpen, Volume2, VolumeX, RotateCcw, BarChart, Users, Brain, AlertTriangle, FileDown, FileText
 } from 'lucide-react';
 import Link from 'next/link';
 import { OXOTLogo } from '@/components/branding/OXOTLogo';
@@ -455,6 +455,16 @@ export default function MPNConductorPage() {
                     >
                         <BookOpen className="w-4 h-4" />
                         <span className="hidden md:inline text-xs font-mono uppercase tracking-wider">Reference</span>
+                    </Link>
+
+                    {/* Library Link */}
+                    <Link
+                        href="/play-library"
+                        className="flex items-center gap-2 px-3 py-1.5 rounded bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 hover:text-amber-400 transition-colors border border-amber-500/20"
+                        title="Manage Scripts"
+                    >
+                        <FileText className="w-4 h-4" />
+                        <span className="hidden md:inline text-xs font-mono uppercase tracking-wider">Library</span>
                     </Link>
 
                     {/* PDF Export */}

@@ -81,6 +81,8 @@ Transform psychological states into musical parameters using the psychometric ca
 | RSI Registers | Modal selection |
 | DISC Profile | Instrument assignment |
 | Dark Triad | Timbre & articulation |
+| OCEAN/Big Five | Harmony, intervals, texture |
+| Cognitive Biases | Rhythmic patterns, motifs |
 
 ### 🎭 Character Leitmotifs
 Each actor receives a unique musical signature based on their profile:
@@ -323,6 +325,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 <div align="center">
 
-**MPN Conductor v3.0** | Canon v2.4 | Built with ♪ and ψ
+**MPN Conductor v3.0** | Canon v3.0 | 116 Entries | Built with ♪ and ψ
 
 </div>

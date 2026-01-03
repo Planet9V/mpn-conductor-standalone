@@ -119,6 +119,25 @@ INSERT INTO presets (name, description, adjustments, is_default) VALUES
 ('Subtle Analysis', 'Reduced intensity for nuanced detection', '{"trauma_multiplier": 0.7, "tempo_dampening": 0.8}', FALSE)
 ON CONFLICT (name) DO NOTHING;
 
+-- ============================================
+-- PLAYS TABLE (Library & Workbench)
+-- Stores raw scripts and processed scenarios
+-- ============================================
+CREATE TABLE IF NOT EXISTS plays (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255),
+    theme VARCHAR(255),
+    description TEXT,
+    -- Raw content
+    source_text TEXT,
+    is_processed BOOLEAN DEFAULT FALSE,
+    -- Processed JSON structure (LiteraryScenario)
+    processed_data JSONB,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Grant permissions
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO mpn_user;
 GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO mpn_user;

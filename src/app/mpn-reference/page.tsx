@@ -407,8 +407,123 @@ export default function MPNReferencePage() {
             {/* Footer */}
             <footer className="py-8 border-t border-white/10 text-center text-gray-500 text-xs">
                 <p>MPN Reference Dictionary v{MPN_REFERENCE_DICTIONARY.version}</p>
-                <p className="mt-1">Based on Canon v2.3 • McKenney-Lacan Theory</p>
+                <p className="mt-1">Based on Canon v3.0 • McKenney-Lacan Theory</p>
+                <p className="mt-1 text-oxot-gold/60">OCEAN • Cognitive Biases • Dark Triad • DISC • Lacanian RSI</p>
             </footer>
+
+            {/* Psychometric Framework Expansion Section */}
+            <section className="py-12 px-6 border-t border-white/10 bg-gradient-to-b from-gray-950 to-black">
+                <div className="max-w-7xl mx-auto">
+                    <div className="flex items-center gap-3 mb-8">
+                        <div className="p-3 rounded-xl bg-oxot-gold/10 border border-oxot-gold/30">
+                            <Brain className="w-6 h-6 text-oxot-gold" />
+                        </div>
+                        <div>
+                            <h2 className="text-2xl font-black uppercase tracking-tight text-white">
+                                Psychometric Framework v3.0
+                            </h2>
+                            <p className="text-sm text-gray-500 font-mono">
+                                Comprehensive Musical↔Psychological Mappings
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Framework Summary Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        {/* OCEAN */}
+                        <div className="p-5 bg-gray-900/50 border border-white/10 rounded-xl">
+                            <h3 className="text-lg font-bold text-blue-400 mb-3">OCEAN / Big Five</h3>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Openness</span>
+                                    <span className="text-white">→ Harmonic Complexity</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Conscientiousness</span>
+                                    <span className="text-white">→ Articulation</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Extraversion</span>
+                                    <span className="text-white">→ Dynamics/Volume</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Agreeableness</span>
+                                    <span className="text-white">→ Intervals</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Neuroticism</span>
+                                    <span className="text-white">→ Texture/Vibrato</span>
+                                </div>
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-white/10 text-xs text-gray-500">
+                                15 entries • Source: RSCH-39
+                            </div>
+                        </div>
+
+                        {/* Cognitive Biases */}
+                        <div className="p-5 bg-gray-900/50 border border-white/10 rounded-xl">
+                            <h3 className="text-lg font-bold text-purple-400 mb-3">Cognitive Biases</h3>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Authority Bias</span>
+                                    <span className="text-white">→ Deep Brass</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Scarcity Bias</span>
+                                    <span className="text-white">→ Accelerando</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Social Proof</span>
+                                    <span className="text-white">→ Tutti/Unison</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Confirmation Bias</span>
+                                    <span className="text-white">→ Ostinato</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">+26 more...</span>
+                                    <span className="text-gray-500">Various mappings</span>
+                                </div>
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-white/10 text-xs text-gray-500">
+                                30 entries • Source: RSCH-34 (Kahneman-Tversky)
+                            </div>
+                        </div>
+
+                        {/* Dark Triad */}
+                        <div className="p-5 bg-gray-900/50 border border-white/10 rounded-xl">
+                            <h3 className="text-lg font-bold text-red-400 mb-3">Dark Triad</h3>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Machiavellianism</span>
+                                    <span className="text-white">→ Syncopation, Hidden Voice</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Narcissism</span>
+                                    <span className="text-white">→ Always Fortissimo</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-400">Psychopathy</span>
+                                    <span className="text-white">→ Uniform Velocity</span>
+                                </div>
+                            </div>
+                            <div className="mt-3 pt-3 border-t border-white/10 text-xs text-gray-500">
+                                12 entries • Source: RSCH-33
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Source Documents */}
+                    <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl text-sm">
+                        <div className="font-bold text-blue-400 mb-2">📚 Theoretical Sources</div>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-400">
+                            <div><span className="text-white font-mono">RSCH-39</span>: Musical Psychometric Notation</div>
+                            <div><span className="text-white font-mono">RSCH-34</span>: Cognitive Bias Catalog</div>
+                            <div><span className="text-white font-mono">RSCH-33</span>: Dark Triad Extension</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
 
             {/* AI Models Infrastructure Section */}
             <section className="py-12 px-6 border-t border-white/10 bg-gradient-to-b from-black to-gray-950">
@@ -450,8 +565,8 @@ export default function MPNReferencePage() {
                                 <div key={m.model} className="p-4 bg-gray-900/50 border border-white/10 rounded-xl">
                                     <div className="flex items-center gap-2 mb-2">
                                         <span className={`px-2 py-0.5 text-[10px] rounded font-bold ${m.role === 'PRIMARY' ? 'bg-green-500/20 text-green-400' :
-                                                m.role === 'FALLBACK' ? 'bg-yellow-500/20 text-yellow-400' :
-                                                    'bg-blue-500/20 text-blue-400'
+                                            m.role === 'FALLBACK' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                'bg-blue-500/20 text-blue-400'
                                             }`}>{m.role}</span>
                                         <span className="text-[10px] text-gray-500">{m.latency}</span>
                                     </div>
