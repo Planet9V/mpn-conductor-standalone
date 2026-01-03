@@ -575,6 +575,8 @@ export default function MPNConductorPage() {
                                 showDynamics={true}
                                 isPlaying={isPlaying}
                                 currentBeat={currentFrameIndex}
+                                totalFrames={selectedScenario.frames.length}
+                                currentFrameIndex={currentFrameIndex}
                             />
                         </div>
                     </div>

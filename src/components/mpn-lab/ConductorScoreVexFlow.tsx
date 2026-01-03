@@ -11,7 +11,8 @@ import { motion } from 'framer-motion';
 import type { PsychometricScoreFrame, ActorStaveData, NoteEvent } from './score_types';
 
 // VexFlow imports - using dynamic import for SSR compatibility
-let Vex: typeof import('vexflow').Vex | null = null;
+// VexFlow 5.0 uses named exports directly
+let VexFlowModule: typeof import('vexflow') | null = null;
 
 // ============================================================================
 // TYPES
@@ -24,6 +25,8 @@ interface ConductorScoreProps {
     scrolling?: boolean;
     isPlaying?: boolean;
     currentBeat?: number;
+    totalFrames?: number;
+    currentFrameIndex?: number;
 }
 
 // ============================================================================
@@ -88,7 +91,9 @@ export default function ConductorScoreVexFlow({
     showDynamics = true,
     scrolling = true,
     isPlaying = false,
-    currentBeat = 0
+    currentBeat = 0,
+    totalFrames = 1,
+    currentFrameIndex = 0
 }: ConductorScoreProps) {
     const containerRef = useRef<HTMLDivElement>(null);
     const [vexLoaded, setVexLoaded] = useState(false);
@@ -98,12 +103,12 @@ export default function ConductorScoreVexFlow({
     const staveCount = frame?.staves?.length || 1;
     const staveHeight = 100;
     const requiredHeight = staveCount * staveHeight + 120;
-    const width = 800;
+    const width = 1200; // Wider canvas for more frames
 
     // Load VexFlow dynamically (client-side only)
     useEffect(() => {
         import('vexflow').then((module) => {
-            Vex = module.Vex;
+            VexFlowModule = module;
             setVexLoaded(true);
         }).catch((err) => {
             console.error('Failed to load VexFlow:', err);
@@ -113,13 +118,14 @@ export default function ConductorScoreVexFlow({
 
     // Render score when frame changes
     useEffect(() => {
-        if (!vexLoaded || !Vex || !containerRef.current) return;
+        if (!vexLoaded || !VexFlowModule || !containerRef.current) return;
 
         try {
             // Clear previous render
             containerRef.current.innerHTML = '';
 
-            const { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, Annotation } = Vex.Flow;
+            // VexFlow 5.0 uses direct named exports
+            const { Renderer, Stave, StaveNote, Voice, Formatter, Accidental, Annotation } = VexFlowModule;
 
             // Create SVG renderer
             const renderer = new Renderer(containerRef.current, Renderer.Backends.SVG);
@@ -127,8 +133,8 @@ export default function ConductorScoreVexFlow({
             const context = renderer.getContext();
             context.setFont('Arial', 10);
 
-            // Background
-            context.setFillStyle('#0a0a0f');
+            // Background - professional score paper color
+            context.setFillStyle('#faf8f0'); // Cream/ivory like real sheet music
             context.fillRect(0, 0, width, requiredHeight);
 
             if (!frame || !frame.staves || frame.staves.length === 0) {
@@ -139,13 +145,13 @@ export default function ConductorScoreVexFlow({
                 return;
             }
 
-            // Title bar
-            context.setFillStyle('#facc15');
-            context.setFont('Arial', 14, 'bold');
+            // Title bar - dark text on cream background
+            context.setFillStyle('#1a1a1a');
+            context.setFont('Georgia', 14, 'bold');
             context.fillText(`CONDUCTOR'S SCORE`, 20, 25);
 
-            context.setFillStyle('#888');
-            context.setFont('Arial', 11);
+            context.setFillStyle('#555');
+            context.setFont('Georgia', 11);
             context.fillText(
                 `Frame ${frame.frameIndex} | ${frame.global.key} | ${frame.global.tempo} BPM | ${frame.global.timeSignature}`,
                 200, 25
@@ -153,7 +159,7 @@ export default function ConductorScoreVexFlow({
 
             // Chord symbol (top right)
             if (showChordSymbols && frame.harmony) {
-                context.setFillStyle('#facc15');
+                context.setFillStyle('#333');
                 context.setFont('Georgia', 16, 'bold');
                 context.fillText(frame.harmony.chord, width - 100, 25);
             }
@@ -161,7 +167,7 @@ export default function ConductorScoreVexFlow({
             // Render each actor's stave
             frame.staves.forEach((stave, index) => {
                 const y = 50 + index * staveHeight;
-                renderActorStave(context, stave, 80, y, width - 100, showDynamics, Vex!.Flow);
+                renderActorStave(context, stave, 80, y, width - 100, showDynamics, VexFlowModule!);
             });
 
             // Playback cursor
@@ -184,6 +190,9 @@ export default function ConductorScoreVexFlow({
         }
     }, [frame, vexLoaded, showChordSymbols, showDynamics, isPlaying, currentBeat, requiredHeight]);
 
+    // Calculate frame progress
+    const frameProgress = totalFrames > 0 ? (currentFrameIndex / totalFrames) * 100 : 0;
+
     return (
         <motion.div
             className="bg-gray-950 rounded-xl border border-white/10 overflow-hidden"
@@ -201,9 +210,43 @@ export default function ConductorScoreVexFlow({
                 </div>
             </div>
 
+            {/* Frame Progress Timeline */}
+            <div className="px-4 py-2 bg-[#0a0a0f] border-b border-white/5">
+                <div className="flex items-center gap-2 mb-1">
+                    <span className="text-[10px] text-gray-500 font-mono">FRAME TIMELINE</span>
+                    <span className="text-[10px] text-oxot-gold font-mono">
+                        {currentFrameIndex + 1} / {totalFrames}
+                    </span>
+                </div>
+                <div className="relative h-4 bg-gray-900 rounded-full overflow-hidden border border-white/10">
+                    {/* Dotted lines for each frame */}
+                    <div className="absolute inset-0 flex">
+                        {Array.from({ length: totalFrames }).map((_, i) => (
+                            <div
+                                key={i}
+                                className="flex-1 border-r border-dashed border-white/20 last:border-r-0"
+                                style={{
+                                    backgroundColor: i < currentFrameIndex ? 'rgba(250, 204, 21, 0.15)' : 'transparent'
+                                }}
+                            />
+                        ))}
+                    </div>
+                    {/* Current frame indicator */}
+                    <div
+                        className="absolute top-0 bottom-0 w-1 bg-oxot-gold shadow-lg shadow-amber-500/50"
+                        style={{ left: `${frameProgress}%`, transition: 'left 0.3s ease' }}
+                    />
+                    {/* Progress fill */}
+                    <div
+                        className="absolute inset-y-0 left-0 bg-gradient-to-r from-oxot-gold/30 to-oxot-gold/10"
+                        style={{ width: `${frameProgress}%`, transition: 'width 0.3s ease' }}
+                    />
+                </div>
+            </div>
+
             <div
-                className="relative overflow-x-auto bg-[#0a0a0f]"
-                style={{ minHeight: 300, maxHeight: 600 }}
+                className="relative overflow-x-auto bg-[#faf8f0] border border-gray-300"
+                style={{ minHeight: 350, maxHeight: 700 }}
             >
                 {error ? (
                     <div className="p-4 text-red-500">{error}</div>
@@ -238,49 +281,52 @@ function renderActorStave(
     showDynamics: boolean,
     Flow: any
 ) {
-    const { Stave, StaveNote, Voice, Formatter, Accidental, Annotation, TextNote } = Flow;
+    const { Stave, StaveNote, Voice, Formatter, Accidental, Annotation, TextNote, Beam } = Flow;
     const isActive = stave.isSpeaking || stave.activation > 0.3;
 
-    // Create the stave
+    // Create the stave with professional engraving style
     const vexStave = new Stave(x, y, width);
     vexStave.addClef('treble');
 
-    // Color based on state
+    // Professional black staff lines
     vexStave.setStyle({
-        strokeStyle: isActive ? '#facc15' : '#444',
-        fillStyle: isActive ? '#facc15' : '#444'
+        strokeStyle: '#1a1a1a',
+        fillStyle: '#1a1a1a'
     });
 
     vexStave.setContext(context).draw();
 
-    // Actor name label
-    context.setFillStyle(stave.isSpeaking ? '#ef4444' : (isActive ? '#22c55e' : '#666'));
-    context.setFont('Courier', 10, 'bold');
+    // Actor name label - professional typography
+    context.setFillStyle(stave.isSpeaking ? '#b91c1c' : '#333');
+    context.setFont('Georgia', 10, stave.isSpeaking ? 'bold' : 'normal');
     context.fillText(stave.actorName.substring(0, 14), x - 75, y + 30);
 
     // Instrument label
-    context.setFillStyle('#555');
-    context.setFont('Courier', 8);
+    context.setFillStyle('#666');
+    context.setFont('Georgia', 8, 'italic');
     context.fillText(stave.instrument, x - 75, y + 42);
 
-    // Dynamic marking
+    // Dynamic marking - traditional italic style
     if (showDynamics) {
         const dyn = velocityToDynamic(stave.dynamic);
-        context.setFillStyle('#facc15');
-        context.setFont('Times', 12, 'italic');
+        context.setFillStyle('#333');
+        context.setFont('Times', 14, 'bold italic');
         context.fillText(dyn, x + 45, y + 75);
     }
 
     // Transformation indicator
     if (stave.leitmotif?.currentTransformation && stave.leitmotif.currentTransformation !== 'original') {
-        context.setFillStyle('#8b5cf6');
-        context.setFont('Courier', 8);
-        context.fillText(`[${stave.leitmotif.currentTransformation}]`, x + width - 80, y + 75);
+        context.setFillStyle('#666');
+        context.setFont('Georgia', 8, 'italic');
+        context.fillText(`(${stave.leitmotif.currentTransformation})`, x + width - 80, y + 75);
     }
 
     // Create notes
     if (stave.notes && stave.notes.length > 0) {
-        const vexNotes = stave.notes.map((note: NoteEvent) => {
+        const vexNotes: any[] = [];
+        const beamableNotes: any[] = []; // Collect 8th/16th notes for beaming
+
+        stave.notes.forEach((note: NoteEvent) => {
             const vexPitch = pitchToVexFlow(note.pitch);
             const vexDuration = durationToVexFlow(note.duration);
 
@@ -289,10 +335,10 @@ function renderActorStave(
                 duration: vexDuration,
             });
 
-            // Set color based on state
+            // Professional black note engraving
             staveNote.setStyle({
-                fillStyle: stave.isSpeaking ? '#facc15' : '#22c55e',
-                strokeStyle: stave.isSpeaking ? '#facc15' : '#22c55e'
+                fillStyle: '#1a1a1a',
+                strokeStyle: '#1a1a1a'
             });
 
             // Add accidental if present
@@ -301,23 +347,56 @@ function renderActorStave(
                 staveNote.addModifier(new Accidental(acc));
             }
 
-            return staveNote;
+            // Add articulation annotation
+            if (note.articulation && note.articulation !== 'normal') {
+                const artSymbol = getArticulationSymbol(note.articulation);
+                if (artSymbol) {
+                    const annotation = new Annotation(artSymbol);
+                    annotation.setFont('Arial', 10);
+                    annotation.setVerticalJustification(Annotation.VerticalJustify.TOP);
+                    staveNote.addModifier(annotation);
+                }
+            }
+
+            vexNotes.push(staveNote);
+
+            // Track beamable notes (8th and 16th)
+            if (vexDuration === '8' || vexDuration === '16' || vexDuration === '32') {
+                beamableNotes.push(staveNote);
+            }
         });
 
         // Create voice and format
-        const voice = new Voice({ num_beats: stave.notes.length, beat_value: 4 });
+        const voice = new Voice({ num_beats: 4, beat_value: 4 });
         voice.setStrict(false); // Allow flexible beat counts
         voice.addTickables(vexNotes);
 
         new Formatter().joinVoices([voice]).format([voice], width - 80);
         voice.draw(context, vexStave);
+
+        // Apply beaming to groups of 8th/16th notes
+        if (beamableNotes.length >= 2) {
+            try {
+                // Group beamable notes into groups of 2-4 for beaming
+                const beamGroups = groupNotesForBeaming(beamableNotes);
+                beamGroups.forEach(group => {
+                    if (group.length >= 2) {
+                        const beam = new Beam(group);
+                        beam.setContext(context).draw();
+                    }
+                });
+            } catch (e) {
+                // Beaming can fail if notes don't align - silently skip
+                console.debug('Beaming skipped:', e);
+            }
+        }
     } else if (!isActive) {
         // Draw rest for inactive actors
         const restNote = new StaveNote({
             keys: ['b/4'],
             duration: 'wr' // whole rest
         });
-        restNote.setStyle({ fillStyle: '#555', strokeStyle: '#555' });
+        restNote.setStyle({ fillStyle: '#1a1a1a', strokeStyle: '#1a1a1a' });
 
         const voice = new Voice({ num_beats: 4, beat_value: 4 });
         voice.setStrict(false);
@@ -326,4 +405,41 @@ function renderActorStave(
         new Formatter().joinVoices([voice]).format([voice], width - 80);
         voice.draw(context, vexStave);
     }
+}
+
+/**
+ * Get articulation symbol for display
+ */
+function getArticulationSymbol(articulation: string): string | null {
+    const symbols: Record<string, string> = {
+        'staccato': '•',
+        'marcato': '^',
+        'tenuto': '–',
+        'legato': '⌒',
+        'accent': '>',
+        'fermata': '𝄐'
+    };
+    return symbols[articulation] || null;
+}
+
+/**
+ * Group notes into beamable groups (2-4 notes per beam)
+ */
+function groupNotesForBeaming(notes: any[]): any[][] {
+    const groups: any[][] = [];
+    let currentGroup: any[] = [];
+
+    for (let i = 0; i < notes.length; i++) {
+        currentGroup.push(notes[i]);
+
+        // Create beam groups of 2-4 notes
+        if (currentGroup.length >= 4 || i === notes.length - 1) {
+            if (currentGroup.length >= 2) {
+                groups.push([...currentGroup]);
+            }
+            currentGroup = [];
+        }
+    }
+
+    return groups;
 }

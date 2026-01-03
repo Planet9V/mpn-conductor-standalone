@@ -116,55 +116,115 @@ export class GeniusComposer {
             }
         }
 
-        // --- EXISTING ALGORITHMIC LOGIC (FALLBACK) ---
+        // --- ENHANCED ALGORITHMIC LOGIC WITH RHYTHMIC VARIETY ---
         const melody: NoteEvent[] = [];
-        const baseNote = leitmotif.pitchClasses[0] + (leitmotif.baseOctave + 1) * 12;
 
-        // 1. Determine Phrase Structure based on Intensity
-        // Low intensity = simple, long notes. High intensity = complex, rigid, or chaotic.
-        const density = 1 + Math.floor(intensity * 3); // 1 to 4 notes per beat essentially
+        // 1. Get rhythm pattern from leitmotif or generate based on psychometrics
+        const rhythmPattern = this.selectRhythmPattern(leitmotif, intensity);
 
-        // 2. Select Pitch Sequence from Leitmotif
+        // 2. Get pitch sequence from leitmotif
         let pitches = leitmotif.pitchClasses.map(pc => pc + (leitmotif.baseOctave + 1) * 12);
+        if (pitches.length === 0) {
+            pitches = [60, 62, 64, 65, 67]; // Default C major scale
+        }
 
-        // Apply Mode/Scale constraints
-        // If mode is 'minor', flatten 3rds and 6ths if needed? 
-        // For now, assume leitmotif is already in correct mode or we transpose it.
+        // 3. Calculate how many complete pattern cycles fit in duration
+        const patternDuration = rhythmPattern.reduce((sum, d) => sum + d, 0);
+        const cycles = Math.max(1, Math.floor(duration / patternDuration));
 
-        // 3. Generate Notes
         let currentBeat = startBeat;
-        const totalNotes = Math.floor(duration * density);
-        const noteDuration = duration / totalNotes;
+        let noteIndex = 0;
 
-        for (let i = 0; i < totalNotes; i++) {
-            // Select pitch: walk through leitmotif or arpeggiate
-            const pitchIdx = i % pitches.length;
-            let note = pitches[pitchIdx];
+        for (let cycle = 0; cycle < cycles; cycle++) {
+            for (let i = 0; i < rhythmPattern.length; i++) {
+                const noteDuration = rhythmPattern[i];
 
-            // Variation: Octave jumps for high intensity
-            if (intensity > 0.7 && Math.random() > 0.7) {
-                note += 12;
+                // Check for rest (negative duration indicates rest)
+                if (noteDuration < 0) {
+                    currentBeat += Math.abs(noteDuration);
+                    continue;
+                }
+
+                // Select pitch from leitmotif sequence
+                const pitchIdx = noteIndex % pitches.length;
+                let note = pitches[pitchIdx];
+
+                // Variation: Octave jumps for high intensity
+                if (intensity > 0.7 && Math.random() > 0.6) {
+                    note += 12;
+                }
+
+                // Variation: Lower octave for low intensity
+                if (intensity < 0.3 && Math.random() > 0.7) {
+                    note -= 12;
+                }
+
+                // Passing tones between structural notes
+                if (i > 0 && Math.random() > 0.7 && intensity > 0.4) {
+                    const prevNote = pitches[(pitchIdx - 1 + pitches.length) % pitches.length];
+                    note = Math.round((note + prevNote) / 2);
+                }
+
+                melody.push({
+                    pitch: this.midiToNoteName(note),
+                    midiNote: note,
+                    duration: noteDuration,
+                    startBeat: currentBeat,
+                    velocity: params.dynamic * (0.8 + Math.random() * 0.2),
+                    articulation: this.selectArticulation(intensity, i, rhythmPattern.length)
+                });
+
+                currentBeat += noteDuration;
+                noteIndex++;
             }
-
-            // Variation: Passing tones
-            if (i > 0 && i < totalNotes - 1 && Math.random() > 0.5) {
-                // Add passing tone logic here? 
-                // For simplified 'Genius', just stick to structural notes for now
-            }
-
-            melody.push({
-                pitch: this.midiToNoteName(note),
-                midiNote: note,
-                duration: noteDuration,
-                startBeat: currentBeat,
-                velocity: params.dynamic * (0.8 + Math.random() * 0.2), // Humanize velocity
-                articulation: params.articulation
-            });
-
-            currentBeat += noteDuration;
         }
 
         return melody;
+    }
+
+    /**
+     * Select rhythm pattern based on leitmotif or psychometric state
+     */
+    private selectRhythmPattern(leitmotif: Leitmotif, intensity: number): number[] {
+        // First, try to use leitmotif's rhythm if defined
+        if (leitmotif.rhythm && leitmotif.rhythm.length > 0) {
+            return leitmotif.rhythm;
+        }
+
+        // Generate pattern based on intensity (trauma/entropy)
+        if (intensity > 0.8) {
+            // Very high intensity: fragmented, rapid 16th notes with syncopation
+            return [0.125, 0.125, 0.25, 0.125, 0.125, 0.125, 0.125];
+        } else if (intensity > 0.6) {
+            // High intensity: driving 8th notes with occasional 16ths
+            return [0.25, 0.125, 0.125, 0.25, 0.25];
+        } else if (intensity > 0.4) {
+            // Medium intensity: mixed rhythm with dotted patterns
+            return [0.375, 0.125, 0.25, 0.25];
+        } else if (intensity > 0.2) {
+            // Low-medium: steady quarter notes with some 8ths
+            return [0.25, 0.25, 0.5];
+        } else {
+            // Very low intensity: long sustained notes
+            return [0.5, 0.5, 1.0];
+        }
+    }
+
+    /**
+     * Select articulation based on context
+     */
+    private selectArticulation(intensity: number, noteIndex: number, patternLength: number): string {
+        if (intensity > 0.7) {
+            // High intensity: marcato or staccato
+            return noteIndex === 0 ? 'marcato' : 'staccato';
+        } else if (noteIndex === patternLength - 1) {
+            // Last note of pattern: tenuto
+            return 'tenuto';
+        } else if (intensity < 0.3) {
+            // Low intensity: legato
+            return 'legato';
+        }
+        return 'normal';
     }
 
     /**
