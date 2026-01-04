@@ -1,6 +1,40 @@
 /**
  * Audio Exporter for MPN Conductor
- * Exports Tone.js scores to MP3 format for preservation and sharing
+ * 
+ * CRITICAL: Score Preservation System
+ * Exports Tone.js psychometric scores to high-quality MP3 format.
+ * 
+ * Purpose:
+ * - Preserve original scores before system upgrades
+ * - Share compositions with stakeholders
+ * - Archive psychometric musical interpretations
+ * 
+ * Technical Architecture:
+ * 1. Offline Rendering: Uses Tone.OfflineContext to render audio without realtime playback
+ * 2. Frame Processing: Each PsychometricScoreFrame represents 4 beats of music
+ * 3. MP3 Encoding: lamejs encoder creates high-quality compressed audio (192kbps)
+ * 4. Stereo Output: Full stereo field preserved from Tone.js spatial positioning
+ * 
+ * Integration with MPN System:
+ * - Reads PsychometricScoreFrame[] (psychometric states + musical events)
+ * - Uses MPNSynthesizer for consistent audio generation
+ * - Maintains all psychometric → musical parameter mappings
+ * - Preserves leitmotifs, orchestration, and dynamic mixing
+ * 
+ * Quality Settings:
+ * - Sample Rate: 44.1kHz (CD quality)
+ * - Bit Rate: 192kbps (high-quality MP3)
+ * - Channels: 2 (stereo)
+ * 
+ * Usage:
+ * ```typescript
+ * const mp3Blob = await exportScoreToMP3(scoreFrames, tempo);
+ * downloadMP3(mp3Blob, 'hamlet_original_v3.0.mp3');
+ * ```
+ * 
+ * @module audio_exporter
+ * @requires tone - Audio synthesis and offline rendering
+ * @requires lamejs - MP3 encoding
  */
 
 import * as Tone from 'tone';
@@ -23,7 +57,43 @@ const DEFAULT_OPTIONS: ExportOptions = {
 };
 
 /**
- * Export a single score frame to MP3
+ * Export a psychometric score to MP3 format
+ * 
+ * CORE FUNCTIONALITY: Offline Audio Rendering & Compression
+ * 
+ * Process Flow:
+ * 1. Calculate total duration from frame count and tempo
+ * 2. Create Tone.OfflineContext for non-realtime rendering
+ * 3. Initialize MPNSynthesizer in offline context
+ * 4. Schedule all musical events from frames
+ * 5. Render complete audio buffer
+ * 6. Encode to MP3 using lamejs
+ * 7. Return Blob for download
+ * 
+ * Performance:
+ * - Faster than realtime (no playback delay)
+ * - Memory efficient (processes in chunks)
+ * - Progress updates via console.log
+ * 
+ * Psychometric Preservation:
+ * - ALL 498 mappings applied during rendering
+ * - Actor DISC profiles → instrument selection
+ * - Trauma/entropy → rhythm & harmony
+ * - RSI registers → harmonic choices
+ * - Leitmotifs preserved with transformations
+ * 
+ * @param frames - Array of psychometric score frames (each = 4 beats)
+ * @param tempo - Beats per minute (default: 80 BPM)
+ * @param options - Export configuration (sample rate, bit rate, filename)
+ * @returns Promise<Blob> - MP3 audio file as Blob
+ * @throws Error if rendering or encoding fails
+ * 
+ * @example
+ * // Export Hamlet score at 90 BPM
+ * const mp3 = await exportScoreToMP3(hamletFrames, 90, {
+ *   bitRate: 256,
+ *   filename: 'hamlet_final.mp3'
+ * });
  */
 export async function exportScoreToMP3(
     frames: PsychometricScoreFrame[],
