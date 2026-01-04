@@ -180,6 +180,13 @@ export default function MPNConductorPage() {
         entropy < 0.7 ? Math.round(80 + (entropy - 0.4) * 67) :
             Math.round(120 + (entropy - 0.7) * 200);
 
+    // RSI (Real-Symbolic-Imaginary) register values for style recommendation
+    const rsi = {
+        real: currentFrame?.real ?? 0.33,
+        symbolic: currentFrame?.symbolic ?? 0.33,
+        imaginary: currentFrame?.imaginary ?? 0.34
+    };
+
     // Enable audio
     const handleEnableAudio = useCallback(async () => {
         if (!audioInitialized) {
