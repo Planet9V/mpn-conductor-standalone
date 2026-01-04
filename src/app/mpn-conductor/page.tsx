@@ -25,6 +25,7 @@ import { MPNPresetAPI } from '@/components/mpn-lab/mpn_preset_api';
 import { getOrchestrator, ScoreOrchestrator } from '@/components/mpn-lab/score_orchestrator';
 import { useMPNSynthesizer } from '@/components/mpn-lab/MPNSynthesizer';
 import { ORCHESTRATION_MODES, type OrchestrationMode } from '@/components/mpn-lab/GeniusComposer';
+import StyleSelector from '@/components/mpn-lab/StyleSelector';
 
 import { LITERARY_SCENARIOS } from '@/components/mpn-lab/literary_data';
 import { LiteraryScenario, ScenarioFrame } from '@/components/mpn-lab/types';
@@ -106,12 +107,24 @@ export default function MPNConductorPage() {
     const [orchestrationMode, setOrchestrationMode] = useState<OrchestrationMode>('FULL_ORCHESTRA' as OrchestrationMode);
     const [aiEnabled, setAiEnabled] = useState(false);
     const [aiTemperature, setAiTemperature] = useState(0.7);
+    const [currentStyleId, setCurrentStyleId] = useState('orchestral'); // Musical style
 
     // Update Orchestration Mode
     useEffect(() => {
         const orchestrator = getOrchestrator();
         orchestrator.setOrchestrationMode(orchestrationMode);
     }, [orchestrationMode]);
+
+    // Update Musical Style
+    useEffect(() => {
+        const orchestrator = getOrchestrator();
+        orchestrator.setMusicalStyle(currentStyleId);
+    }, [currentStyleId]);
+
+    // Handle style change from selector
+    const handleStyleChange = useCallback((styleId: string) => {
+        setCurrentStyleId(styleId);
+    }, []);
 
     const [isPlaying, setIsPlaying] = useState(false);
     const [playSpeed, setPlaySpeed] = useState(2500); // ms between frames
@@ -731,6 +744,22 @@ export default function MPNConductorPage() {
                                 )}
                             </div>
                         </div>
+                    </div>
+
+                    {/* Musical Style Selector */}
+                    <div className="mt-8">
+                        <div className="flex items-center gap-2 mb-4">
+                            <Music className="w-5 h-5 text-oxot-gold" />
+                            <h2 className="text-white font-semibold">Musical Style</h2>
+                        </div>
+                        <StyleSelector
+                            currentStyleId={currentStyleId}
+                            onStyleChange={handleStyleChange}
+                            trauma={trauma}
+                            entropy={entropy}
+                            rsi={rsi}
+                            showParameters={true}
+                        />
                     </div>
                 </div>
             </section>
