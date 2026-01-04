@@ -10,7 +10,7 @@ services:
       dockerfile: Dockerfile
     container_name: mpn-conductor-app
     ports:
-      - "3001:3000"
+      - "0.0.0.0:3001:3000" # Bind to all interfaces (LAN, Tailscale, etc.)
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://mpn_user:mpn_secure_2026!@mpn-postgres:5432/mpn_conductor
@@ -48,16 +48,16 @@ services:
     restart: unless-stopped
 
 # ===========================================
-# Internal Network (Container-Only Access)
+# Internal Network
 # ===========================================
 networks:
   mpn-internal:
     driver: bridge
-    internal: true # Prevents external access
+    # internal: true removed to allow host access
 
-# ===========================================
-# Persistent Volumes
-# ===========================================
+    # ===========================================
+    # Persistent Volumes
+    # ===========================================
 volumes:
   mpn_postgres_data:
     name: mpn_conductor_postgres_data
