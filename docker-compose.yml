@@ -25,7 +25,7 @@ services:
   # PostgreSQL Database (Local Only)
   # ===========================================
   mpn-postgres:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg16 # PostgreSQL 16 with pgvector pre-installed
     container_name: mpn-conductor-postgres
     environment:
       POSTGRES_USER: mpn_user
