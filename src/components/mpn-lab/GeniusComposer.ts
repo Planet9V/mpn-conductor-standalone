@@ -313,7 +313,81 @@ export class GeniusComposer {
     }
 
     /**
+     * Apply harmony rules based on style parameters
+     * Returns chord offsets (intervals from root) with extensions
+     */
+    private applyHarmonyRules(chordType: string, params: MusicalParams): number[] {
+        const style = this.currentStyle.harmony;
+        let offsets: number[] = [];
+
+        // Base triad selection
+        if (chordType.includes('minor')) {
+            offsets = [0, 3, 7]; // Minor triad
+        } else if (chordType.includes('diminished')) {
+            offsets = [0, 3, 6]; // Diminished triad
+        } else if (chordType.includes('augmented')) {
+            offsets = [0, 4, 8]; // Augmented triad
+        } else {
+            offsets = [0, 4, 7]; // Major triad (default)
+        }
+
+        // Apply complexity for extensions
+        // complexity 0.0-0.3: Triads only
+        // complexity 0.3-0.6: Add 7ths
+        // complexity 0.6-0.9: Add 9ths, 11ths
+        // complexity 0.9-1.0: Add all extensions (13ths, altered tones)
+
+        if (style.complexity > 0.3) {
+            // Add 7th
+            if (chordType.includes('maj7')) {
+                offsets.push(11); // Major 7th
+            } else if (chordType.includes('7') || style.complexity > 0.5) {
+                offsets.push(10); // Dominant 7th
+            }
+        }
+
+        if (style.complexity > 0.6) {
+            // Add 9th
+            offsets.push(14); // 9th (2 + octave)
+
+            if (style.complexity > 0.7) {
+                // Add 11th
+                offsets.push(17); // 11th (5 + octave)
+            }
+        }
+
+        if (style.complexity > 0.9) {
+            // Add 13th for maximum complexity
+            offsets.push(21); // 13th (9 + octave)
+        }
+
+        // Apply dissonance tolerance for alterations
+        if (style.dissonance_tolerance > 0.6) {
+            // Add chromatic tensions
+            if (Math.random() < style.dissonance_tolerance - 0.5) {
+                // Flatten 9th (dark jazz sound)
+                const ninthIndex = offsets.indexOf(14);
+                if (ninthIndex > -1) {
+                    offsets[ninthIndex] = 13; // b9
+                }
+            }
+
+            if (style.dissonance_tolerance > 0.8) {
+                // Sharp 11th (lydian sound)
+                const eleventhIndex = offsets.indexOf(17);
+                if (eleventhIndex > -1) {
+                    offsets[eleventhIndex] = 18; // #11
+                }
+            }
+        }
+
+        // Remove duplicates and sort
+        return [...new Set(offsets)].sort((a, b) => a - b);
+    }
+
+    /**
      * Orchestrate a chord voicing based on the mode
+     * NOW WITH STYLE HARMONY INTEGRATION
      */
     orchestrateChord(
         chordRoot: string,
@@ -322,46 +396,55 @@ export class GeniusComposer {
         startBeat: number,
         duration: number
     ): NoteEvent[] {
-        // Basic chord tones ( Root, 3rd, 5th, 7th )
-        const rootMidi = this.noteNameToMidi(chordRoot + "4"); // Default to middle register
-        let offsets = [0, 4, 7]; // Major triad
-
-        if (chordType.includes('minor')) offsets = [0, 3, 7];
-        if (chordType.includes('diminished')) offsets = [0, 3, 6];
-        if (chordType.includes('augmented')) offsets = [0, 4, 8];
-        if (chordType.includes('7')) offsets.push(10); // Dominant 7 usually
-        if (chordType.includes('maj7')) offsets.push(11);
-
+        // Get chord offsets using harmony rules
+        const offsets = this.applyHarmonyRules(chordType, params);
+        const rootMidi = this.noteNameToMidi(chordRoot + "4"); // Middle register
         const chordNotes: NoteEvent[] = [];
 
-        // Distribute voices based on Orchestration Mode
-        if (this.mode === 'FULL_ORCHESTRA') {
-            // Wide voicing: Root (Bass), Root+5 (Tenor), 3rd+7th (Alto), Melody (Soprano)
-            // This method just returns abstract note events, Orchestrator assigns instruments
+        // Apply texture density from style
+        const density = this.currentStyle.texture.density;
 
-            // Bass
-            chordNotes.push(this.createNote(rootMidi - 12, duration, startBeat, params));
-            // Harmony
-            offsets.forEach(offset => {
+        // Distribute voices based on Orchestration Mode + Texture Density
+        if (this.mode === 'FULL_ORCHESTRA') {
+            // Wide voicing: Bass + full chord
+            chordNotes.push(this.createNote(rootMidi - 12, duration, startBeat, params)); // Bass
+
+            // Add chord tones based on density
+            const voicesToAdd = Math.floor(offsets.length * density);
+            offsets.slice(0, Math.max(3, voicesToAdd)).forEach(offset => {
                 chordNotes.push(this.createNote(rootMidi + offset, duration, startBeat, params));
             });
         }
-        else if (this.mode === 'MINIMALIST_VOID') {
-            // Just Root and 5th, very sparse
+        else if (this.mode === 'MINIMALIST_VOID' || this.mode === 'MINIMALIST_GLASS') {
+            // Sparse voicing: Root and 5th only (or just root if very sparse)
             chordNotes.push(this.createNote(rootMidi - 12, duration, startBeat, params));
-            chordNotes.push(this.createNote(rootMidi + 7, duration, startBeat, params));
+            if (density > 0.2) {
+                chordNotes.push(this.createNote(rootMidi + 7, duration, startBeat, params)); // Perfect 5th
+            }
         }
-        else if (this.mode === 'JAZZ_NOIR') {
-            // Cluster voicing, rootless?
-            // Add extensions (9th, 11th)
-            offsets.push(14); // 9th
-            offsets.forEach(offset => {
+        else if (this.mode === 'JAZZ_NOIR' || this.mode === 'BRASS_ENSEMBLE') {
+            // Jazz voicing: Rootless with extensions
+            // Skip root in upper voices, emphasize color tones (3rd, 7th, extensions)
+            offsets.filter(o => o > 0).forEach(offset => {
+                chordNotes.push(this.createNote(rootMidi + offset, duration, startBeat, params));
+            });
+            // Bass plays root
+            if (density > 0.3) {
+                chordNotes.push(this.createNote(rootMidi - 12, duration, startBeat, params));
+            }
+        }
+        else if (this.mode === 'CHAMBER_DEATH' || this.mode === 'CHAMBER_QUARTET') {
+            // Chamber: Close voicing, emphasize dissonance
+            // Use all offsets but in narrow range
+            const maxVoices = Math.floor(4 * density); // Max 4 voices for chamber
+            offsets.slice(0, maxVoices).forEach(offset => {
                 chordNotes.push(this.createNote(rootMidi + offset, duration, startBeat, params));
             });
         }
         else {
-            // Default
-            offsets.forEach(offset => {
+            // Default: Use all chord tones based on density
+            const voicesToAdd = Math.ceil(offsets.length * Math.max(0.5, density));
+            offsets.slice(0, voicesToAdd).forEach(offset => {
                 chordNotes.push(this.createNote(rootMidi + offset, duration, startBeat, params));
             });
         }
