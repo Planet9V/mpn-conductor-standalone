@@ -31,6 +31,7 @@ import { LITERARY_SCENARIOS } from '@/components/mpn-lab/literary_data';
 import { LiteraryScenario, ScenarioFrame } from '@/components/mpn-lab/types';
 import { PsychometricScoreFrame, ActorStaveData, ActorProfile } from '@/components/mpn-lab/score_types';
 import { downloadScorePDF } from '@/components/mpn-lab/score_exporter';
+import ExportButton from '@/components/mpn-lab/ExportButton';
 
 // Instrument assignment based on DISC profile (from reference dictionary)
 const DISC_INSTRUMENTS: Record<string, string> = {
@@ -547,6 +548,16 @@ export default function MPNConductorPage() {
                             <Link href="/play-library" className="p-2 rounded-full text-gray-400 hover:text-amber-400 hover:bg-amber-400/10 transition-colors" title="Library">
                                 <FileText className="w-4 h-4" />
                             </Link>
+                            {/* MP3 Export Button */}
+                            <ExportButton
+                                frames={scoreBuffer}
+                                title={selectedScenario.title}
+                                author={selectedScenario.author}
+                                scenario={selectedScenario.title}
+                                tempo={tempo}
+                                disabled={scoreBuffer.length === 0}
+                            />
+
                             <button
                                 onClick={async () => {
                                     // Derive actors from scoreFrame staves
