@@ -9,6 +9,7 @@
 import { MusicalParams } from './psychometric_calculus';
 import { NoteEvent } from './score_orchestrator';
 import { Leitmotif, transformLeitmotif, LeitmotifTransformation } from './leitmotif_generator';
+import { STYLE_PRESETS, MusicalStyle } from './styles';
 
 // ============================================================================
 // TYPES
@@ -48,6 +49,10 @@ export class GeniusComposer {
     private voices: Map<string, VoiceLeadingState> = new Map();
     private history: NoteEvent[] = [];
 
+    // Style Configuration
+    private currentStyleId: string = 'orchestral'; // Default style
+    private currentStyle: MusicalStyle = STYLE_PRESETS['orchestral'];
+
     // AI State
     private useAI: boolean = false;
     private aiTemperature: number = 0.7;
@@ -59,6 +64,27 @@ export class GeniusComposer {
 
     setMode(mode: OrchestrationMode) {
         this.mode = mode;
+    }
+
+    /**
+     * Set musical style for composition
+     */
+    setStyle(styleId: string) {
+        if (STYLE_PRESETS[styleId]) {
+            this.currentStyleId = styleId;
+            this.currentStyle = STYLE_PRESETS[styleId];
+            // Update orchestration mode if style has one
+            if (this.currentStyle.orchestrationMode) {
+                this.mode = this.currentStyle.orchestrationMode as OrchestrationMode;
+            }
+        }
+    }
+
+    /**
+     * Get current style
+     */
+    getStyle(): MusicalStyle {
+        return this.currentStyle;
     }
 
     setAIEnabled(enabled: boolean, temperature: number = 0.7) {
@@ -184,6 +210,7 @@ export class GeniusComposer {
 
     /**
      * Select rhythm pattern based on leitmotif or psychometric state
+     * NOW WITH STYLE INTEGRATION
      */
     private selectRhythmPattern(leitmotif: Leitmotif, intensity: number): number[] {
         // First, try to use leitmotif's rhythm if defined
@@ -191,23 +218,55 @@ export class GeniusComposer {
             return leitmotif.rhythm;
         }
 
-        // Generate pattern based on intensity (trauma/entropy)
-        if (intensity > 0.8) {
-            // Very high intensity: fragmented, rapid 16th notes with syncopation
-            return [0.125, 0.125, 0.25, 0.125, 0.125, 0.125, 0.125];
-        } else if (intensity > 0.6) {
-            // High intensity: driving 8th notes with occasional 16ths
-            return [0.25, 0.125, 0.125, 0.25, 0.25];
-        } else if (intensity > 0.4) {
-            // Medium intensity: mixed rhythm with dotted patterns
-            return [0.375, 0.125, 0.25, 0.25];
-        } else if (intensity > 0.2) {
-            // Low-medium: steady quarter notes with some 8ths
-            return [0.25, 0.25, 0.5];
-        } else {
-            // Very low intensity: long sustained notes
-            return [0.5, 0.5, 1.0];
+        // Get style rhythm parameters
+        const style = this.currentStyle.rhythm;
+        const baseDivision = style.base_division; // 4, 8, 16, or 32
+        const syncopation = style.syncopation_weight; // 0-1
+        const swing = style.swing;
+
+        // Convert base division to beat duration
+        const baseDuration = 4.0 / baseDivision; // 4->1.0, 8->0.5, 16->0.25, 32->0.125
+
+        // Generate pattern based on style + intensity
+        const patternLength = Math.floor(4 + Math.random() * 4); // 4-8 notes
+        const pattern: number[] = [];
+
+        for (let i = 0; i < patternLength; i++) {
+            let duration = baseDuration;
+
+            // Intensity modulation
+            if (intensity > 0.7 && Math.random() < 0.4) {
+                // Higher intensity = faster notes
+                duration = baseDuration / 2;
+            } else if (intensity < 0.3 && Math.random() < 0.3) {
+                // Lower intensity = longer notes
+                duration = baseDuration * 2;
+            }
+
+            // Apply syncopation
+            if (syncopation > Math.random()) {
+                // Off-beat emphasis: shorten this note, lengthen next
+                duration *= 0.75;
+                if (i < patternLength - 1) {
+                    pattern.push(duration);
+                    pattern.push(baseDuration * 1.5); // Lengthened next note
+                    i++; // Skip next iteration
+                    continue;
+                }
+            }
+
+            // Swing feel (triplet subdivision for jazz)
+            if (swing && i % 2 === 0 && i < patternLength - 1) {
+                pattern.push(baseDuration * 0.67); // Long
+                pattern.push(baseDuration * 0.33); // Short
+                i++; // Skip next iteration
+                continue;
+            }
+
+            pattern.push(duration);
         }
+
+        return pattern.length > 0 ? pattern : [baseDuration, baseDuration, baseDuration, baseDuration];
     }
 
     /**

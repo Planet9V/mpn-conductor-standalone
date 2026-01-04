@@ -158,6 +158,20 @@ export class ScoreOrchestrator {
         this.composer.setAIEnabled(enabled, temperature);
     }
 
+    /**
+     * Set musical style for composition
+     */
+    setMusicalStyle(styleId: string) {
+        this.composer.setStyle(styleId);
+    }
+
+    /**
+     * Get current musical style
+     */
+    getMusicalStyle() {
+        return this.composer.getStyle();
+    }
+
     updateAdjustments(adjustments: Record<string, ParameterAdjustment>) {
         this.activeAdjustments = { ...this.activeAdjustments, ...adjustments };
     }
