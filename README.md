@@ -3,7 +3,7 @@
 <div align="center">
 
 ![MPN Logo](https://img.shields.io/badge/MPN-Conductor-FFD700?style=for-the-badge&logo=music&logoColor=black)
-![Version](https://img.shields.io/badge/version-3.0-blue?style=for-the-badge)
+![Version](https://img.shields.io/badge/version-3.2-blue?style=for-the-badge)
 ![Tests](https://img.shields.io/badge/tests-132%20passing-green?style=for-the-badge)
 ![License](https://img.shields.io/badge/license-MIT-purple?style=for-the-badge)
 
@@ -11,7 +11,7 @@
 
 *Translating psychological states into orchestral scores using the McKenney-Lacan theoretical framework*
 
-[Quick Start](#quick-start) • [Features](#features) • [Documentation](#documentation) • [Architecture](#architecture) • [API](#api-reference)
+[Quick Start](#quick-start) • [Features](#features) • [📖 Wiki](/wiki) • [Architecture](#architecture) • [API](#api-reference)
 
 </div>
 

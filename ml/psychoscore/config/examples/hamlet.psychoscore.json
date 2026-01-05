@@ -1,0 +1,64 @@
+{
+    "name": "hamlet",
+    "description": "Score configuration for Hamlet production - darker, more constrained output for tragedy",
+    "temperature": {
+        "base_temperature": 0.6,
+        "entropy_multiplier": 0.35,
+        "trauma_multiplier": 0.4,
+        "rsi_imaginary_bonus": 0.15,
+        "min_temperature": 0.35,
+        "max_temperature": 1.2
+    },
+    "musical_mapping": {
+        "trauma_threshold": 0.5,
+        "rsi_mode_mapping": {
+            "real": {
+                "low_trauma": "Aeolian",
+                "high_trauma": "Locrian"
+            },
+            "symbolic": {
+                "low_trauma": "Dorian",
+                "high_trauma": "Phrygian"
+            },
+            "imaginary": {
+                "low_trauma": "Phrygian",
+                "high_trauma": "Locrian"
+            }
+        },
+        "openness_key_bias": 0.3,
+        "default_instruments": {
+            "real": [
+                "cello",
+                "double_bass",
+                "bassoon",
+                "timpani"
+            ],
+            "symbolic": [
+                "piano",
+                "viola",
+                "french_horn"
+            ],
+            "imaginary": [
+                "oboe",
+                "english_horn",
+                "harp"
+            ]
+        }
+    },
+    "generation": {
+        "default_max_bars": 48,
+        "use_dynamic_temperature": true,
+        "note_variety_entropy_scale": 0.8,
+        "rhythmic_complexity_scale": 0.7,
+        "harmonic_density_scale": 1.2
+    },
+    "contrastive": {
+        "enabled": true,
+        "weight": 0.15
+    },
+    "custom_overrides": {
+        "ghost_scenes_mode": "Locrian",
+        "ophelia_scenes_mode": "Lydian",
+        "soliloquy_tempo_reduction": 0.8
+    }
+}

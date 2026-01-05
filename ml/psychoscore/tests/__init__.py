@@ -1,0 +1,3 @@
+"""
+PSYCHOSCORE Tests Package
+"""

@@ -3,17 +3,31 @@
  * 
  * Uses OpenRouter with Gemini models for production, with local LM Studio fallback for development.
  * 
- * Model Priority:
- * 1. OpenRouter: google/gemini-3-flash-preview (primary)
- * 2. OpenRouter: google/gemini-2.5-flash-lite (fallback)
- * 3. Local LM Studio: scrapegoat-music-stage2 (dev only)
+ * Model Priority (Symbolic MIDI Generation):
+ * 1. PSYCHOSCORE: Custom-trained 57D psychometric→MIDI model (highest priority)
+ * 2. Text2midi: HuggingFace amaai-lab/text2midi
+ * 3. OpenRouter: google/gemini-3-flash-preview (LLM fallback)
  * 
- * HuggingFace Integration (Planned):
+ * HuggingFace Integration:
  * - facebook/musicgen-large for actual audio generation
  * - facebook/musicgen-melody for melody-conditioned outputs
+ * - amaai-lab/text2midi for symbolic MIDI generation
+ * 
+ * PSYCHOSCORE Integration:
+ * - Custom 57-dimension psychometric input (DISC, OCEAN, RSI, Dark Triad, Biases, Physics)
+ * - REMI tokenization with 1,700+ psychometric prefix tokens
+ * - Trained on RTX 5070 Ti with QLoRA
  */
 
 import { OpenRouterClient, MPN_AI_CONFIG, HUGGINGFACE_MUSIC_MODELS } from './openrouter_client';
+import {
+    Text2midiClient,
+    text2midiClient,
+    psychometricsToText2midiPrompt,
+    type PsychometricTextParams,
+    type ParsedMidiNote
+} from './text2midi_client';
+import { PsychoscoreClient, getPsychoscoreClient, type PsychoscoreRequest } from './psychoscore_client';
 
 export interface AICompostionParams {
     psychometrics: {
@@ -47,10 +61,14 @@ const USE_LOCAL_LM = process.env.NODE_ENV === 'development' && process.env.USE_L
 export class AIMusicClient {
     private static instance: AIMusicClient;
     private openRouter: OpenRouterClient;
+    private text2midi: Text2midiClient;
+    private psychoscore: PsychoscoreClient;
     private isLocalConnected: boolean = false;
 
     private constructor() {
         this.openRouter = new OpenRouterClient(MPN_AI_CONFIG);
+        this.text2midi = Text2midiClient.getInstance();
+        this.psychoscore = getPsychoscoreClient();
     }
 
     static getInstance(): AIMusicClient {
@@ -61,9 +79,17 @@ export class AIMusicClient {
     }
 
     async checkConnection(): Promise<boolean> {
-        // Check OpenRouter first
+        // Check PSYCHOSCORE first (highest priority for symbolic MIDI)
+        const psychoscoreOk = await this.psychoscore.healthCheck();
+        if (psychoscoreOk) return true;
+
+        // Check OpenRouter for LLM fallback
         const openRouterOk = await this.openRouter.healthCheck();
         if (openRouterOk) return true;
+
+        // Check Text2midi
+        const text2midiOk = await this.text2midi.healthCheck();
+        if (text2midiOk) return true;
 
         // Fall back to local LM Studio if configured
         if (USE_LOCAL_LM) {
@@ -104,11 +130,7 @@ Dark Triad Influence:
 - Narcissism → Prominent melodic lines, virtuosic passages
 - Psychopathy → Sudden dynamic changes, unpredictable accents`;
 
-        const userPrompt = `
-Psychometrics: ${JSON.stringify(params.psychometrics)}
-Context: ${JSON.stringify(params.musicalContext)}
-Generate a 1-bar melody for ${params.musicalContext.instrument}.
-Apply McKenney-Lacan MPN transformation based on the RSI balance.`;
+        const userPrompt = JSON.stringify(params, null, 2);
 
         // Try OpenRouter first
         const response = await this.openRouter.createCompletion({
@@ -116,12 +138,19 @@ Apply McKenney-Lacan MPN transformation based on the RSI balance.`;
                 { role: 'system', content: systemPrompt },
                 { role: 'user', content: userPrompt }
             ],
-            temperature: params.temperature || 0.7,
-            maxTokens: 500,
+            temperature: params.temperature,
+            maxTokens: 1000
         });
 
-        if (response?.content) {
-            return this.parseAIResponse(response.content);
+        if (response && response.content) {
+            try {
+                // Strip markdown formatting if present
+                const cleanJson = response.content.replace(/```json/g, '').replace(/```/g, '').trim();
+                return JSON.parse(cleanJson);
+            } catch (e) {
+                console.error('Failed to parse AI response:', e);
+                return null;
+            }
         }
 
         // Fall back to local LM Studio if OpenRouter fails
@@ -177,6 +206,134 @@ Apply McKenney-Lacan MPN transformation based on the RSI balance.`;
     }
 
     /**
+     * Generate actual audio using HuggingFace MusicGen
+     * @param prompt Text description of the music
+     * @param duration Duration in seconds (default 10)
+     */
+    async generateAudio(prompt: string, duration: number = 10): Promise<ArrayBuffer | null> {
+        const apiKey = process.env.HUGGINGFACE_API_KEY;
+        if (!apiKey) {
+            console.warn('[AIMusicClient] No HuggingFace API key found');
+            return null;
+        }
+
+        const model = HUGGINGFACE_MUSIC_MODELS.musicGenSmall; // Use small for speed/reliability
+
+        try {
+            const response = await fetch(model.endpoint, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    inputs: prompt,
+                    parameters: {
+                        duration_seconds: duration,
+                    }
+                }),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HF API error: ${response.status} ${response.statusText}`);
+            }
+
+            const buffer = await response.arrayBuffer();
+            return buffer;
+
+        } catch (error) {
+            console.error('[AIMusicClient] Audio generation failed:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Generate symbolic MIDI from psychometric state using Text2midi
+     * This produces MIDI note events that can be directly integrated into the score.
+     * 
+     * @param params Psychometric state parameters
+     * @returns Parsed MIDI notes or null on failure
+     */
+    async generateSymbolicMidi(params: PsychometricTextParams): Promise<ParsedMidiNote[] | null> {
+        // Try PSYCHOSCORE first (custom trained model - highest quality)
+        try {
+            const psychoscoreAvailable = await this.psychoscore.healthCheck();
+
+            if (psychoscoreAvailable) {
+                console.log('[AIMusicClient] Using PSYCHOSCORE for generation');
+
+                // Convert params to PsychometricState format for PSYCHOSCORE
+                const psychoState = {
+                    discProfile: params.disc,
+                    oceanProfile: params.ocean,
+                    rsi: params.rsi,
+                    trauma: params.trauma ?? 0.3,
+                    entropy: params.entropy ?? 0.3,
+                    darkTriad: params.darkTriad,
+                    activeBiases: [],
+                    physicsState: undefined,
+                    musicalContext: undefined,
+                };
+
+                const midiBuffer = await this.psychoscore.generateFromPsychometrics(
+                    psychoState as any,
+                    32 // bars
+                );
+
+                if (midiBuffer) {
+                    // Parse MIDI buffer to notes using text2midi's parser
+                    const base64 = btoa(
+                        String.fromCharCode(...new Uint8Array(midiBuffer))
+                    );
+                    const notes = this.text2midi.parseMidiToNotes(base64);
+                    console.log(`[AIMusicClient] PSYCHOSCORE generated ${notes.length} notes`);
+                    return notes;
+                }
+            }
+        } catch (error) {
+            console.warn('[AIMusicClient] PSYCHOSCORE failed, falling back to text2midi:', error);
+        }
+
+        // Fallback to Text2midi
+        try {
+            const response = await this.text2midi.generateFromPsychometrics(params);
+
+            if (!response.success || !response.midi_base64) {
+                console.warn('[AIMusicClient] Text2midi generation failed:', response.error);
+                return null;
+            }
+
+            // Parse MIDI binary to note events
+            const notes = this.text2midi.parseMidiToNotes(response.midi_base64);
+
+            console.log(`[AIMusicClient] Generated ${notes.length} notes from Text2midi`);
+            return notes;
+
+        } catch (error) {
+            console.error('[AIMusicClient] Symbolic MIDI generation failed:', error);
+            return null;
+        }
+    }
+
+    /**
+     * Generate symbolic MIDI from a direct text prompt
+     */
+    async generateSymbolicMidiFromPrompt(prompt: string): Promise<ParsedMidiNote[] | null> {
+        try {
+            const response = await this.text2midi.generate({ prompt });
+
+            if (!response.success || !response.midi_base64) {
+                return null;
+            }
+
+            return this.text2midi.parseMidiToNotes(response.midi_base64);
+        } catch (error) {
+            console.error('[AIMusicClient] Prompt-based MIDI generation failed:', error);
+            return null;
+        }
+    }
+
+    /**
      * Get information about available HuggingFace music models for future integration
      */
     static getHuggingFaceModels() {
@@ -191,7 +348,67 @@ Apply McKenney-Lacan MPN transformation based on the RSI balance.`;
             openRouter: this.openRouter.getConfig(),
             localLM: USE_LOCAL_LM ? LM_STUDIO_ENDPOINT : null,
             huggingFace: HUGGINGFACE_MUSIC_MODELS,
+            text2midi: {
+                configured: this.text2midi.isConfigured(),
+                model: 'amaai-lab/text2midi'
+            },
+            psychoscore: {
+                configured: this.psychoscore.isReady(),
+                endpoint: this.psychoscore.getConfig().endpoint,
+                model: 'PSYCHOSCORE v1.0 (57D psychometric→MIDI)'
+            }
         };
     }
+
+    /**
+     * Check if Text2midi is configured and ready
+     */
+    isText2midiReady(): boolean {
+        return this.text2midi.isConfigured();
+    }
+
+    /**
+     * Check if PSYCHOSCORE is configured and ready (highest priority)
+     */
+    isPsychoscoreReady(): boolean {
+        return this.psychoscore.isReady();
+    }
+
+    /**
+     * Generate symbolic MIDI from PSYCHOSCORE (highest priority AI path)
+     * Uses custom 57-dimension psychometric input.
+     */
+    async generateFromPsychoscore(params: PsychometricTextParams): Promise<ArrayBuffer | null> {
+        if (!this.psychoscore.isReady()) {
+            console.warn('[AIMusicClient] PSYCHOSCORE not ready, skipping');
+            return null;
+        }
+
+        try {
+            // Convert PsychometricTextParams to PsychoscoreRequest
+            const request: PsychoscoreRequest = {
+                rsi: params.rsi,
+                trauma: params.trauma,
+                entropy: params.entropy,
+                key: params.key,
+                mode: params.mode,
+                tempo: params.tempo,
+                max_bars: 32,
+                temperature: 0.8,
+            };
+
+            const midiBuffer = await this.psychoscore.generateMidi(request);
+
+            if (midiBuffer) {
+                console.log(`[AIMusicClient] PSYCHOSCORE generated ${midiBuffer.byteLength} bytes`);
+            }
+
+            return midiBuffer;
+        } catch (error) {
+            console.error('[AIMusicClient] PSYCHOSCORE generation failed:', error);
+            return null;
+        }
+    }
 }
+
 

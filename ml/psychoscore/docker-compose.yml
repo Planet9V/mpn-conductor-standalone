@@ -1,0 +1,76 @@
+# PSYCHOSCORE Training Docker Compose
+# Run with: docker compose up --build
+
+services:
+  psychoscore-train:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: psychoscore-training
+
+    # GPU access
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+    # Environment
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - HUGGINGFACE_API_KEY=${HUGGINGFACE_API_KEY:-}
+      - WANDB_API_KEY=${WANDB_API_KEY:-}
+      - PYTHONUNBUFFERED=1
+
+    # Volumes for persistence
+    volumes:
+      - ./data:/app/data
+      - ./checkpoints:/app/checkpoints
+      - ./logs:/app/logs
+      - ./eval_samples:/app/eval_samples
+      - psychoscore-cache:/app/.cache
+
+    # Resource limits
+    shm_size: '8gb' # Shared memory for DataLoader workers
+
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
+
+    # Default command
+    command: python scripts/run_training_pipeline.py --config train/config.yaml
+
+  # Inference server (after training)
+  psychoscore-inference:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: psychoscore-inference
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [ gpu ]
+
+    environment:
+      - MODEL_PATH=/app/checkpoints/psychoscore/final
+
+    volumes:
+      - ./checkpoints:/app/checkpoints:ro
+
+    ports:
+      - "8001:8000"
+
+    command: python inference/server.py
+
+    # Don't start by default
+    profiles:
+      - inference
+
+volumes:
+  psychoscore-cache:

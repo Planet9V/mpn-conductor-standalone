@@ -57,6 +57,8 @@ const DIMENSION_LABELS: Record<PsychometricDimension, string> = {
     [PsychometricDimension.ENTROPY]: 'Entropy',
     [PsychometricDimension.RELATIONSHIP]: 'Relationship',
     [PsychometricDimension.STABILITY]: 'Stability',
+    [PsychometricDimension.PHYSICS]: 'Physics Framework',
+    [PsychometricDimension.MCKENNEY_LACAN]: 'McKenney-Lacan Theory',
 };
 
 const ORCHESTRATION_ICONS: Record<OrchestrationOption, React.ReactNode> = {
@@ -135,6 +137,53 @@ export default function MPNReferencePage() {
                         v{MPN_REFERENCE_DICTIONARY.version} • {MPN_REFERENCE_DICTIONARY.totalEntries} entries •
                         Changes here directly impact script→JSON conversion
                     </p>
+
+                    {/* Capabilities Summary */}
+                    <div className="mt-8 grid grid-cols-2 md:grid-cols-6 gap-3 max-w-5xl mx-auto">
+                        <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/30">
+                            <div className="text-lg font-bold text-purple-400">10</div>
+                            <div className="text-xs text-gray-400">Categories</div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                            <div className="text-lg font-bold text-blue-400">12</div>
+                            <div className="text-xs text-gray-400">Psychometric Dimensions</div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                            <div className="text-lg font-bold text-emerald-400">43+</div>
+                            <div className="text-xs text-gray-400">Theory Frameworks</div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-cyan-500/10 border border-cyan-500/30">
+                            <div className="text-lg font-bold text-cyan-400">4</div>
+                            <div className="text-xs text-gray-400">Physics Frameworks</div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30">
+                            <div className="text-lg font-bold text-amber-400">9</div>
+                            <div className="text-xs text-gray-400">AI Models</div>
+                        </div>
+                        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30">
+                            <div className="text-lg font-bold text-red-400">192</div>
+                            <div className="text-xs text-gray-400">Tests Passing</div>
+                        </div>
+                    </div>
+
+                    {/* Quick Links */}
+                    <div className="mt-6 flex flex-wrap justify-center gap-3">
+                        <a href="/wiki/features/frameworks" className="px-3 py-1.5 text-xs bg-oxot-gold/10 text-oxot-gold rounded-lg hover:bg-oxot-gold/20 transition">
+                            📚 43+ Frameworks
+                        </a>
+                        <a href="/wiki/features/physics" className="px-3 py-1.5 text-xs bg-cyan-500/10 text-cyan-400 rounded-lg hover:bg-cyan-500/20 transition">
+                            ⚛️ Physics Frameworks
+                        </a>
+                        <a href="/wiki" className="px-3 py-1.5 text-xs bg-white/5 text-white/70 rounded-lg hover:bg-white/10 transition">
+                            📖 Wiki Documentation
+                        </a>
+                        <a href="/mpn-lab" className="px-3 py-1.5 text-xs bg-white/5 text-white/70 rounded-lg hover:bg-white/10 transition">
+                            🧪 MPN Lab
+                        </a>
+                        <a href="/mpn-conductor" className="px-3 py-1.5 text-xs bg-purple-500/10 text-purple-400 rounded-lg hover:bg-purple-500/20 transition">
+                            🎼 MPN Conductor
+                        </a>
+                    </div>
                 </div>
             </section>
 
@@ -407,8 +456,9 @@ export default function MPNReferencePage() {
             {/* Footer */}
             <footer className="py-8 border-t border-white/10 text-center text-gray-500 text-xs">
                 <p>MPN Reference Dictionary v{MPN_REFERENCE_DICTIONARY.version}</p>
-                <p className="mt-1">Based on Canon v3.0 • McKenney-Lacan Theory</p>
-                <p className="mt-1 text-oxot-gold/60">OCEAN • Cognitive Biases • Dark Triad • DISC • Lacanian RSI</p>
+                <p className="mt-1">Based on Canon v3.2 • McKenney-Lacan Theory</p>
+                <p className="mt-1 text-oxot-gold/60">OCEAN • Cognitive Biases • Dark Triad • DISC • Lacanian RSI • Physics Frameworks</p>
+                <p className="mt-1 text-cyan-400/60">Hamiltonian • Ising • Granovetter • Lyapunov</p>
             </footer>
 
             {/* Psychometric Framework Expansion Section */}
@@ -513,13 +563,106 @@ export default function MPNReferencePage() {
                         </div>
                     </div>
 
+                    {/* Physics Frameworks - NEW */}
+                    <div className="mb-8">
+                        <h3 className="text-lg font-bold text-cyan-400 mb-4 flex items-center gap-2">
+                            <span className="p-1.5 rounded-lg bg-cyan-500/10">⚛️</span>
+                            Physics Frameworks → Musical Manifestation
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            {/* Hamiltonian */}
+                            <div className="p-4 bg-gray-900/50 border border-white/10 rounded-xl hover:border-emerald-500/30 transition-colors">
+                                <div className="text-sm font-bold text-emerald-400 mb-2">Hamiltonian Mechanics</div>
+                                <div className="space-y-1 text-xs">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Position q</span>
+                                        <span className="text-white">→ Pitch/Mode</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Momentum p</span>
+                                        <span className="text-white">→ Tempo</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Potential V(q)</span>
+                                        <span className="text-white">→ Tension</span>
+                                    </div>
+                                </div>
+                                <div className="mt-2 text-[10px] text-emerald-400/60">Phase space trajectories</div>
+                            </div>
+
+                            {/* Ising Model */}
+                            <div className="p-4 bg-gray-900/50 border border-white/10 rounded-xl hover:border-blue-500/30 transition-colors">
+                                <div className="text-sm font-bold text-blue-400 mb-2">Ising Model</div>
+                                <div className="space-y-1 text-xs">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Spin σ</span>
+                                        <span className="text-white">→ Voice Active</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Coupling J</span>
+                                        <span className="text-white">→ Consonance</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Temp T</span>
+                                        <span className="text-white">→ Entropy</span>
+                                    </div>
+                                </div>
+                                <div className="mt-2 text-[10px] text-blue-400/60">Ensemble texture</div>
+                            </div>
+
+                            {/* Granovetter */}
+                            <div className="p-4 bg-gray-900/50 border border-white/10 rounded-xl hover:border-amber-500/30 transition-colors">
+                                <div className="text-sm font-bold text-amber-400 mb-2">Granovetter Thresholds</div>
+                                <div className="space-y-1 text-xs">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">θ₀</span>
+                                        <span className="text-white">→ Leader Theme</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">f(n)</span>
+                                        <span className="text-white">→ Voice Count</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Cascade</span>
+                                        <span className="text-white">→ Tutti Entry</span>
+                                    </div>
+                                </div>
+                                <div className="mt-2 text-[10px] text-amber-400/60">Orchestral cascade</div>
+                            </div>
+
+                            {/* Lyapunov */}
+                            <div className="p-4 bg-gray-900/50 border border-white/10 rounded-xl hover:border-purple-500/30 transition-colors">
+                                <div className="text-sm font-bold text-purple-400 mb-2">Lyapunov Stability</div>
+                                <div className="space-y-1 text-xs">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">λ &lt; 0</span>
+                                        <span className="text-white">→ Stable Key</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">λ &gt; 0</span>
+                                        <span className="text-white">→ Modulation</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">λ ≈ 0</span>
+                                        <span className="text-white">→ Suspension</span>
+                                    </div>
+                                </div>
+                                <div className="mt-2 text-[10px] text-purple-400/60">Harmonic stability</div>
+                            </div>
+                        </div>
+                        <div className="mt-3 text-xs text-gray-500">
+                            See <a href="/wiki/features/physics" className="text-cyan-400 hover:underline">Physics Frameworks Documentation</a> for detailed mapping tables.
+                        </div>
+                    </div>
+
                     {/* Source Documents */}
                     <div className="p-4 bg-blue-500/5 border border-blue-500/20 rounded-xl text-sm">
                         <div className="font-bold text-blue-400 mb-2">📚 Theoretical Sources</div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-gray-400">
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-gray-400">
                             <div><span className="text-white font-mono">RSCH-39</span>: Musical Psychometric Notation</div>
                             <div><span className="text-white font-mono">RSCH-34</span>: Cognitive Bias Catalog</div>
                             <div><span className="text-white font-mono">RSCH-33</span>: Dark Triad Extension</div>
+                            <div><span className="text-white font-mono">RSCH-42</span>: Physics→Music Synthesis</div>
                         </div>
                     </div>
                 </div>
@@ -541,7 +684,7 @@ export default function MPNReferencePage() {
                             </p>
                         </div>
                         <a
-                            href="/mckenney-lacan_theory/mckenney_lacan_appliced_2025_11_19/RSCH-42-AI_MODEL_FRAMEWORK.md"
+                            href="/theory/RSCH-42-VISUALIZATION_PHYSICS.md"
                             target="_blank"
                             className="ml-auto flex items-center gap-2 text-xs text-oxot-gold hover:text-white transition-colors"
                         >
@@ -588,6 +731,7 @@ export default function MPNReferencePage() {
                                 { id: 'facebook/musicgen-large', params: '1.5B', desc: 'High-quality text-to-music audio generation', useCase: 'Ambient background audio for visualizations', apiOk: true },
                                 { id: 'facebook/musicgen-small', params: '300M', desc: 'Fast text-to-music audio generation', useCase: 'Quick audio previews for real-time playback', apiOk: true },
                                 { id: 'facebook/musicgen-melody', params: '-', desc: 'Melody-conditioned music generation', useCase: 'Leitmotif variations from MPN analysis', apiOk: true },
+                                { id: 'amaai-lab/text2midi', params: 'LLM', desc: 'First end-to-end MIDI from text (AAAI 2025)', useCase: 'Symbolic MIDI from psychometric state', apiOk: true },
                             ].map((m) => (
                                 <div key={m.id} className="p-4 bg-gray-900/50 border border-white/10 rounded-xl hover:border-purple-500/30 transition-colors">
                                     <div className="flex items-center gap-2 mb-2">
@@ -640,7 +784,7 @@ export default function MPNReferencePage() {
                     {/* Note */}
                     <div className="mt-8 p-4 bg-yellow-500/5 border border-yellow-500/20 rounded-xl text-sm text-yellow-400/80">
                         <strong>Note:</strong> MIDI models require local hosting with <code className="bg-black/30 px-1 rounded">trust_remote_code=True</code>.
-                        See <a href="/mckenney-lacan_theory/mckenney_lacan_appliced_2025_11_19/RSCH-42-AI_MODEL_FRAMEWORK.md" className="underline hover:text-white">RSCH-42</a> for setup instructions.
+                        See <a href="/theory/RSCH-42-VISUALIZATION_PHYSICS.md" className="underline hover:text-white">RSCH-42</a> for setup instructions.
                     </div>
                 </div>
             </section>

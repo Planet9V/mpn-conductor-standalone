@@ -14,6 +14,7 @@ import {
 } from './psychometric_calculus';
 
 import { ParameterAdjustment } from './mpn_reference_types';
+import { selectInstrumentForActor, InstrumentName } from '@/lib/psychometric_instrument_mapper';
 
 // ============================================================================
 // TYPES
@@ -182,10 +183,13 @@ export class ScoreOrchestrator {
         // Generate or ensure leitmotif
         const leitmotif = generateLeitmotif(profile);
 
+        // Select instrument based on psychometric profile
+        const instrument = selectInstrumentForActor(profile);
+
         const stave: ActorStave = {
             actorId: profile.id,
             actorName: profile.name,
-            instrument: leitmotif.instrument,
+            instrument: instrument,
             leitmotif: leitmotif,
             notes: [],
             musicParams: {
@@ -252,6 +256,13 @@ export class ScoreOrchestrator {
             // Update activation
             stave.activation = isSpeaking ? 1.0 : Math.max(0, stave.activation - 0.1);
             stave.isSpeaking = isSpeaking;
+
+            // Update actor's current state for instrument selection
+            const actor = this.actors.get(actorId);
+            if (actor) {
+                actor.currentState = { trauma, entropy, rsi };
+                stave.instrument = selectInstrumentForActor(actor);
+            }
 
             const transformation = selectTransformation(trauma, entropy, rsi);
             const transformedMotif = transformLeitmotif(stave.leitmotif, transformation);

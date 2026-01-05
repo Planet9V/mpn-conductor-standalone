@@ -3438,10 +3438,421 @@ const SUPPORTING_DIMENSION_ENTRIES: MPNReferenceEntry[] = [
 ];
 
 // ============================================================================
+// CATEGORY 14: PHYSICS FRAMEWORK (Hamiltonian, Ising, Granovetter, Lyapunov)
+// ============================================================================
+
+const PHYSICS_FRAMEWORK_ENTRIES: MPNReferenceEntry[] = [
+    // Hamiltonian Mechanics
+    {
+        id: 'physics-hamiltonian-001',
+        category: MPNCategory.DYNAMICS,
+        subcategory: 'phase_space',
+        musicalElement: 'Continuous Crescendo/Decrescendo',
+        displayName: 'Hamiltonian Phase Evolution',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Hamiltonian',
+            strength: 0.9,
+            description: 'Smooth dynamics = energy-conserving phase space trajectory'
+        }],
+        implementation: { velocityRange: { min: 30, max: 100 } },
+        theory: {
+            description: 'Gradual dynamic changes following Hamilton equations dq/dt = ∂H/∂p',
+            rationale: 'Psychological states evolve in phase space with conserved emotional energy',
+            source: 'MCKENNEY-LACAN-01',
+            examples: ['Character growth arc', 'Tension building', 'Resolution trajectory']
+        },
+        adjustable: true,
+        defaultValue: 0.5,
+        range: { min: 0, max: 1, step: 0.1 }
+    },
+    {
+        id: 'physics-hamiltonian-002',
+        category: MPNCategory.TEMPO,
+        subcategory: 'momentum',
+        musicalElement: 'Tempo Momentum',
+        displayName: 'Psychological Momentum (p)',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Momentum',
+            strength: 0.85,
+            description: 'Tempo changes = psychological momentum in phase space'
+        }],
+        implementation: { bpmRange: { min: 40, max: 180 } },
+        theory: {
+            description: 'Rate of change represents momentum in Hamiltonian H = T(p) + V(q)',
+            rationale: 'Fast tempo = high momentum, slow tempo = low momentum state',
+            source: 'MCKENNEY-LACAN-02',
+            examples: ['Accelerando during conflict', 'Ritardando during reflection']
+        },
+        adjustable: true
+    },
+    // Ising Model
+    {
+        id: 'physics-ising-001',
+        category: MPNCategory.TEXTURE,
+        subcategory: 'ensemble',
+        musicalElement: 'Ensemble Alignment',
+        displayName: 'Ising Spin Alignment',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Ising',
+            strength: 0.9,
+            description: 'Orchestral unison = ferromagnetic alignment (J > 0)'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Full ensemble playing in unison represents aligned spins',
+            rationale: 'Ising model H = -J Σσᵢσⱼ: positive J favors alignment',
+            source: 'MCKENNEY-LACAN-03',
+            examples: ['Group consensus', 'Collective determination', 'Unity moment']
+        },
+        adjustable: false
+    },
+    {
+        id: 'physics-ising-002',
+        category: MPNCategory.TEXTURE,
+        subcategory: 'disorder',
+        musicalElement: 'Polytonal Chaos',
+        displayName: 'Ising Disorder (T > Tc)',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Ising',
+            condition: 'entropy > 0.7',
+            strength: 0.85,
+            description: 'Polytonal chaos = high temperature paramagnetic state'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Multiple simultaneous keys = disordered spin state above Tc',
+            rationale: 'Above critical temperature, thermal fluctuations destroy alignment',
+            source: 'MCKENNEY-LACAN-03',
+            examples: ['Group fracture', 'Opinion divergence', 'Social breakdown']
+        },
+        adjustable: false
+    },
+    {
+        id: 'physics-ising-003',
+        category: MPNCategory.DYNAMICS,
+        subcategory: 'phase_transition',
+        musicalElement: 'Sudden Tutti',
+        displayName: 'Phase Transition (T = Tc)',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Critical Point',
+            strength: 0.95,
+            description: 'Sudden tutti = phase transition at critical temperature'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Sudden shift from disorder to order = critical point',
+            rationale: 'At Tc, correlation length diverges, small perturbations cascade',
+            source: 'MCKENNEY-LACAN-04',
+            examples: ['Moment of decision', 'Tipping point', 'Collective action threshold']
+        },
+        adjustable: false
+    },
+    // Granovetter Thresholds
+    {
+        id: 'physics-granovetter-001',
+        category: MPNCategory.RHYTHM,
+        subcategory: 'cascade',
+        musicalElement: 'Rhythmic Cascade Entry',
+        displayName: 'Granovetter Cascade (θ threshold)',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Granovetter',
+            strength: 0.9,
+            description: 'Sequential instrument entries = threshold cascade activation'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Instruments enter sequentially as neighbors exceed threshold θ',
+            rationale: 'Agent activates when fraction of active neighbors ≥ θ',
+            source: 'MCKENNEY-LACAN-05',
+            examples: ['Escalating conflict', 'Spreading enthusiasm', 'Mob psychology']
+        },
+        adjustable: false
+    },
+    {
+        id: 'physics-granovetter-002',
+        category: MPNCategory.ARTICULATION,
+        subcategory: 'influence',
+        musicalElement: 'Imitative Counterpoint',
+        displayName: 'Influence Propagation',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Network',
+            strength: 0.85,
+            description: 'Imitative entries = influence spreading through network'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Canonical imitation represents influence propagation',
+            rationale: 'Ideas spread through weak ties in social networks',
+            source: 'MCKENNEY-LACAN-05',
+            examples: ['Fugue entries', 'Rumor spreading', 'Emotional contagion']
+        },
+        adjustable: false
+    },
+    // Lyapunov Stability
+    {
+        id: 'physics-lyapunov-001',
+        category: MPNCategory.HARMONY,
+        subcategory: 'stability',
+        musicalElement: 'Stable Tonic Pedal',
+        displayName: 'Lyapunov Stable (λ < 0)',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Lyapunov',
+            condition: 'stability > 0.7',
+            strength: 0.9,
+            description: 'Tonic pedal = negative Lyapunov exponent (stable attractor)'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Sustained tonic note = system returning to stable equilibrium',
+            rationale: 'Negative λ means perturbations decay, system is predictable',
+            source: 'MCKENNEY-LACAN-06',
+            examples: ['Grounded character', 'Emotional stability', 'Resolution']
+        },
+        adjustable: false
+    },
+    {
+        id: 'physics-lyapunov-002',
+        category: MPNCategory.HARMONY,
+        subcategory: 'chaos',
+        musicalElement: 'Chromatic Wandering',
+        displayName: 'Lyapunov Chaos (λ > 0)',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.PHYSICS,
+            trait: 'Lyapunov',
+            condition: 'entropy > 0.8',
+            strength: 0.9,
+            description: 'Chromatic wandering = positive Lyapunov exponent (chaos)'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Unpredictable chromatic movement = chaotic trajectory',
+            rationale: 'Positive λ means exponential divergence, sensitive dependence',
+            source: 'MCKENNEY-LACAN-06',
+            examples: ['Madness', 'Unpredictable behavior', 'Psychological crisis']
+        },
+        adjustable: false
+    }
+];
+
+// ============================================================================
+// CATEGORY 15: MCKENNEY-LACAN UNIFIED THEORY
+// ============================================================================
+
+const MCKENNEY_LACAN_ENTRIES: MPNReferenceEntry[] = [
+    // Trauma-Entropy Calculus
+    {
+        id: 'ml-calculus-001',
+        category: MPNCategory.MODE,
+        subcategory: 'trauma_mode',
+        musicalElement: 'Phrygian/Locrian Mode',
+        displayName: 'High Trauma Modal Shift',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Trauma-Calculus',
+            condition: 'trauma > 0.7',
+            strength: 0.95,
+            description: 'τ > 0.7 → flat-2 modes (Phrygian, Locrian) for instability'
+        }],
+        implementation: { scaleFormula: [0, 1, 3, 5, 7, 8, 10] },
+        theory: {
+            description: 'High trauma triggers modal darkening per McKenney-Lacan calculus',
+            rationale: 'Trauma (τ) distorts the symbolic order, manifesting in unsettling modes',
+            source: 'MCKENNEY-LACAN-THEOREM',
+            examples: ['PTSD flashback', 'Panic scene', 'Traumatic revelation']
+        },
+        adjustable: false
+    },
+    {
+        id: 'ml-calculus-002',
+        category: MPNCategory.RHYTHM,
+        subcategory: 'entropy_rhythm',
+        musicalElement: 'Irregular Subdivisions',
+        displayName: 'High Entropy Rhythmic Fragmentation',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Entropy-Calculus',
+            condition: 'entropy > 0.6',
+            strength: 0.9,
+            description: 'H > 0.6 → irregular rhythmic subdivisions, unpredictable accents'
+        }],
+        implementation: {},
+        theory: {
+            description: 'High entropy drives rhythmic fragmentation',
+            rationale: 'Entropy (H) measures system disorder; rhythm reflects cognitive chaos',
+            source: 'MCKENNEY-LACAN-THEOREM',
+            examples: ['Confusion', 'Information overload', 'Decision paralysis']
+        },
+        adjustable: false
+    },
+    // RSI Musical Mappings
+    {
+        id: 'ml-rsi-001',
+        category: MPNCategory.TIMBRE,
+        subcategory: 'real_register',
+        musicalElement: 'Low Pedal Tones + Percussion',
+        displayName: 'Real Register Dominance',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Real',
+            condition: 'rsi.real > 0.5',
+            strength: 0.9,
+            description: 'Real dominant → bass pedals, timpani, primal sounds'
+        }],
+        implementation: { midiRange: { min: 24, max: 48 } },
+        theory: {
+            description: 'The Real manifests in low, visceral, pre-symbolic sounds',
+            rationale: 'Real = impossible trauma, raw drives, beyond symbolization',
+            source: 'LACAN-SEMINAR-XI',
+            examples: ['Bodily fear', 'Death drive', 'Unspeakable horror']
+        },
+        adjustable: false
+    },
+    {
+        id: 'ml-rsi-002',
+        category: MPNCategory.HARMONY,
+        subcategory: 'symbolic_register',
+        musicalElement: 'Diatonic Resolution',
+        displayName: 'Symbolic Register Dominance',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Symbolic',
+            condition: 'rsi.symbolic > 0.5',
+            strength: 0.9,
+            description: 'Symbolic dominant → clear harmonic function, tonal resolution'
+        }],
+        implementation: {},
+        theory: {
+            description: 'The Symbolic manifests in rule-governed harmonic progressions',
+            rationale: 'Symbolic = language, law, social order, the Big Other',
+            source: 'LACAN-SEMINAR-III',
+            examples: ['Rational dialogue', 'Social convention', 'Rule following']
+        },
+        adjustable: false
+    },
+    {
+        id: 'ml-rsi-003',
+        category: MPNCategory.MELODY,
+        subcategory: 'imaginary_register',
+        musicalElement: 'Ornamental Flourishes',
+        displayName: 'Imaginary Register Dominance',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Imaginary',
+            condition: 'rsi.imaginary > 0.5',
+            strength: 0.9,
+            description: 'Imaginary dominant → ornaments, trills, self-reflective figures'
+        }],
+        implementation: {},
+        theory: {
+            description: 'The Imaginary manifests in narcissistic melodic embellishment',
+            rationale: 'Imaginary = ego, mirror stage, identification, fantasy',
+            source: 'LACAN-SEMINAR-I',
+            examples: ['Vanity', 'Self-image', 'Idealized persona']
+        },
+        adjustable: false
+    },
+    // Observer Effect
+    {
+        id: 'ml-observer-001',
+        category: MPNCategory.DYNAMICS,
+        subcategory: 'audience',
+        musicalElement: 'Audience-Aware Dynamics',
+        displayName: 'Observer Effect (Gaze)',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Observer',
+            strength: 0.85,
+            description: 'Performance awareness = objet petit a as gaze'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Being observed changes the performance (quantum measurement)',
+            rationale: 'The gaze of the Other (audience) transforms the observed system',
+            source: 'MCKENNEY-LACAN-OBSERVER',
+            examples: ['Stage presence', 'Public persona vs private', 'Self-consciousness']
+        },
+        adjustable: false
+    },
+    // Borromean Knot
+    {
+        id: 'ml-borromean-001',
+        category: MPNCategory.TEXTURE,
+        subcategory: 'register_balance',
+        musicalElement: 'Three-Voice Counterpoint',
+        displayName: 'Borromean Knot Balance',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Borromean',
+            strength: 0.95,
+            description: 'Three interlocked voices = RSI knot structure'
+        }],
+        implementation: {},
+        theory: {
+            description: 'Three-voice texture where each depends on the others',
+            rationale: 'Remove any one register and the psyche unravels',
+            source: 'LACAN-SEMINAR-XXII',
+            examples: ['Balanced personality', 'Integrated self', 'Psychological health']
+        },
+        adjustable: false
+    },
+    // Grand Dictionary Isomorphism
+    {
+        id: 'ml-isomorphism-001',
+        category: MPNCategory.HARMONY,
+        subcategory: 'isomorphism',
+        musicalElement: 'Eigenvalue Pitch (ν = λ)',
+        displayName: 'Isomorphism Φ: Pitch',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Isomorphism',
+            strength: 0.9,
+            description: 'Pitch (ν) maps to psychological eigenvalue (λ)'
+        }],
+        implementation: {},
+        theory: {
+            description: 'The Grand Dictionary: Pitch = Eigenvalue = Emotional Valence',
+            rationale: 'Category-theoretic isomorphism Φ: L → M between logs and music',
+            source: 'MCKENNEY-LACAN-CODEX',
+            examples: ['High pitch = positive valence', 'Low pitch = negative valence']
+        },
+        adjustable: false
+    },
+    {
+        id: 'ml-isomorphism-002',
+        category: MPNCategory.RHYTHM,
+        subcategory: 'isomorphism',
+        musicalElement: 'Entropy Rhythm (S = Δt)',
+        displayName: 'Isomorphism Φ: Rhythm',
+        psychometricMappings: [{
+            dimension: PsychometricDimension.MCKENNEY_LACAN,
+            trait: 'Isomorphism',
+            strength: 0.9,
+            description: 'Rhythm (Δt) maps to entropy (S) = cognitive load'
+        }],
+        implementation: {},
+        theory: {
+            description: 'The Grand Dictionary: Rhythm = Entropy = Cognitive Load',
+            rationale: 'Fast/irregular rhythm = high entropy = processing overload',
+            source: 'MCKENNEY-LACAN-CODEX',
+            examples: ['Frantic rhythm = overload', 'Steady pulse = calm processing']
+        },
+        adjustable: false
+    }
+];
+
+// ============================================================================
 
 export const MPN_REFERENCE_DICTIONARY: MPNReferenceDictionary = {
-    version: '3.1.0',
-    lastUpdated: new Date().toISOString().split('T')[0],
+    version: '3.2.0',
+    lastUpdated: '2026-01-04',
     totalEntries: 0,
     categories: {
         [MPNCategory.TIMBRE]: [
@@ -3455,14 +3866,18 @@ export const MPN_REFERENCE_DICTIONARY: MPNReferenceDictionary = {
             ...COGNITIVE_BIAS_ENTRIES.filter(e => e.category === MPNCategory.RHYTHM),
             ...DARK_TRIAD_EXPANSION.filter(e => e.category === MPNCategory.RHYTHM),
             ...LACANIAN_ENHANCEMENT.filter(e => e.category === MPNCategory.RHYTHM),
-            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.RHYTHM)
+            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.RHYTHM),
+            ...PHYSICS_FRAMEWORK_ENTRIES.filter(e => e.category === MPNCategory.RHYTHM),
+            ...MCKENNEY_LACAN_ENTRIES.filter(e => e.category === MPNCategory.RHYTHM)
         ],
         [MPNCategory.HARMONY]: [
             ...HARMONY_ENTRIES,
             ...OCEAN_ENTRIES.filter(e => e.category === MPNCategory.HARMONY),
             ...COGNITIVE_BIAS_ENTRIES.filter(e => e.category === MPNCategory.HARMONY),
             ...DARK_TRIAD_EXPANSION.filter(e => e.category === MPNCategory.HARMONY),
-            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.HARMONY)
+            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.HARMONY),
+            ...PHYSICS_FRAMEWORK_ENTRIES.filter(e => e.category === MPNCategory.HARMONY),
+            ...MCKENNEY_LACAN_ENTRIES.filter(e => e.category === MPNCategory.HARMONY)
         ],
         [MPNCategory.DYNAMICS]: [
             ...DYNAMICS_ENTRIES,
@@ -3470,13 +3885,16 @@ export const MPN_REFERENCE_DICTIONARY: MPNReferenceDictionary = {
             ...COGNITIVE_BIAS_ENTRIES.filter(e => e.category === MPNCategory.DYNAMICS),
             ...DARK_TRIAD_EXPANSION.filter(e => e.category === MPNCategory.DYNAMICS),
             ...LACANIAN_ENHANCEMENT.filter(e => e.category === MPNCategory.DYNAMICS),
-            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.DYNAMICS)
+            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.DYNAMICS),
+            ...PHYSICS_FRAMEWORK_ENTRIES.filter(e => e.category === MPNCategory.DYNAMICS),
+            ...MCKENNEY_LACAN_ENTRIES.filter(e => e.category === MPNCategory.DYNAMICS)
         ],
         [MPNCategory.MELODY]: [
             ...MELODY_ENTRIES,
             ...COGNITIVE_BIAS_ENTRIES.filter(e => e.category === MPNCategory.MELODY),
             ...DARK_TRIAD_EXPANSION.filter(e => e.category === MPNCategory.MELODY),
-            ...LACANIAN_ENHANCEMENT.filter(e => e.category === MPNCategory.MELODY)
+            ...LACANIAN_ENHANCEMENT.filter(e => e.category === MPNCategory.MELODY),
+            ...MCKENNEY_LACAN_ENTRIES.filter(e => e.category === MPNCategory.MELODY)
         ],
         [MPNCategory.TEXTURE]: [
             ...TEXTURE_ENTRIES,
@@ -3484,11 +3902,14 @@ export const MPN_REFERENCE_DICTIONARY: MPNReferenceDictionary = {
             ...COGNITIVE_BIAS_ENTRIES.filter(e => e.category === MPNCategory.TEXTURE),
             ...DARK_TRIAD_EXPANSION.filter(e => e.category === MPNCategory.TEXTURE),
             ...LACANIAN_ENHANCEMENT.filter(e => e.category === MPNCategory.TEXTURE),
-            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.TEXTURE)
+            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.TEXTURE),
+            ...PHYSICS_FRAMEWORK_ENTRIES.filter(e => e.category === MPNCategory.TEXTURE),
+            ...MCKENNEY_LACAN_ENTRIES.filter(e => e.category === MPNCategory.TEXTURE)
         ],
         [MPNCategory.MODE]: [
             ...MODE_ENTRIES,
-            ...COGNITIVE_BIAS_ENTRIES.filter(e => e.category === MPNCategory.MODE)
+            ...COGNITIVE_BIAS_ENTRIES.filter(e => e.category === MPNCategory.MODE),
+            ...MCKENNEY_LACAN_ENTRIES.filter(e => e.category === MPNCategory.MODE)
         ],
         [MPNCategory.INTERVALS]: [
             ...INTERVALS_ENTRIES,
@@ -3499,11 +3920,20 @@ export const MPN_REFERENCE_DICTIONARY: MPNReferenceDictionary = {
             ...ARTICULATION_ENTRIES,
             ...OCEAN_ENTRIES.filter(e => e.category === MPNCategory.ARTICULATION),
             ...DARK_TRIAD_EXPANSION.filter(e => e.category === MPNCategory.ARTICULATION),
-            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.ARTICULATION)
+            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.ARTICULATION),
+            ...PHYSICS_FRAMEWORK_ENTRIES.filter(e => e.category === MPNCategory.ARTICULATION)
         ],
         [MPNCategory.SILENCE]: [
             ...SILENCE_ENTRIES,
             ...DARK_TRIAD_EXPANSION.filter(e => e.category === MPNCategory.SILENCE)
+        ],
+        [MPNCategory.TIMBRE]: [
+            ...TIMBRE_ENTRIES,
+            ...OCEAN_ENTRIES.filter(e => e.category === MPNCategory.TIMBRE),
+            ...COGNITIVE_BIAS_ENTRIES.filter(e => e.category === MPNCategory.TIMBRE),
+            ...DARK_TRIAD_EXPANSION.filter(e => e.category === MPNCategory.TIMBRE),
+            ...SUPPORTING_DIMENSION_ENTRIES.filter(e => e.category === MPNCategory.TIMBRE),
+            ...MCKENNEY_LACAN_ENTRIES.filter(e => e.category === MPNCategory.TIMBRE)
         ]
     }
 };

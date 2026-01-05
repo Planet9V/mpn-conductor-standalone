@@ -1,0 +1,122 @@
+# PSYCHOSCORE Training Configuration
+# Training hyperparameters for RTX 5060/5070 Ti (16GB VRAM)
+# Updated: 2026-01-04
+
+# Model Configuration
+model:
+  base_model: "openai-community/gpt2"  # Using GPT-2 as base for reliable training
+  trust_remote_code: false
+  
+# Quantization (4-bit for 16GB VRAM)
+quantization:
+  load_in_4bit: true
+  bnb_4bit_compute_dtype: "float16"
+  bnb_4bit_quant_type: "nf4"
+  bnb_4bit_use_double_quant: true
+
+# LoRA Configuration
+lora:
+  r: 32                    # Rank
+  lora_alpha: 64           # Scaling factor
+  lora_dropout: 0.05
+  target_modules:
+    - "c_attn"             # GPT-2 attention
+    - "c_proj"             # GPT-2 output projection
+    - "c_fc"               # GPT-2 feedforward
+    - "lm_head"            # Language model head
+  bias: "none"
+  task_type: "CAUSAL_LM"
+
+# Training Arguments
+training:
+  output_dir: "./checkpoints/psychoscore"
+  
+  # Batch size (for 16GB VRAM)
+  per_device_train_batch_size: 2
+  per_device_eval_batch_size: 2
+  gradient_accumulation_steps: 16  # Effective batch = 32
+  
+  # Learning rate
+  learning_rate: 1.0e-4
+  lr_scheduler_type: "cosine"
+  warmup_ratio: 0.1
+  weight_decay: 0.01
+  
+  # Training duration
+  num_train_epochs: 10
+  max_steps: -1
+  
+  # Memory optimization
+  gradient_checkpointing: true
+  fp16: true
+  optim: "paged_adamw_8bit"
+  
+  # Sequence length
+  max_seq_length: 1024
+  
+  # Logging
+  logging_steps: 50
+  logging_first_step: true
+  
+  # Evaluation
+  eval_strategy: "steps"
+  eval_steps: 500
+  
+  # Checkpointing
+  save_strategy: "steps"
+  save_steps: 1000
+  save_total_limit: 3
+  
+  # Other
+  dataloader_num_workers: 4
+  seed: 42
+  report_to: []  # Disabled (no tensorboard)
+
+# Data Configuration
+data:
+  train_path: "./data/tokenized/train"
+  val_path: "./data/tokenized/val"
+  test_path: "./data/tokenized/test"
+  
+  # Preprocessing
+  max_prefix_length: 100     # Psychometric prefix tokens
+  max_midi_length: 924       # MIDI tokens (1024 - 100)
+  
+  # Augmentation
+  augment: true
+  transpose_range: [-6, 6]   # Semitones
+  tempo_variation: 0.1       # ±10%
+
+# Tokenizer Configuration  
+tokenizer:
+  path: "./tokenizers/psychoscore"
+  vocab_size: 50000
+  
+  # REMI settings
+  use_programs: true
+  use_time_signatures: true
+  use_tempos: true
+  use_rests: true
+  num_velocities: 32
+  num_tempos: 32
+
+# Evaluation
+evaluation:
+  # Metrics
+  compute_perplexity: true
+  compute_emotion_accuracy: true
+  
+  # Generation settings for eval
+  generate_samples: 10
+  max_new_tokens: 512
+  temperature: 0.8
+  top_p: 0.9
+  
+  # Human eval integration
+  save_audio_samples: true
+  sample_output_dir: "./eval_samples"
+
+# Hardware
+hardware:
+  device_map: "auto"
+  torch_dtype: "float16"

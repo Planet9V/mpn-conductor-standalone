@@ -30,7 +30,10 @@ export enum PsychometricDimension {
     TRAUMA = 'trauma',
     ENTROPY = 'entropy',
     RELATIONSHIP = 'relationship',
-    STABILITY = 'stability'
+    STABILITY = 'stability',
+    // McKenney-Lacan Physics Frameworks
+    PHYSICS = 'physics',           // Hamiltonian, Ising, Granovetter, Lyapunov
+    MCKENNEY_LACAN = 'mckenneyLacan'  // Unified theory: RSI calculus, phase transitions
 }
 
 // ============================================================================

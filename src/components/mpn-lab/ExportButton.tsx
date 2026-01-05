@@ -1,9 +1,10 @@
 'use client';
 
 import React, { useState } from 'react';
-import { FileDown, Loader2 } from 'lucide-react';
-import { PsychometricScoreFrame } from '@/components/mpn-lab/score_types';
+import { FileDown, Loader2, Music2 } from 'lucide-react';
+import { PsychometricScoreFrame, PsychometricScore } from '@/components/mpn-lab/score_types';
 import { exportScoreWithMetadata, downloadMP3 } from '@/lib/audio_exporter';
+import { downloadScoreMIDI } from '@/components/mpn-lab/score_exporter';
 
 interface ExportButtonProps {
     frames: PsychometricScoreFrame[];
@@ -72,24 +73,71 @@ export default function ExportButton({
         }
     };
 
+    const handleExportMIDI = () => {
+        if (frames.length === 0) return;
+
+        // Reconstruct minimal PsychometricScore
+        const uniqueActors = new Map<string, { id: string; name: string }>();
+        frames.forEach(f => {
+            f.staves.forEach(s => {
+                if (!uniqueActors.has(s.actorId)) {
+                    uniqueActors.set(s.actorId, { id: s.actorId, name: s.actorName });
+                }
+            });
+        });
+
+        const score: PsychometricScore = {
+            id: `score_${Date.now()}`,
+            title,
+            source: scenario || 'Unknown Source',
+            generatedAt: new Date().toISOString(),
+            version: '1.0.0',
+            actors: Array.from(uniqueActors.values()),
+            leitmotifs: {},
+            frames,
+            statistics: {
+                totalFrames: frames.length,
+                duration: frames.length * 4000, // Approx
+                averageTrauma: 0,
+                averageEntropy: 0,
+                dominantKey: 'C',
+                dominantMode: 'major'
+            }
+        };
+
+        downloadScoreMIDI(score, `${title.toLowerCase().replace(/\s+/g, '_')}_${new Date().toISOString().split('T')[0]}.mid`);
+    };
+
     return (
-        <button
-            onClick={handleExport}
-            disabled={disabled || isExporting || frames.length === 0}
-            className="export-button"
-            title={`Export ${title} as MP3`}
-        >
-            {isExporting ? (
-                <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    <span>{progress}%</span>
-                </>
-            ) : (
-                <>
-                    <FileDown className="w-4 h-4" />
-                    <span>Export MP3</span>
-                </>
-            )}
+        <div className="flex gap-2">
+            <button
+                onClick={handleExport}
+                disabled={disabled || isExporting || frames.length === 0}
+                className="export-button"
+                title={`Export ${title} as MP3`}
+            >
+                {isExporting ? (
+                    <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span>{progress}%</span>
+                    </>
+                ) : (
+                    <>
+                        <FileDown className="w-4 h-4" />
+                        <span>Export MP3</span>
+                    </>
+                )}
+            </button>
+
+            <button
+                onClick={handleExportMIDI}
+                disabled={disabled || frames.length === 0}
+                className="export-button midi-button"
+                title={`Export ${title} as MIDI`}
+            >
+                <Music2 className="w-4 h-4" />
+                <span>MIDI</span>
+            </button>
 
             <style jsx>{`
                 .export-button {
@@ -118,12 +166,28 @@ export default function ExportButton({
                     transform: translateY(0);
                 }
 
+                .midi-button {
+                    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                    box-shadow: 0 4px 6px rgba(59, 130, 246, 0.2);
+                }
+
+                .midi-button:hover:not(:disabled) {
+                    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+                    box-shadow: 0 6px 10px rgba(59, 130, 246, 0.3);
+                }
+
                 .export-button:disabled {
                     opacity: 0.5;
                     cursor: not-allowed;
                     box-shadow: none;
                 }
             `}</style>
-        </button>
+            <div style={{ display: 'none' }}>
+                {/* Spacer to keep layout if needed, though buttons are flexed in parent? 
+                    Actually, we need to ensure parent container wraps them. 
+                    Assuming parent has flex layout. If not, these buttons will stack.
+                */}
+            </div>
+        </div>
     );
 }

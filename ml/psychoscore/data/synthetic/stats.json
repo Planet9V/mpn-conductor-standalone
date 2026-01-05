@@ -1,0 +1,26 @@
+{
+  "num_pairs": 15000,
+  "mode_distribution": {
+    "Dorian": 4807,
+    "Phrygian": 4863,
+    "Lydian": 4707,
+    "Locrian": 192,
+    "Aeolian": 217,
+    "Mixolydian": 214
+  },
+  "key_distribution": {
+    "Gb": 2552,
+    "B": 1975,
+    "Ab": 2542,
+    "Db": 2840,
+    "Eb": 1943,
+    "Bb": 1189,
+    "E": 1126,
+    "F": 397,
+    "A": 398,
+    "D": 23,
+    "C": 15
+  },
+  "avg_trauma": 0.2850882262483224,
+  "avg_entropy": 0.39780914360973163
+}

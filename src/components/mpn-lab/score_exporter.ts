@@ -219,28 +219,123 @@ export function extractGraphData(score: PsychometricScore): {
 // MIDI EXPORT (Placeholder)
 // ============================================================================
 
+import { MidiWriter, noteToMidi } from '@/lib/midi_writer';
+
 /**
- * Export to MIDI (requires @tonejs/midi)
- * Note: This is a placeholder - full implementation requires the midi library
+ * Export to MIDI (Standard MIDI File Type 1)
  */
 export function exportToMIDI(
     score: PsychometricScore,
     options: MIDIExportOptions = { tracksPerActor: true, includeTempoChanges: true, velocityScaling: 1 }
 ): ArrayBuffer {
-    // Placeholder implementation
-    // Full implementation would use @tonejs/midi
-    console.warn('MIDI export not fully implemented. Install @tonejs/midi for full support.');
+    const writer = new MidiWriter();
 
-    const midiData: number[] = [
-        // MIDI header (SMF type 1)
-        0x4D, 0x54, 0x68, 0x64, // "MThd"
-        0x00, 0x00, 0x00, 0x06, // Header length
-        0x00, 0x01,             // Format type 1
-        0x00, score.actors.length + 1, // Number of tracks
-        0x01, 0xE0              // 480 ticks per quarter
-    ];
+    // Constants
+    const PPQ = 480; // Ticks per startBeat (quarter note) matches MidiWriter default
 
-    return new Uint8Array(midiData).buffer;
+    // 1. Build Tempo Map (Track 0) & Frame Start Times
+    // We assume 4/4 time signature for now (4 beats per measure)
+    const BEATS_PER_MEASURE = 4;
+    const TICKS_PER_MEASURE = BEATS_PER_MEASURE * PPQ;
+
+    // Add initial tempo
+    writer.setTempo(score.frames[0]?.global.tempo || 120);
+
+    // Track tempo changes
+    let currentTempo = score.frames[0]?.global.tempo || 120;
+    let accumulatedTicks = 0;
+    const frameStartTicks: number[] = [];
+
+    // Track 0 writer helper (we need to inject events into track 0)
+    // For simplicity, we'll just set initial tempo. 
+    // TODO: Dynamic tempo map requires calculating limits.
+    // Given the complexity of delta times, we'll stick to a fixed tempo map for MVP 
+    // or update simply if changes are large.
+
+    score.frames.forEach(f => {
+        frameStartTicks.push(accumulatedTicks);
+        accumulatedTicks += TICKS_PER_MEASURE;
+    });
+
+    // 2. Generate Actor Tracks
+    score.actors.forEach((actor, channelIdx) => {
+        const track = writer.addTrack(actor.name);
+        // Channel 10 is reserved for percussion, skip it if we reach it
+        const channel = channelIdx >= 9 ? channelIdx + 1 : channelIdx;
+
+        // Collect all absolute events
+        type MidiEvent = { tick: number; type: 'ON' | 'OFF'; note: number; velocity: number };
+        const events: MidiEvent[] = [];
+
+        score.frames.forEach((frame, frameIdx) => {
+            const startTick = frameStartTicks[frameIdx];
+
+            // Find stave for this actor
+            const stave = frame.staves.find(s => s.actorId === actor.id);
+            if (!stave) return;
+
+            stave.notes.forEach(note => {
+                const noteNumber = note.midiNote || noteToMidi(note.pitch);
+                // note.startBeat is relative to measure start
+                const absStartTick = startTick + Math.round(note.startBeat * PPQ);
+                const durationTicks = Math.round(note.duration * PPQ);
+                const absEndTick = absStartTick + durationTicks;
+
+                // Add Note ON
+                events.push({
+                    tick: absStartTick,
+                    type: 'ON',
+                    note: noteNumber,
+                    velocity: Math.min(127, Math.round(note.velocity * options.velocityScaling))
+                });
+
+                // Add Note OFF
+                events.push({
+                    tick: absEndTick,
+                    type: 'OFF',
+                    note: noteNumber,
+                    velocity: 0
+                });
+            });
+        });
+
+        // Sort events by time
+        events.sort((a, b) => a.tick - b.tick);
+
+        // meaningful delta encoding
+        let lastTick = 0;
+        events.forEach(event => {
+            const delta = event.tick - lastTick;
+            if (delta < 0) return; // Should not happen after sort
+
+            if (event.type === 'ON') {
+                track.addNoteOn(delta, channel % 16, event.note, event.velocity);
+            } else {
+                track.addNoteOff(delta, channel % 16, event.note);
+            }
+            lastTick = event.tick;
+        });
+
+        track.addEndOfTrack(TICKS_PER_MEASURE);
+    });
+
+    return writer.toBytes().buffer;
+}
+
+/**
+ * Trigger download of MIDI file
+ */
+export function downloadScoreMIDI(score: PsychometricScore, filename?: string): void {
+    const buffer = exportToMIDI(score);
+    const blob = new Blob([buffer], { type: 'audio/midi' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename || `${score.title || 'score'}.mid`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 // ============================================================================

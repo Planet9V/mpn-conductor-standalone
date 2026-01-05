@@ -22,8 +22,9 @@ import Link from 'next/link';
 import { OXOTLogo } from '@/components/branding/OXOTLogo';
 import { PageHeader } from '@/components/branding/PageHeader';
 import { MPNPresetAPI } from '@/components/mpn-lab/mpn_preset_api';
-import { getOrchestrator, ScoreOrchestrator } from '@/components/mpn-lab/score_orchestrator';
+import { OrchestratorWorkerClient } from '@/components/mpn-lab/OrchestratorWorkerClient';
 import { useMPNSynthesizer } from '@/components/mpn-lab/MPNSynthesizer';
+import { LeadVoiceManager } from '@/components/mpn-lab/LeadVoiceManager';
 import { ORCHESTRATION_MODES, type OrchestrationMode } from '@/components/mpn-lab/GeniusComposer';
 import StyleSelector from '@/components/mpn-lab/StyleSelector';
 
@@ -109,17 +110,17 @@ export default function MPNConductorPage() {
     const [aiEnabled, setAiEnabled] = useState(false);
     const [aiTemperature, setAiTemperature] = useState(0.7);
     const [currentStyleId, setCurrentStyleId] = useState('orchestral'); // Musical style
+    const [leadVoiceEnabled, setLeadVoiceEnabled] = useState(false);
+    const [voiceManager, setVoiceManager] = useState<LeadVoiceManager | null>(null);
 
     // Update Orchestration Mode
     useEffect(() => {
-        const orchestrator = getOrchestrator();
-        orchestrator.setOrchestrationMode(orchestrationMode);
+        orchestratorRef.current?.setOrchestrationMode(orchestrationMode);
     }, [orchestrationMode]);
 
     // Update Musical Style
     useEffect(() => {
-        const orchestrator = getOrchestrator();
-        orchestrator.setMusicalStyle(currentStyleId);
+        orchestratorRef.current?.setMusicalStyle(currentStyleId);
     }, [currentStyleId]);
 
     // Handle style change from selector
@@ -134,7 +135,35 @@ export default function MPNConductorPage() {
     const [audioEnabled, setAudioEnabled] = useState(false);
     const [audioInitialized, setAudioInitialized] = useState(false);
     const [volume, setVolume] = useState(0.4);
+
+    // Orchestrator Worker Client
+    const orchestratorRef = useRef<OrchestratorWorkerClient | null>(null);
     const synth = useMPNSynthesizer();
+
+    // Initialize Worker
+    useEffect(() => {
+        if (!orchestratorRef.current) {
+            orchestratorRef.current = new OrchestratorWorkerClient();
+        }
+        return () => {
+            // Optional: orchestratorRef.current?.terminate();
+            // Keeping it alive for navigation efficiency, usually fine.
+        };
+    }, []);
+
+    // Init Voice Manager
+    useEffect(() => {
+        if (!voiceManager && synth) {
+            setVoiceManager(new LeadVoiceManager(synth));
+        }
+    }, [voiceManager, synth]);
+
+
+    useEffect(() => {
+        if (voiceManager) {
+            voiceManager.setEnabled(leadVoiceEnabled);
+        }
+    }, [voiceManager, leadVoiceEnabled]);
 
     // Score frame state
     const [scoreFrame, setScoreFrame] = useState<PsychometricScoreFrame | null>(null);
@@ -201,36 +230,40 @@ export default function MPNConductorPage() {
     useEffect(() => {
         const adjustments = MPNPresetAPI.getActiveAdjustments();
         if (Object.keys(adjustments).length > 0) {
-            getOrchestrator().updateAdjustments(adjustments);
+            orchestratorRef.current?.updateAdjustments(adjustments);
         }
     }, []);
 
     // Register actors when scenario changes
     useEffect(() => {
-        const orchestrator = getOrchestrator();
-        orchestrator.reset();
         setScoreBuffer([]);
         setProcessedIndex(-1);
         setIsPlaying(false);
         setCurrentFrameIndex(0);
 
-        // Extract unique speakers from all frames
-        const speakerSet = new Set<string>();
-        selectedScenario.frames.forEach(frame => {
-            if (frame.script?.speaker) {
-                speakerSet.add(frame.script.speaker);
-            }
-        });
+        if (orchestratorRef.current) {
+            orchestratorRef.current.reset();
 
-        // Register each speaker as an actor
-        let index = 0;
-        speakerSet.forEach(speaker => {
-            const profile = createActorProfile(speaker, index);
-            orchestrator.registerActor(profile);
-            index++;
-        });
+            // Extract unique speakers from all frames
+            const speakerSet = new Set<string>();
+            selectedScenario.frames.forEach(frame => {
+                if (frame.script?.speaker) {
+                    speakerSet.add(frame.script.speaker);
+                }
+            });
 
-        console.log(`Registered ${speakerSet.size} actors for scenario: ${selectedScenario.title}`);
+            // Register each speaker as an actor
+            const actors: ActorProfile[] = [];
+            let index = 0;
+            speakerSet.forEach(speaker => {
+                const profile = createActorProfile(speaker, index);
+                actors.push(profile);
+                index++;
+            });
+
+            orchestratorRef.current.init(actors);
+            console.log(`Initialized Orchestrator Worker with ${actors.length} actors for scenario: ${selectedScenario.title}`);
+        }
     }, [selectedScenario]);
 
     // Update volume
@@ -250,8 +283,9 @@ export default function MPNConductorPage() {
             processingRef.current = true;
 
             try {
-                const orchestrator = getOrchestrator();
-                orchestrator.setAIConfig(aiEnabled, aiTemperature);
+                if (!orchestratorRef.current) return;
+
+                orchestratorRef.current.setAIConfig(aiEnabled, aiTemperature);
 
                 // Process frames sequentially from stored index + 1 up to target
                 let nextIdx = processedIndex + 1;
@@ -264,12 +298,13 @@ export default function MPNConductorPage() {
                     // We need to use current parameter states (trauma, etc)
                     // Note: This applies current UI knobs to future frames. 
                     // Ideally prompts would evolve, but for manual knobs this is expected.
-                    const output = await orchestrator.processFrame(script, trauma, entropy);
+                    const output = await orchestratorRef.current.processFrame(script, trauma, entropy);
 
                     const frame: PsychometricScoreFrame = {
                         frameIndex: nextIdx,
                         timestamp: Date.now(),
                         speaker: script.speaker,
+                        scriptLine: script.text,
                         global: {
                             tempo: output.global?.tempo || tempo,
                             timeSignature: output.global?.timeSignature || '4/4',
@@ -330,12 +365,22 @@ export default function MPNConductorPage() {
                 // Prevent duplicate triggers if we just re-rendered
                 // We rely on currentFrameIndex changing to trigger this effect
                 synth.playScore(frameToPlay.staves, frameToPlay.global.tempo);
+
+                // Trigger Voice if enabled and script line exists
+                if (leadVoiceEnabled && voiceManager && frameToPlay.scriptLine && frameToPlay.speaker) {
+                    voiceManager.speak(
+                        frameToPlay.speaker,
+                        frameToPlay.scriptLine,
+                        { trauma, entropy }
+                    );
+                }
+
                 if (trauma > 0.9) {
                     setTimeout(() => synth.playCrisisAlert(), 300);
                 }
             }
         }
-    }, [currentFrameIndex, scoreBuffer, audioEnabled, audioInitialized, isPlaying]);
+    }, [currentFrameIndex, scoreBuffer, audioEnabled, audioInitialized, isPlaying, leadVoiceEnabled, voiceManager, trauma, entropy]);
 
     // Auto-play logic
     useEffect(() => {
@@ -363,7 +408,7 @@ export default function MPNConductorPage() {
         setIsPlaying(false);
         setScoreBuffer([]);
         setProcessedIndex(-1);
-        getOrchestrator().reset();
+        orchestratorRef.current?.reset();
     };
     const handleScenarioChange = (scenario: LiteraryScenario) => {
         setSelectedScenario(scenario);
@@ -436,6 +481,15 @@ export default function MPNConductorPage() {
                             >
                                 <span className="text-[10px] font-mono font-bold">AI</span>
                                 <div className={`w-1.5 h-1.5 rounded-full ${aiEnabled ? 'bg-green-400 animate-pulse' : 'bg-gray-600'}`} />
+                            </button>
+
+                            {/* Voice Control */}
+                            <button
+                                onClick={() => setLeadVoiceEnabled(!leadVoiceEnabled)}
+                                className={`flex items-center gap-1.5 px-2 py-0.5 rounded transition-all ${leadVoiceEnabled ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' : 'text-gray-500 hover:text-gray-300'}`}
+                            >
+                                <span className="text-[10px] font-mono font-bold">VOICE</span>
+                                <div className={`w-1.5 h-1.5 rounded-full ${leadVoiceEnabled ? 'bg-blue-400 animate-pulse' : 'bg-gray-600'}`} />
                             </button>
 
                             {aiEnabled && (

@@ -34,6 +34,9 @@ export default function HomePage() {
             <Link href="/mpn-lab" className="text-sm text-white/60 hover:text-white transition">
               Lab
             </Link>
+            <Link href="/wiki" className="text-sm text-emerald-400 hover:text-emerald-300 transition">
+              📖 Wiki
+            </Link>
           </nav>
         </div>
       </header>

@@ -1,7 +1,8 @@
 # MPN Conductor - Architecture Documentation
-**Version:** 3.1.0  
-**Updated:** 2026-01-03 17:15 CST  
-**Status:** CURRENT
+**Version:** 3.2.0  
+**Updated:** 2026-01-04 12:35 CST  
+**Status:** CURRENT  
+**📖 Interactive Wiki:** [/wiki](/wiki) - Enhanced documentation with Mermaid diagrams
 
 ## System Architecture
 

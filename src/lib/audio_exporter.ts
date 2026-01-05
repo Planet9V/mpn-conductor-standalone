@@ -27,20 +27,15 @@
  * - Channels: 2 (stereo)
  * 
  * Usage:
- * ```typescript
- * const mp3Blob = await exportScoreToMP3(scoreFrames, tempo);
- * downloadMP3(mp3Blob, 'hamlet_original_v3.0.mp3');
- * ```
- * 
- * @module audio_exporter
- * @requires tone - Audio synthesis and offline rendering
- * @requires lamejs - MP3 encoding
+ * Exports Tone.js scores to MP3 format for preservation and sharing
  */
 
-import * as Tone from 'tone';
-import lamejs from 'lamejs';
 import { PsychometricScoreFrame } from '@/components/mpn-lab/score_types';
 import { MPNSynthesizer } from '@/components/mpn-lab/MPNSynthesizer';
+
+// Dynamic imports are used to prevent SSR issues with Tone.js
+let Tone: any;
+let lamejs: any;
 
 export interface ExportOptions {
     sampleRate?: number;
@@ -58,6 +53,7 @@ const DEFAULT_OPTIONS: ExportOptions = {
 
 /**
  * Export a psychometric score to MP3 format
+ * Uses dynamic imports to ensure client-side execution
  * 
  * CORE FUNCTIONALITY: Offline Audio Rendering & Compression
  * 
@@ -100,6 +96,10 @@ export async function exportScoreToMP3(
     tempo: number = 80,
     options: ExportOptions = {}
 ): Promise<Blob> {
+    // Dynamically load dependencies
+    if (!Tone) Tone = await import('tone');
+    if (!lamejs) lamejs = (await import('lamejs')).default || await import('lamejs');
+
     const opts = { ...DEFAULT_OPTIONS, ...options };
 
     console.log('[AudioExporter] Starting export...');

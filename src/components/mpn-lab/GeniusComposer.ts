@@ -10,6 +10,16 @@ import { MusicalParams } from './psychometric_calculus';
 import { NoteEvent } from './score_orchestrator';
 import { Leitmotif, transformLeitmotif, LeitmotifTransformation } from './leitmotif_generator';
 import { STYLE_PRESETS, MusicalStyle } from './styles';
+import {
+    getModalTransformation,
+    getOrchestrationLevel,
+    fragmentLeitmotif,
+    applyProfessionalTransformations,
+    getModeScaleDegrees,
+    type MusicalMode,
+    type OrchestrationLevel as ProfessionalOrchLevel,
+    type TransformationContext
+} from '@/lib/leitmotif_transformation_rules';
 
 // ============================================================================
 // TYPES
@@ -104,22 +114,88 @@ export class GeniusComposer {
         params: MusicalParams,
         duration: number, // in beats
         startBeat: number,
-        intensity: number // 0-1 (derived from trauma/entropy)
+        intensity: number, // 0-1 (derived from trauma/entropy)
+        trauma: number = intensity, // Explicit trauma for transformations
+        entropy: number = 0.5 // Explicit entropy for transformations
     ): Promise<NoteEvent[]> {
-        // AI GENERATION PATH
+        // ==================================================================
+        // APPLY PROFESSIONAL LEITMOTIF TRANSFORMATIONS (Williams/Shore)
+        // ==================================================================
+        const rsi = { real: 0.33, symbolic: 0.33, imaginary: 0.34 }; // Default RSI
+        const transformContext: TransformationContext = {
+            trauma,
+            entropy,
+            rsi,
+            characterArc: trauma > 0.7 ? 'crisis' : trauma > 0.4 ? 'development' : 'introduction',
+            actorCount: 1
+        };
+
+        // Get professional transformations based on psychometric state
+        const professionalNotes = leitmotif.pitchClasses.map((pc, i) => ({
+            pitch: this.midiToNoteName(pc + (leitmotif.baseOctave + 1) * 12),
+            midiNote: pc + (leitmotif.baseOctave + 1) * 12,
+            duration: leitmotif.rhythm?.[i] || 1,
+            startBeat: startBeat + i,
+            velocity: params.dynamic,
+            articulation: params.articulation
+        }));
+
+        const transformations = applyProfessionalTransformations(
+            leitmotif,
+            professionalNotes,
+            'Cm', // Default chord, could be passed from params
+            transformContext
+        );
+
+        // Apply modal transformation to scale
+        const targetMode = transformations.mode;
+        const modeScaleDegrees = getModeScaleDegrees(targetMode);
+
+        // Log transformation for debugging
+        console.log(`[GeniusComposer] Professional Transform: mode=${targetMode}, orch=${transformations.orchestrationLevel}, frag=${transformations.fragmentation.level}`);
+
+        // AI GENERATION PATH - TRY TEXT2MIDI FIRST, THEN LLM FALLBACK
         if (this.useAI) {
+            // === TEXT2MIDI PATH: Symbolic MIDI from psychometric state ===
+            if (this.aiClient.isText2midiReady()) {
+                const symbolicNotes = await this.aiClient.generateSymbolicMidi({
+                    trauma,
+                    entropy,
+                    rsi,
+                    musicalContext: {
+                        key: params.key?.replace(/m$/, '') || 'C',
+                        mode: targetMode,
+                        tempo: params.tempo || 120
+                    }
+                });
+
+                if (symbolicNotes && symbolicNotes.length > 0) {
+                    console.log(`[GeniusComposer] Text2midi generated ${symbolicNotes.length} notes`);
+                    // Convert ParsedMidiNote to NoteEvent with leitmotif context
+                    return symbolicNotes.map(n => ({
+                        pitch: this.midiToNoteName(n.pitch),
+                        midiNote: n.pitch,
+                        duration: n.duration,
+                        startBeat: startBeat + n.startTime,
+                        velocity: n.velocity / 127, // Convert MIDI velocity to 0-1
+                        articulation: params.articulation
+                    }));
+                }
+            }
+
+            // === LLM FALLBACK: Use OpenRouter/Gemini for melody generation ===
             const aiResult = await this.aiClient.generateMelody({
                 psychometrics: {
-                    trauma: intensity, // approximation
-                    entropy: 0.5, // placeholder, pass real entropy if avail in params
+                    trauma,
+                    entropy,
                     cognitiveBias: 'Unknown',
-                    rsi: { real: 0.33, symbolic: 0.33, imaginary: 0.33 }
+                    rsi
                 },
                 musicalContext: {
-                    key: 'C Major', // TODO: Pass from params
-                    mode: 'Ionian',
+                    key: params.key || 'C Major',
+                    mode: targetMode,
                     currentChord: 'C',
-                    instrument: 'Unknown'
+                    instrument: 'Orchestra'
                 },
                 temperature: this.aiTemperature
             });
@@ -148,10 +224,30 @@ export class GeniusComposer {
         // 1. Get rhythm pattern from leitmotif or generate based on psychometrics
         const rhythmPattern = this.selectRhythmPattern(leitmotif, intensity);
 
-        // 2. Get pitch sequence from leitmotif
-        let pitches = leitmotif.pitchClasses.map(pc => pc + (leitmotif.baseOctave + 1) * 12);
+        // 2. Get pitch sequence from leitmotif WITH MODAL TRANSFORMATION
+        let pitches = leitmotif.pitchClasses.map((pc, idx) => {
+            // Apply mode scale degrees to transform pitches
+            const scaleIdx = idx % modeScaleDegrees.length;
+            const modeOffset = modeScaleDegrees[scaleIdx];
+            // Base note + mode adjustment + octave
+            return (pc % 12) + modeOffset + (leitmotif.baseOctave + 1) * 12;
+        });
         if (pitches.length === 0) {
             pitches = [60, 62, 64, 65, 67]; // Default C major scale
+        }
+
+        // 3. Apply FRAGMENTATION if high trauma/entropy (Shore technique)
+        if (transformations.fragmentation.level !== 'full') {
+            // Use the fragmented subset of pitches
+            const fragmentLevel = transformations.fragmentation.level;
+            if (fragmentLevel === 'truncated') {
+                pitches = pitches.slice(0, Math.ceil(pitches.length * 0.6));
+            } else if (fragmentLevel === 'core_motif') {
+                pitches = pitches.slice(0, Math.min(4, pitches.length));
+            } else if (fragmentLevel === 'interval_only') {
+                pitches = pitches.filter((_, i) => i % 2 === 0);
+            }
+            console.log(`[GeniusComposer] Fragmentation applied: ${pitches.length} notes remaining`);
         }
 
         // 3. Calculate how many complete pattern cycles fit in duration

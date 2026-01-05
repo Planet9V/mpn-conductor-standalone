@@ -43,3 +43,15 @@ next-env.d.ts
 
 # Database
 *.sql.bak
+
+# Large model checkpoints (use HuggingFace Hub instead)
+ml/psychoscore/checkpoints/
+ml/psychoscore/data/raw/
+ml/psychoscore/data/tokenized/
+ml/psychoscore/data/synthetic/synthetic_pairs.jsonl
+
+# Python cache
+__pycache__/
+*.pyc
+
+ml/psychoscore/.env
