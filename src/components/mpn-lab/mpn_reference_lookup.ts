@@ -136,7 +136,7 @@ export function lookupTempoRange(
     if (entry) {
         if (adjustments?.[entry.id]?.tempo) {
             const t = adjustments[entry.id].tempo!;
-            return { min: t - 5, max: t + 5 };
+            return { min: t - 10, max: t + 10 };
         }
         return entry.implementation?.bpmRange || { min: 80, max: 100 };
     }
@@ -262,6 +262,19 @@ export function lookupModeScale(register: 'real' | 'symbolic' | 'imaginary'): nu
     // Note: The dictionary keys Lacanian dimensions as "Real", "Symbolic", "Imaginary"
     const entry = findEntryByTrait(MPNCategory.MODE, 'scale_mode', PsychometricDimension.LACANIAN, register);
     return entry?.implementation.scaleFormula;
+}
+
+/**
+ * Get mode name based on Lacanian register (for rsiToMode function)
+ */
+export function lookupModeName(register: 'real' | 'symbolic' | 'imaginary'): string {
+    // Map Lacanian registers to modes based on MPN Canon
+    const modeMap: Record<string, string> = {
+        'real': 'phrygian',      // Dark, raw, traumatic
+        'symbolic': 'ionian',    // Order, law, structure (major)
+        'imaginary': 'lydian'    // Dreamy, aspirational, fantasy
+    };
+    return modeMap[register] || 'ionian';
 }
 
 

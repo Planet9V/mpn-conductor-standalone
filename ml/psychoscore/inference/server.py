@@ -3,7 +3,7 @@ PSYCHOSCORE Inference Server
 FastAPI server for generating MIDI from psychometric profiles.
 
 Usage:
-    uvicorn server:app --host 0.0.0.0 --port 8000
+    uvicorn server:app --host 0.0.0.0 --port 8001
 """
 
 import os
@@ -375,4 +375,4 @@ async def generate_midi_file(request: GenerateRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)

@@ -1,6 +1,14 @@
-INFO:     Started server process [1355253]
+nohup: ignoring input
+/home/jim/mpn-conductor-standalone/ml/psychoscore/inference/server.py:261: DeprecationWarning: 
+        on_event is deprecated, use lifespan event handlers instead.
+
+        Read more about it in the
+        [FastAPI docs for Lifespan Events](https://fastapi.tiangolo.com/advanced/events/).
+        
+  @app.on_event("startup")
+INFO:     Started server process [2734859]
 INFO:     Waiting for application startup.
-INFO:inference.server:Loading model from checkpoints/psychoscore/final
+INFO:__main__:Loading model from checkpoints/psychoscore/final
 /home/jim/mpn-conductor-standalone/ml/psychoscore/venv/lib/python3.12/site-packages/miditok/tokenizations/remi.py:88: UserWarning: Attribute controls are not compatible with 'config.one_token_stream_for_programs' and multi-vocabulary tokenizers. Disabling them from the config.
   super().__init__(tokenizer_config, params)
 `torch_dtype` is deprecated! Use `dtype` instead!
@@ -11,11 +19,153 @@ INFO:accelerate.utils.modeling:We will use 90% of the memory on device 0 for sto
   warnings.warn(
 /home/jim/mpn-conductor-standalone/ml/psychoscore/venv/lib/python3.12/site-packages/peft/tuners/tuners_utils.py:916: UserWarning: Model with `tie_word_embeddings=True` and the tied_target_modules=['lm_head'] are part of the adapter. This can lead to complications, for example when merging the adapter or converting your model to formats other than safetensors. See for example https://github.com/huggingface/peft/issues/2018.
   warnings.warn(
-INFO:inference.server:Loading LoRA adapters
+INFO:__main__:Loading LoRA adapters
 /home/jim/mpn-conductor-standalone/ml/psychoscore/venv/lib/python3.12/site-packages/peft/tuners/tuners_utils.py:282: UserWarning: Already found a `peft_config` attribute in the model. This will lead to having multiple adapters in the model. Make sure to know what you are doing!
   warnings.warn(
-INFO:inference.server:Model loaded on cuda
+INFO:__main__:Model loaded on cuda
 INFO:     Application startup complete.
-ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8001): address already in use
-INFO:     Waiting for application shutdown.
-INFO:     Application shutdown complete.
+INFO:     Uvicorn running on http://0.0.0.0:8001 (Press CTRL+C to quit)
+INFO:     127.0.0.1:40402 - "GET /health HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:40408 - "POST /generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58560 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58562 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58560 - "GET /health HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.75 (trauma=0.50, entropy=0.40)
+INFO:     127.0.0.1:58562 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.67 (trauma=0.60, entropy=0.30)
+INFO:     127.0.0.1:58560 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.83 (trauma=0.90, entropy=0.80)
+INFO:     127.0.0.1:58562 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.77 (trauma=0.10, entropy=0.20)
+INFO:     127.0.0.1:58560 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:58562 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:58560 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.86 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:58562 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.78 (trauma=0.75, entropy=0.60)
+INFO:     127.0.0.1:58560 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.82 (trauma=0.10, entropy=0.30)
+INFO:     127.0.0.1:58562 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.70 (trauma=0.50, entropy=0.30)
+INFO:     127.0.0.1:58578 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.58 (trauma=0.90, entropy=0.30)
+INFO:     127.0.0.1:58588 - "POST /generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58594 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58606 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58608 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58616 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58624 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58640 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58648 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58650 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58654 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58660 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58532 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58534 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58532 - "GET /health HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.75 (trauma=0.50, entropy=0.40)
+INFO:     127.0.0.1:58534 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.67 (trauma=0.60, entropy=0.30)
+INFO:     127.0.0.1:58532 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.83 (trauma=0.90, entropy=0.80)
+INFO:     127.0.0.1:58534 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.77 (trauma=0.10, entropy=0.20)
+INFO:     127.0.0.1:58532 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:58534 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:58532 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.86 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:58534 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.78 (trauma=0.75, entropy=0.60)
+INFO:     127.0.0.1:58532 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.82 (trauma=0.10, entropy=0.30)
+INFO:     127.0.0.1:58534 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.70 (trauma=0.50, entropy=0.30)
+INFO:     127.0.0.1:58538 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.58 (trauma=0.90, entropy=0.30)
+INFO:     127.0.0.1:58554 - "POST /generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58540 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58556 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58566 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58568 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58580 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58592 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58602 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58608 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58618 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58626 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47220 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47222 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47220 - "GET /health HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.75 (trauma=0.50, entropy=0.40)
+INFO:     127.0.0.1:47222 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.67 (trauma=0.60, entropy=0.30)
+INFO:     127.0.0.1:47220 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.83 (trauma=0.90, entropy=0.80)
+INFO:     127.0.0.1:47222 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.77 (trauma=0.10, entropy=0.20)
+INFO:     127.0.0.1:47220 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:47222 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:47220 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.86 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:47222 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.78 (trauma=0.75, entropy=0.60)
+INFO:     127.0.0.1:47220 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.82 (trauma=0.10, entropy=0.30)
+INFO:     127.0.0.1:47222 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.70 (trauma=0.50, entropy=0.30)
+INFO:     127.0.0.1:47226 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.58 (trauma=0.90, entropy=0.30)
+INFO:     127.0.0.1:47228 - "POST /generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47232 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47238 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47246 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47250 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47258 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47270 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47278 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47290 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47306 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:47308 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:50358 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41816 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41830 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41816 - "GET /health HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.75 (trauma=0.50, entropy=0.40)
+INFO:     127.0.0.1:41830 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.67 (trauma=0.60, entropy=0.30)
+INFO:     127.0.0.1:41816 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.83 (trauma=0.90, entropy=0.80)
+INFO:     127.0.0.1:41830 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.77 (trauma=0.10, entropy=0.20)
+INFO:     127.0.0.1:41816 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:41830 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:41816 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.86 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:41830 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.78 (trauma=0.75, entropy=0.60)
+INFO:     127.0.0.1:41816 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.82 (trauma=0.10, entropy=0.30)
+INFO:     127.0.0.1:41830 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.70 (trauma=0.50, entropy=0.30)
+INFO:     127.0.0.1:41840 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.58 (trauma=0.90, entropy=0.30)
+INFO:     127.0.0.1:41844 - "POST /generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41850 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41864 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41866 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41878 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41886 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41894 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41896 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41908 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41916 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:41928 - "GET /health HTTP/1.1" 200 OK

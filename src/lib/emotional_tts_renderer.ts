@@ -27,6 +27,11 @@ export interface PsychometricState {
     trauma: number;
     entropy: number;
     rsi: { real: number; symbolic: number; imaginary: number };
+    darkTriad?: {
+        machiavellianism: number;
+        narcissism: number;
+        psychopathy: number;
+    };
 }
 
 export type TTSProvider = 'azure' | 'elevenlabs' | 'bark';
@@ -44,9 +49,46 @@ export type TTSProvider = 'azure' | 'elevenlabs' | 'bark';
  * - High Trauma + Low Entropy = Low Arousal, Negative Valence → Sad
  * - Low Trauma + High Entropy = High Arousal, Positive Valence → Excited
  * - Low Trauma + Low Entropy = Low Arousal, Positive Valence → Calm/Friendly
+ * 
+ * Dark Triad modulation:
+ * - High Machiavellianism → Whispering (manipulative, secretive)
+ * - High Narcissism → Cheerful/Shouting (grandiose)
+ * - High Psychopathy → Flat/Cold (reduced emotional expression)
  */
 export function mapPsychometricsToEmotion(p: PsychometricState): EmotionStyle {
-    const { trauma, entropy, rsi } = p;
+    const { trauma, entropy, rsi, darkTriad } = p;
+
+    // Dark Triad overrides (strong personality traits dominate expression)
+    if (darkTriad) {
+        const maxTrait = Math.max(darkTriad.machiavellianism, darkTriad.narcissism, darkTriad.psychopathy);
+
+        if (maxTrait > 0.7) {
+            if (darkTriad.machiavellianism >= darkTriad.narcissism && darkTriad.machiavellianism >= darkTriad.psychopathy) {
+                return {
+                    style: 'whispering',
+                    rate: '0.9',
+                    pitch: '-5%',
+                    intensity: darkTriad.machiavellianism
+                };
+            }
+            if (darkTriad.narcissism >= darkTriad.machiavellianism && darkTriad.narcissism >= darkTriad.psychopathy) {
+                return {
+                    style: entropy > 0.5 ? 'shouting' : 'cheerful',
+                    rate: '1.1',
+                    pitch: '+10%',
+                    intensity: darkTriad.narcissism
+                };
+            }
+            if (darkTriad.psychopathy >= darkTriad.machiavellianism && darkTriad.psychopathy >= darkTriad.narcissism) {
+                return {
+                    style: 'default',  // Flat affect
+                    rate: '0.95',
+                    pitch: '0%',
+                    intensity: 0.2  // Very low intensity = cold
+                };
+            }
+        }
+    }
 
     // High trauma states
     if (trauma > 0.8 && entropy > 0.6) {
@@ -86,8 +128,19 @@ export function mapPsychometricsToEmotion(p: PsychometricState): EmotionStyle {
         };
     }
 
-    // Dominant register influences
+    // RSI register-driven emotions
+    if (rsi.real > rsi.symbolic && rsi.real > rsi.imaginary) {
+        // Real register dominant → Raw, urgent, unmediated
+        return {
+            style: trauma > 0.3 ? 'fearful' : 'angry',
+            rate: '1.0',
+            pitch: trauma > 0.5 ? '+5%' : '0%',
+            intensity: rsi.real
+        };
+    }
+
     if (rsi.symbolic > rsi.real && rsi.symbolic > rsi.imaginary) {
+        // Symbolic register dominant → Ordered, lawful, paternal
         return {
             style: 'hopeful',
             rate: '1.0',
@@ -96,12 +149,13 @@ export function mapPsychometricsToEmotion(p: PsychometricState): EmotionStyle {
         };
     }
 
-    if (rsi.imaginary > 0.5) {
+    if (rsi.imaginary > rsi.real && rsi.imaginary > rsi.symbolic) {
+        // Imaginary register dominant → Dreamy, narcissistic, fantasy
         return {
             style: 'whispering',
             rate: '0.9',
             pitch: '-3%',
-            intensity: 0.5
+            intensity: rsi.imaginary
         };
     }
 

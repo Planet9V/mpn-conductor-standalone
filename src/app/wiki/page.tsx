@@ -7,8 +7,8 @@ import { useState } from 'react';
 /**
  * MPN Wiki - Comprehensive Documentation Hub
  * 
- * Updated: 2026-01-06 05:00 CST
- * Version: 3.6.0
+ * Updated: 2026-01-10 17:15 CST
+ * Version: 3.6.1
  */
 
 interface WikiSection {
@@ -123,12 +123,12 @@ export default function WikiPage() {
                                     <span className="text-[#FFD700]">MPN</span>
                                     <span className="text-white/60 ml-2">Wiki</span>
                                 </h1>
-                                <p className="text-xs text-white/40">Documentation v3.6.0</p>
+                                <p className="text-xs text-white/40">Documentation v3.6.1</p>
                             </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-white/40">
-                        <span>Last Updated: 2026-01-06 05:00 CST</span>
+                        <span>Last Updated: 2026-01-10 17:15 CST</span>
                     </div>
                 </div>
             </header>
@@ -236,6 +236,16 @@ export default function WikiPage() {
                         Recent Updates
                     </h3>
                     <div className="space-y-3">
+                        <div className="flex items-center gap-4 text-sm">
+                            <span className="text-white/40 font-mono">2026-01-10</span>
+                            <span className="px-2 py-0.5 rounded bg-green-500/20 text-green-400 text-xs">VERIFIED</span>
+                            <span>Full system verification: 293 unit + 64 E2E tests passing, PSYCHOSCORE on CUDA</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm">
+                            <span className="text-white/40 font-mono">2026-01-10</span>
+                            <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-xs">UPDATE</span>
+                            <span>Emotion→Voice mapping enhanced with Dark Triad modulation</span>
+                        </div>
                         <div className="flex items-center gap-4 text-sm">
                             <span className="text-white/40 font-mono">2026-01-06</span>
                             <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-xs">UPDATE</span>

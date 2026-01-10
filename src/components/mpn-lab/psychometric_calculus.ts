@@ -13,7 +13,8 @@ import {
     lookupMode,
     lookupInstrument,
     lookupArticulation,
-    lookupChordType
+    lookupChordType,
+    lookupModeName
 } from './mpn_reference_lookup';
 
 // ============================================================================
