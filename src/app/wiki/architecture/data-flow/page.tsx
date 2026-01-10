@@ -7,8 +7,13 @@ import { useEffect, useRef } from 'react';
 /**
  * Data Flow Architecture - Interactive Mermaid Diagrams
  * 
- * Updated: 2026-01-04 12:30 CST
- * Version: 3.2.0
+ * Updated: 2026-01-05 15:18 CST
+ * Version: 3.5.0
+ * 
+ * CHANGE LOG:
+ * - 2026-01-05: Added Auth Flow diagram (Phase 4)
+ * - 2026-01-05: Added Regeneration API flow (Phase 7)
+ * - 2026-01-05: Updated version to 3.5.0
  */
 
 // Mermaid CDN loader
@@ -75,8 +80,8 @@ export default function DataFlowPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3 text-xs">
-                        <span className="text-white/40">Updated: 2026-01-04</span>
-                        <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">v3.2.0</span>
+                        <span className="text-white/40">Updated: 2026-01-05</span>
+                        <span className="px-2 py-1 rounded bg-emerald-500/20 text-emerald-400">v3.5.0</span>
                     </div>
                 </div>
             </header>
@@ -163,30 +168,97 @@ export default function DataFlowPage() {
                     </div>
                 </section>
 
-                {/* Real-Time Regeneration Flow */}
+                {/* NEW SECTION: Auth Flow (Added 2026-01-05) */}
                 <section className="mb-16">
                     <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                        <span className="w-8 h-8 rounded-lg bg-[#FFD700]/20 flex items-center justify-center text-sm">2</span>
-                        Real-Time Regeneration Flow
+                        <span className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center text-sm">🔐</span>
+                        Authentication & Authorization Flow
+                        <span className="ml-2 px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-xs">Added 2026-01-05</span>
                     </h3>
                     <div className="p-6 rounded-xl border border-white/10 bg-white/5">
                         <div className="mermaid">
                             {`sequenceDiagram
     participant User
-    participant UI as Conductor UI
+    participant Login as /login
+    participant API as /api/auth/login
+    participant DB as PostgreSQL
+    participant Admin as /admin
+    participant Dashboard as /dashboard
+
+    User->>Login: Navigate to login
+    Login->>Login: Enter credentials
+    User->>API: POST {email, password}
+    API->>DB: SELECT user WHERE email
+    DB-->>API: User record
+    API->>API: bcrypt.compare(password)
+    alt Valid Credentials
+        API->>API: Check is_approved
+        alt User is Admin
+            API-->>Login: {success: true, role: Administrator}
+            Login->>Admin: Redirect to /admin
+        else User is Regular
+            API-->>Login: {success: true, role: User}
+            Login->>Dashboard: Redirect to /dashboard
+        end
+    else Invalid or Not Approved
+        API-->>Login: {success: false, error}
+        Login->>Login: Show error message
+    end`}
+                        </div>
+                    </div>
+                    <div className="mt-4 grid md:grid-cols-2 gap-4">
+                        <div className="p-4 rounded-lg border border-white/10 bg-white/5">
+                            <h4 className="font-semibold text-[#FFD700] mb-2">Admin Dashboard Features</h4>
+                            <ul className="text-sm text-white/70 space-y-1">
+                                <li>• User Management (CRUD + approval)</li>
+                                <li>• System Configuration (API keys)</li>
+                                <li>• Audit Log Viewer</li>
+                            </ul>
+                        </div>
+                        <div className="p-4 rounded-lg border border-white/10 bg-white/5">
+                            <h4 className="font-semibold text-[#FFD700] mb-2">User Dashboard Features</h4>
+                            <ul className="text-sm text-white/70 space-y-1">
+                                <li>• Personal Project Management</li>
+                                <li>• Shared Library Access (Clone)</li>
+                                <li>• Project-specific Overrides</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                {/* Real-Time Regeneration Flow */}
+                <section className="mb-16">
+                    <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                        <span className="w-8 h-8 rounded-lg bg-[#FFD700]/20 flex items-center justify-center text-sm">2</span>
+                        Real-Time Regeneration Flow
+                        <span className="ml-2 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs">Enhanced 2026-01-05</span>
+                    </h3>
+                    <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                        <div className="mermaid">
+                            {`sequenceDiagram
+    participant User
+    participant Timeline as TimelineScrubber
+    participant API as /api/regenerate
+    participant DB as PostgreSQL
     participant Worker as Orchestrator Worker
-    participant Buffer as Score Buffer
     participant Synth as MPNSynthesizer
 
-    User->>UI: Change Instrument/Parameter
-    UI->>Worker: UPDATE_ACTOR_INSTRUMENT
-    Worker->>Worker: Invalidate cached frames
-    Worker->>Buffer: Clear affected frames
-    Worker->>Worker: Regenerate with new settings
-    Worker->>UI: FRAMES_UPDATED
-    UI->>Synth: Trigger new audio
-    Synth->>User: Play updated music`}
+    User->>Timeline: Click regenerate button
+    Timeline->>API: POST {fromBeat, psychometrics}
+    API->>API: calculateDynamicTemperature(entropy)
+    API->>DB: INSERT audit log
+    API-->>Timeline: {jobId, params}
+    Timeline->>Worker: REGENERATE_FROM_BEAT
+    Worker->>Worker: Recompose from beat N
+    Worker-->>Timeline: FRAMES_UPDATED
+    Timeline->>Synth: Play regenerated music`}
                         </div>
+                    </div>
+                    <div className="mt-4 p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/30">
+                        <p className="text-sm text-emerald-200">
+                            <strong>Dynamic Temperature:</strong> Temperature is calculated as <code>0.7 + (entropy × 0.5)</code>,
+                            ranging from 0.7 (low entropy) to 1.2 (high entropy) for more creative variation.
+                        </p>
                     </div>
                 </section>
 
@@ -349,10 +421,100 @@ export default function DataFlowPage() {
                     </div>
                 </section>
 
+                {/* NEW SECTION: TTS Emotion Flow (Added 2026-01-05) */}
+                <section className="mb-16">
+                    <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
+                        <span className="w-8 h-8 rounded-lg bg-pink-500/20 flex items-center justify-center text-sm">🎤</span>
+                        Emotional TTS Pipeline
+                        <span className="ml-2 px-2 py-0.5 rounded bg-pink-500/20 text-pink-400 text-xs">Added 2026-01-05</span>
+                    </h3>
+                    <div className="p-6 rounded-xl border border-white/10 bg-white/5">
+                        <div className="mermaid">
+                            {`flowchart LR
+    subgraph Input["PSYCHOMETRIC STATE"]
+        T[Trauma τ]
+        E[Entropy H]
+        RSI[RSI Registers]
+    end
+
+    subgraph Mapping["EMOTION MAPPING"]
+        Map[mapPsychometricsToEmotion]
+    end
+
+    subgraph Styles["EMOTION STYLES"]
+        Fear[fearful]
+        Sad[sad]
+        Angry[angry]
+        Excite[excited]
+        Hope[hopeful]
+        Whisp[whispering]
+    end
+
+    subgraph Voice["VOICE SYNTHESIS"]
+        EL[ElevenLabs API]
+        Azure[Azure Speech]
+    end
+
+    T --> Map
+    E --> Map
+    RSI --> Map
+    Map --> Fear
+    Map --> Sad
+    Map --> Angry
+    Map --> Excite
+    Map --> Hope
+    Map --> Whisp
+    Fear --> EL
+    Sad --> Azure
+    Angry --> EL
+    Excite --> EL
+    Hope --> Azure
+    Whisp --> Azure`}
+                        </div>
+                    </div>
+                    <div className="mt-4 overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-white/20">
+                                    <th className="text-left py-2 px-3 font-semibold text-[#FFD700]">Emotion</th>
+                                    <th className="text-left py-2 px-3 font-semibold text-[#FFD700]">Trigger</th>
+                                    <th className="text-left py-2 px-3 font-semibold text-[#FFD700]">ElevenLabs Params</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-white/70 text-xs">
+                                <tr className="border-b border-white/10">
+                                    <td className="py-2 px-3">fearful</td>
+                                    <td className="py-2 px-3">trauma &gt; 0.8, entropy &gt; 0.6</td>
+                                    <td className="py-2 px-3">stability: 0.25, style: 0.7</td>
+                                </tr>
+                                <tr className="border-b border-white/10">
+                                    <td className="py-2 px-3">sad</td>
+                                    <td className="py-2 px-3">trauma &gt; 0.7, entropy &lt; 0.4</td>
+                                    <td className="py-2 px-3">stability: 0.8, style: 0.3</td>
+                                </tr>
+                                <tr className="border-b border-white/10">
+                                    <td className="py-2 px-3">excited</td>
+                                    <td className="py-2 px-3">trauma &lt; 0.4, entropy &gt; 0.7</td>
+                                    <td className="py-2 px-3">stability: 0.3, style: 0.9</td>
+                                </tr>
+                                <tr className="border-b border-white/10">
+                                    <td className="py-2 px-3">angry</td>
+                                    <td className="py-2 px-3">trauma &gt; 0.6</td>
+                                    <td className="py-2 px-3">stability: 0.4, style: 0.8</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+
                 {/* Related Documentation */}
                 <section className="mt-16 p-6 rounded-xl border border-white/10 bg-white/5">
                     <h3 className="text-lg font-semibold mb-4">Related Documentation</h3>
-                    <div className="grid md:grid-cols-3 gap-4">
+                    <div className="grid md:grid-cols-4 gap-4">
+                        <Link href="/mpn-reference" className="p-4 rounded-lg hover:bg-white/5 border border-white/10 transition group">
+                            <h4 className="font-medium text-[#FFD700] group-hover:text-white transition">MPN Reference</h4>
+                            <p className="text-xs text-white/50 mt-1">Interactive dictionary of all psychometric criteria</p>
+                        </Link>
                         <Link href="/wiki/architecture/components" className="p-4 rounded-lg hover:bg-white/5 border border-white/10 transition">
                             <h4 className="font-medium text-[#FFD700]">Component Matrix</h4>
                             <p className="text-xs text-white/50 mt-1">Module dependencies and relationships</p>
@@ -361,9 +523,9 @@ export default function DataFlowPage() {
                             <h4 className="font-medium text-[#FFD700]">Leitmotif System</h4>
                             <p className="text-xs text-white/50 mt-1">Deep dive into theme generation</p>
                         </Link>
-                        <Link href="/wiki/troubleshooting/performance" className="p-4 rounded-lg hover:bg-white/5 border border-white/10 transition">
-                            <h4 className="font-medium text-[#FFD700]">Performance Tuning</h4>
-                            <p className="text-xs text-white/50 mt-1">WebWorker optimization guide</p>
+                        <Link href="/wiki/ai/elevenlabs-api" className="p-4 rounded-lg hover:bg-white/5 border border-white/10 transition">
+                            <h4 className="font-medium text-[#FFD700]">ElevenLabs API</h4>
+                            <p className="text-xs text-white/50 mt-1">Voice synthesis integration</p>
                         </Link>
                     </div>
                 </section>
@@ -373,9 +535,10 @@ export default function DataFlowPage() {
             <footer className="border-t border-white/10 px-6 py-6 mt-16">
                 <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-white/40">
                     <span>MPN Wiki • Data Flow Architecture</span>
-                    <span>Last updated: 2026-01-04 12:30 CST</span>
+                    <span>Last updated: 2026-01-05 15:18 CST</span>
                 </div>
             </footer>
         </div>
     );
 }
+

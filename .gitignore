@@ -55,3 +55,10 @@ __pycache__/
 *.pyc
 
 ml/psychoscore/.env
+
+# Python virtual environments
+ml/psychoscore/venv/
+
+# Large training data
+ml/psychoscore/data/synthetic/
+ml/psychoscore/data/emopia/

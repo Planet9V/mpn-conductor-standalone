@@ -94,15 +94,15 @@ graph TB
 
 ## Phase Overview
 
-| Phase | Name | Duration | Status | Dependencies |
-|-------|------|----------|--------|--------------|
-| 1 | Leitmotif Enhancement | Week 1 | ✅ Complete | None |
-| 2 | AI Model Integration | Week 2 | ✅ Complete | Phase 1 |
-| 3 | Emotional TTS | Week 3 | 🔄 In Progress | Phase 2 |
-| 4 | Database Optimization | Week 4 | ⏳ Pending | None |
-| 5 | Dynamic Conductor UI | Week 5 | ⏳ Pending | Phase 2 |
-| 6 | **PSYCHOSCORE Training** | Weeks 6-10 | 🔄 In Progress | Phase 2 |
-| 7 | Future Integrations | Weeks 11+ | ⏳ Planned | All |
+| Phase | Name | Duration | Status | Priority |
+|-------|------|----------|--------|----------|
+| 1 | Leitmotif Enhancement | Week 1 | ✅ Complete | Medium |
+| 2 | AI Model Integration | Week 2 | ✅ Complete | High |
+| 3 | **Emotional TTS & SSML** | Week 3 | 🔄 In Progress | CRITICAL |
+| 4 | **Auth, Admin & Project Mgmt** | Week 4 | 🔄 Starting | CRITICAL |
+| 5 | **Database & Audit Logs** | Week 5 | ⏳ Pending | High |
+| 6 | **PSYCHOSCORE Training** | Weeks 6-10 | 🔄 In Progress | High |
+| 7 | Dynamic Conductor UI | Weeks 11+ | ⏳ Pending | High |
 
 ---
 
@@ -176,31 +176,45 @@ ELEVENLABS_API_KEY=sk_xxxxx  # Set in .env.local
 
 ---
 
-## Phase 4: Database Optimization ⏳
+## Phase 4: Auth, Admin & Project Mgmt 🔄
 
-**Status:** Pending  
-**Reference:** [comprehensive_integration_plan.md - Section D](./comprehensive_integration_plan.md)
+**Status:** Implementation Starting
+**Goal:** Invitation-only launch with robust multi-tenancy.
 
-### Planned Work
-- [ ] JSONB metadata indexes (GIN + jsonb_path_ops)
-- [ ] Full-text search with tsvector
-- [ ] Temporal versioning for scripts
-- [ ] Audit logging table
-- [ ] Bulk ingestion pipeline
+### User Challenge (Login)
+- **Administrator:** Jim (`jim@aeon.com` / `JimmyAmy`)
+- **Regular User:** Tom (`tom@aeon.com` / `TomJudy`)
+- **Landing Page:** Endless scrolling, Jim McKenney's theory, "Request Invitation" CTA.
+
+### Admin Dashboard
+- **User Management:** CRUD for users, roles, and approvals.
+- **Message Center:** Unified inbox for CTA requests (non-email).
+- **System Config:** Live tracking and management of .env-style keys/models.
+
+### Project Management ("Project Base" Approach)
+- **Personal Projects:** Users manage their own library.
+- **Master Templates:** Admin-created projects (e.g., "Hamlet Master") accessible but immutable to users.
+- **Cloning:** Users can copy master templates to their personal workspace.
+- **Isolation:** Project-specific parameter overrides (tempo, rhythm, harmony) that don't impact others.
+
+## Phase 5: Database & Audit Logs ⏳
+
+**Priority:** HIGH (Moved up per user feedback)
+**Goal:** Robust tracking and vector-searchable metadata.
+
+### Tasks
+- [ ] **Audit Logging:** Full tracking of system changes and user actions.
+- [ ] **SSML Vector Search:** Fast lookup for SSML markup and definitions.
+- [ ] **JSONB Optimization:** GIN indexes for psychometric metadata.
 
 ---
 
-## Phase 5: Dynamic Conductor UI ⏳
+## Phase 7: Dynamic Conductor UI ⏳ / Future Integrations
 
-**Status:** Pending  
-**Reference:** [comprehensive_integration_plan.md - Section E](./comprehensive_integration_plan.md)
-
-### Planned Work
-- [ ] ActorInstrumentPicker component
-- [ ] Real-time score regeneration
-- [ ] AI suggestion display
-- [ ] Conductor session persistence
-- [ ] Timeline scrubbing
+### CRITICAL COMPONENTS
+1. **ActorInstrumentPicker:** High priority component for real-time instrument reassignment.
+2. **Timeline Scrubbing:** Interactive score navigation.
+3. **Real-time Regeneration:** Instant feedback loop for parameter tweaks.
 
 ---
 

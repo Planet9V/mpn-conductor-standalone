@@ -11,12 +11,12 @@
  * - Real-time psychometric analysis dashboard
  */
 
-import React, { useState, useCallback, useEffect, useMemo, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useMemo, useRef, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 import {
-    ChevronDown, Music, Activity, Layers, Zap, Play, Pause, SkipForward,
-    BookOpen, Volume2, VolumeX, RotateCcw, BarChart, Users, Brain, AlertTriangle, FileDown, FileText
+    BookOpen, Volume2, VolumeX, RotateCcw, BarChart, Users, Brain, AlertTriangle, FileDown, FileText, Sliders, Save, Activity, Zap, Music, Layers, ChevronDown, Play, Pause, SkipForward
 } from 'lucide-react';
 import Link from 'next/link';
 import { OXOTLogo } from '@/components/branding/OXOTLogo';
@@ -27,12 +27,62 @@ import { useMPNSynthesizer } from '@/components/mpn-lab/MPNSynthesizer';
 import { LeadVoiceManager } from '@/components/mpn-lab/LeadVoiceManager';
 import { ORCHESTRATION_MODES, type OrchestrationMode } from '@/components/mpn-lab/GeniusComposer';
 import StyleSelector from '@/components/mpn-lab/StyleSelector';
+import { OrchestratorDashboard } from '@/components/mpn-lab/OrchestratorDashboard';
+import { AIModelSelector } from '@/components/conductor/AIModelSelector';
+import type { AIModelSource } from '@/components/mpn-lab/GeniusComposer';
 
-import { LITERARY_SCENARIOS } from '@/components/mpn-lab/literary_data';
-import { LiteraryScenario, ScenarioFrame } from '@/components/mpn-lab/types';
-import { PsychometricScoreFrame, ActorStaveData, ActorProfile } from '@/components/mpn-lab/score_types';
+import { LITERARY_SCENARIOS, LiteraryScenario } from '@/components/mpn-lab/literary_data';
+import { PsychometricScoreFrame, ActorStaveData, ActorProfile, ScoreVariant } from '@/components/mpn-lab/score_types';
 import { downloadScorePDF } from '@/components/mpn-lab/score_exporter';
 import ExportButton from '@/components/mpn-lab/ExportButton';
+
+// ScriptViewer Component - displays dialogue frames in left panel
+function ScriptViewer({ scenario, currentIndex, onFrameClick }: { scenario: LiteraryScenario, currentIndex: number, onFrameClick: (idx: number) => void }) {
+    const scrollRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (scrollRef.current) {
+            const activeEl = scrollRef.current.querySelector(`[data-frame="${currentIndex}"]`);
+            if (activeEl) {
+                activeEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+    }, [currentIndex]);
+
+    return (
+        <div ref={scrollRef} className="h-full overflow-y-auto custom-scrollbar p-8 space-y-6 pb-40">
+            {scenario.frames.map((frame, idx) => (
+                <div
+                    key={idx}
+                    data-frame={idx}
+                    onClick={() => onFrameClick(idx)}
+                    className={`p-4 rounded-lg border transition-all cursor-pointer ${currentIndex === idx
+                        ? 'bg-gray-800/80 border-gold/50 shadow-[0_0_15px_rgba(250,204,21,0.1)]'
+                        : 'bg-gray-900/40 border-transparent hover:bg-gray-900 hover:border-white/10'
+                        }`}
+                >
+                    <div className="flex justify-between items-center mb-2">
+                        <span className={`text-xs font-bold uppercase tracking-widest ${currentIndex === idx ? 'text-gold' : 'text-gray-500'}`}>
+                            {frame.character || frame.script?.speaker || 'SCENE'}
+                        </span>
+                        <span className="text-[10px] font-mono text-gray-600">
+                            #{idx + 1}
+                        </span>
+                    </div>
+                    <p className={`text-sm leading-relaxed font-serif ${currentIndex === idx ? 'text-white' : 'text-gray-400'}`}>
+                        {frame.name || frame.script?.text}
+                    </p>
+                    {frame.script?.analysis && (
+                        <div className="mt-2 text-[10px] text-gray-500 border-l-2 border-gray-700 pl-2">
+                            {frame.script.analysis}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+}
+
 
 // Instrument assignment based on DISC profile (from reference dictionary)
 const DISC_INSTRUMENTS: Record<string, string> = {
@@ -100,18 +150,35 @@ function LoadingPlaceholder({ label }: { label: string }) {
     );
 }
 
-export default function MPNConductorPage() {
+function MPNConductorPageContent() {
     // Scenario state
     const [selectedScenario, setSelectedScenario] = useState<LiteraryScenario>(LITERARY_SCENARIOS[0]);
     const [currentFrameIndex, setCurrentFrameIndex] = useState(0);
+    const [actors, setActors] = useState<ActorProfile[]>([]);
+
+    // Variant State
+    const [currentVariant, setCurrentVariant] = useState<ScoreVariant | null>(null);
+    const [isBoardOpen, setIsBoardOpen] = useState(false);
 
     // Orchestration Mode State
     const [orchestrationMode, setOrchestrationMode] = useState<OrchestrationMode>('FULL_ORCHESTRA' as OrchestrationMode);
     const [aiEnabled, setAiEnabled] = useState(false);
+    const [aiModelSource, setAiModelSource] = useState<AIModelSource>('text2midi');
     const [aiTemperature, setAiTemperature] = useState(0.7);
     const [currentStyleId, setCurrentStyleId] = useState('orchestral'); // Musical style
     const [leadVoiceEnabled, setLeadVoiceEnabled] = useState(false);
     const [voiceManager, setVoiceManager] = useState<LeadVoiceManager | null>(null);
+    const searchParams = useSearchParams();
+    const [isLoadingScenario, setIsLoadingScenario] = useState(false);
+    const [isDbScenario, setIsDbScenario] = useState(false); // Track if viewing a DB-loaded scenario
+
+    // Combined scenario list: LITERARY_SCENARIOS + current DB scenario if loaded
+    const availableScenarios = useMemo(() => {
+        if (isDbScenario && !LITERARY_SCENARIOS.find(s => s.title === selectedScenario.title)) {
+            return [selectedScenario, ...LITERARY_SCENARIOS];
+        }
+        return LITERARY_SCENARIOS;
+    }, [isDbScenario, selectedScenario]);
 
     // Update Orchestration Mode
     useEffect(() => {
@@ -127,6 +194,74 @@ export default function MPNConductorPage() {
     const handleStyleChange = useCallback((styleId: string) => {
         setCurrentStyleId(styleId);
     }, []);
+
+    // Load scenario from database if ID provided
+    useEffect(() => {
+        const scenarioId = searchParams.get('scenario');
+        const variantId = searchParams.get('variant');
+
+        if (!scenarioId && !variantId) return;
+
+        const loadContent = async () => {
+            setIsLoadingScenario(true);
+            try {
+                let playToLoad: any = null;
+
+                if (variantId) {
+                    // Load variant
+                    const vRes = await fetch(`/api/variants/${variantId}`);
+                    if (!vRes.ok) throw new Error('Failed to fetch variant');
+                    const variant = await vRes.json();
+                    setCurrentVariant(variant);
+
+                    // Propagate overrides to orchestrator immediately if ready, or after init
+                    orchestratorRef.current?.setVariantOverrides(variant);
+
+                    // Fetch associated play
+                    const pRes = await fetch(`/api/plays/${variant.play_id}`);
+                    if (!pRes.ok) throw new Error('Failed to fetch play');
+                    playToLoad = await pRes.json();
+                } else if (scenarioId) {
+                    const res = await fetch(`/api/plays/${scenarioId}`);
+                    if (!res.ok) throw new Error('Failed to fetch scenario');
+                    playToLoad = await res.json();
+                    setCurrentVariant(null);
+                    orchestratorRef.current?.setVariantOverrides(null);
+                }
+
+                if (playToLoad && playToLoad.processed_data) {
+                    const data = playToLoad.processed_data;
+                    const formattedScenario: LiteraryScenario = {
+                        id: playToLoad.id,
+                        title: playToLoad.title,
+                        description: `Scenario: ${playToLoad.title} by ${data.author || 'Unknown'}`,
+                        author: data.author || 'Unknown',
+                        theme: data.theme || 'Drama',
+                        color: data.color || '#F59E0B',
+                        frames: data.frames || [],
+                    };
+
+                    // Clear stale score data from previous scenario
+                    setScoreFrame(null);
+                    setScoreBuffer([]);
+                    setProcessedIndex(-1);
+                    setCurrentFrameIndex(0);
+                    setIsPlaying(false);
+                    orchestratorRef.current?.reset();
+
+                    setSelectedScenario(formattedScenario);
+                    setIsDbScenario(true);
+                    if (data.stylePreset) setCurrentStyleId(data.stylePreset);
+                }
+            } catch (err) {
+                console.error('Error loading content:', err);
+            } finally {
+                setIsLoadingScenario(false);
+            }
+        };
+
+        loadContent();
+    }, [searchParams]);
 
     const [isPlaying, setIsPlaying] = useState(false);
     const [playSpeed, setPlaySpeed] = useState(2500); // ms between frames
@@ -245,23 +380,37 @@ export default function MPNConductorPage() {
             orchestratorRef.current.reset();
 
             // Extract unique speakers from all frames
+            // Extract unique speakers from all frames
             const speakerSet = new Set<string>();
             selectedScenario.frames.forEach(frame => {
-                if (frame.script?.speaker) {
-                    speakerSet.add(frame.script.speaker);
+                // Check script.speaker first, then frame.character
+                const speaker = frame.script?.speaker || frame.character;
+                if (speaker) {
+                    speakerSet.add(speaker);
                 }
             });
+
+            // If no speakers found (e.g. legacy data or purely instrumental), add default ensemble
+            if (speakerSet.size === 0) {
+                speakerSet.add('Instrumental Ensemble');
+            }
 
             // Register each speaker as an actor
             const actors: ActorProfile[] = [];
             let index = 0;
             speakerSet.forEach(speaker => {
-                const profile = createActorProfile(speaker, index);
-                actors.push(profile);
+                actors.push(createActorProfile(speaker, index));
                 index++;
             });
 
+            setActors(actors);
             orchestratorRef.current.init(actors);
+
+            // Re-apply variant overrides if they exist (since init might clear state or we just loaded)
+            if (currentVariant) {
+                orchestratorRef.current.setVariantOverrides(currentVariant);
+            }
+
             console.log(`Initialized Orchestrator Worker with ${actors.length} actors for scenario: ${selectedScenario.title}`);
         }
     }, [selectedScenario]);
@@ -293,7 +442,17 @@ export default function MPNConductorPage() {
 
                 while (nextIdx <= targetIndex) {
                     const rawFrame = selectedScenario.frames[nextIdx];
+
+                    // Robust script extraction with fallback speaker
                     const script = rawFrame.script || { speaker: '', text: '', chord: 'Cm', analysis: '' };
+
+                    // If speaker is missing (legacy DB data), allow fallback to character field or default
+                    if (!script.speaker) {
+                        script.speaker = rawFrame.character || 'Instrumental Ensemble';
+                    }
+
+                    // Ensure text exists even if empty
+                    if (!script.text) script.text = rawFrame.name || '...';
 
                     // We need to use current parameter states (trauma, etc)
                     // Note: This applies current UI knobs to future frames. 
@@ -411,10 +570,64 @@ export default function MPNConductorPage() {
         orchestratorRef.current?.reset();
     };
     const handleScenarioChange = (scenario: LiteraryScenario) => {
+        // Clear stale score data
+        setScoreFrame(null);
+        setScoreBuffer([]);
+        setProcessedIndex(-1);
+        orchestratorRef.current?.reset();
+
         setSelectedScenario(scenario);
         setCurrentFrameIndex(0);
         setIsPlaying(false);
     };
+
+    const handleSaveScore = async () => {
+        if (!currentVariant) return;
+
+        // Build Score Object
+        const score = {
+            id: currentVariant.id,
+            title: selectedScenario.title,
+            source: selectedScenario.author,
+            generatedAt: new Date().toISOString(),
+            version: '1.0',
+            actors: actors,
+            leitmotifs: {}, // TODO: extract from Orchestrator
+            frames: scoreBuffer,
+            statistics: {
+                totalFrames: selectedScenario.frames.length,
+                duration: selectedScenario.frames.length * 4000,
+                averageTrauma: selectedScenario.frames.reduce((sum, f) => sum + f.trauma, 0) / selectedScenario.frames.length,
+                averageEntropy: selectedScenario.frames.reduce((sum, f) => sum + f.entropy, 0) / selectedScenario.frames.length,
+                dominantKey: scoreFrame?.global?.key || 'C Major',
+                dominantMode: 'Ionian'
+            }
+        };
+
+        try {
+            const res = await fetch(`/api/variants/${currentVariant.id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    generated_score: score,
+                    is_generated: true
+                })
+            });
+
+            if (res.ok) {
+                alert("Score saved to variant successfully!");
+            } else {
+                throw new Error("Failed to save");
+            }
+        } catch (e) {
+            console.error("Save failed", e);
+            alert("Failed to save score");
+        }
+    };
+
+
+    const activeSpeakerLabel = currentFrame?.character || currentFrame?.script?.speaker;
+    const activeActorId = activeSpeakerLabel ? activeSpeakerLabel.toLowerCase().replace(/\s+/g, '_') : null;
 
     return (
         <main className="min-h-screen bg-gradient-to-b from-gray-950 via-black to-gray-950">
@@ -476,6 +689,7 @@ export default function MPNConductorPage() {
                         {/* AI Controls */}
                         <div className="flex items-center gap-2">
                             <button
+                                data-testid="ai-toggle"
                                 onClick={() => setAiEnabled(!aiEnabled)}
                                 className={`flex items-center gap-1.5 px-2 py-0.5 rounded transition-all ${aiEnabled ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'text-gray-500 hover:text-gray-300'}`}
                             >
@@ -530,19 +744,28 @@ export default function MPNConductorPage() {
                         <div className="flex items-center gap-2 pr-4 border-r border-white/10">
                             <span className="text-gray-500 text-[10px] font-bold uppercase tracking-wider">Scenario</span>
                             <select
+                                data-testid="scenario-selector"
                                 value={selectedScenario.title}
                                 onChange={(e) => {
-                                    const s = LITERARY_SCENARIOS.find(sc => sc.title === e.target.value);
-                                    if (s) handleScenarioChange(s);
+                                    const s = availableScenarios.find(sc => sc.title === e.target.value);
+                                    if (s) {
+                                        handleScenarioChange(s);
+                                        // If switching to a built-in scenario, clear DB flag
+                                        if (LITERARY_SCENARIOS.find(sc => sc.title === s.title)) {
+                                            setIsDbScenario(false);
+                                        }
+                                    }
                                 }}
                                 className="bg-transparent border-none text-sm text-white font-medium focus:outline-none cursor-pointer hover:text-gold transition-colors"
                             >
-                                {LITERARY_SCENARIOS.map(s => (
-                                    <option key={s.title} value={s.title} className="bg-gray-900">{s.title}</option>
+                                {availableScenarios.map(s => (
+                                    <option key={s.title} value={s.title} className="bg-gray-900">
+                                        {s.title}{isDbScenario && s.title === selectedScenario.title ? ' (Library)' : ''}
+                                    </option>
                                 ))}
                             </select>
                         </div>
-                        <span className="text-gray-500 text-xs font-mono">
+                        <span className="text-gray-500 text-xs font-mono" data-testid="frame-counter">
                             Frame <span className="text-white">{currentFrameIndex + 1}</span> / {selectedScenario.frames.length}
                         </span>
                     </div>
@@ -557,6 +780,7 @@ export default function MPNConductorPage() {
                             <RotateCcw className="w-4 h-4" />
                         </button>
                         <button
+                            data-testid="play-button"
                             onClick={handlePlay}
                             className={`p-3 rounded-full ${isPlaying ? 'bg-red-500 hover:bg-red-600 text-white shadow-[0_0_15px_rgba(239,68,68,0.4)]' : 'bg-gold hover:bg-yellow-400 text-black shadow-[0_0_15px_rgba(250,204,21,0.4)]'} transition-all mx-1`}
                             title={isPlaying ? 'Pause' : 'Play'}
@@ -574,6 +798,14 @@ export default function MPNConductorPage() {
 
                     {/* RIGHT GROUP: Audio & Tools */}
                     <div className="flex items-center gap-3">
+                        {audioEnabled && !synth.isLoaded && (
+                            <div className="flex items-center gap-1.5 px-2 py-1 bg-amber-500/10 rounded border border-amber-500/20 text-amber-400 text-[10px] font-bold uppercase tracking-wider animate-pulse">
+                                <Activity className="w-3 h-3" />
+                                <span>Loading Samples</span>
+                            </div>
+                        )}
+
+
                         {/* Audio Pill */}
                         <div className={`flex items-center gap-2 rounded-full px-3 py-1.5 border transition-all ${audioEnabled ? 'bg-green-900/20 border-green-500/30' : 'bg-gray-900/50 border-white/5'}`}>
                             <button
@@ -602,6 +834,21 @@ export default function MPNConductorPage() {
                             <Link href="/play-library" className="p-2 rounded-full text-gray-400 hover:text-amber-400 hover:bg-amber-400/10 transition-colors" title="Library">
                                 <FileText className="w-4 h-4" />
                             </Link>
+                            <Link href="/play-library" className="p-2 rounded-full text-gray-400 hover:text-amber-400 hover:bg-amber-400/10 transition-colors" title="Library">
+                                <FileText className="w-4 h-4" />
+                            </Link>
+
+                            {/* Orchestrator Board Toggle */}
+                            {currentVariant && (
+                                <button
+                                    onClick={() => setIsBoardOpen(!isBoardOpen)}
+                                    className={`p-2 rounded-full transition-colors ${isBoardOpen ? 'text-cyan-400 bg-cyan-400/10' : 'text-gray-400 hover:text-cyan-400 hover:bg-cyan-400/10'}`}
+                                    title="Open Orchestrator Board"
+                                >
+                                    <Sliders className="w-4 h-4" />
+                                </button>
+                            )}
+
                             {/* MP3 Export Button */}
                             <ExportButton
                                 frames={scoreBuffer}
@@ -611,6 +858,18 @@ export default function MPNConductorPage() {
                                 tempo={tempo}
                                 disabled={scoreBuffer.length === 0}
                             />
+
+                            {/* Save Score Button */}
+                            {currentVariant && (
+                                <button
+                                    onClick={handleSaveScore}
+                                    className="p-2 rounded-full text-gray-400 hover:text-blue-400 hover:bg-blue-400/10 transition-colors"
+                                    title="Save Generated Score"
+                                    disabled={scoreBuffer.length === 0}
+                                >
+                                    <Save className="w-4 h-4" />
+                                </button>
+                            )}
 
                             <button
                                 onClick={async () => {
@@ -668,286 +927,109 @@ export default function MPNConductorPage() {
                 </div>
             </section>
 
-            {/* Script Dialog Panel */}
-            {
-                currentFrame?.script && (
-                    <section className="px-6 py-4 bg-black/40 border-b border-white/10">
-                        <div className="max-w-7xl mx-auto">
-                            <div className="bg-gray-900/80 rounded-xl border border-white/10 p-4">
-                                <div className="flex items-center gap-3 mb-2">
-                                    <Users className="w-4 h-4 text-oxot-gold" />
-                                    <span className="text-oxot-gold font-bold text-sm uppercase">
-                                        {currentFrame.script.speaker}
-                                    </span>
-                                    <span className="text-gray-600 text-xs">
-                                        {currentFrame.name}
-                                    </span>
-                                </div>
-                                <p className="text-white italic text-sm leading-relaxed">
-                                    "{currentFrame.script.text}"
-                                </p>
-                                {currentFrame.script.analysis && (
-                                    <p className="text-gray-500 text-xs mt-2 font-mono">
-                                        Analysis: {currentFrame.script.analysis}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
-                    </section>
-                )
-            }
+            {/* Split View Layout */}
+            <div className="flex flex-1 overflow-hidden h-[calc(100vh-140px)]">
+                {/* Left Panel: Script Viewer */}
+                <div className="w-5/12 border-r border-white/10 bg-black/60 relative flex flex-col">
+                    <ScriptViewer
+                        scenario={selectedScenario}
+                        currentIndex={currentFrameIndex}
+                        onFrameClick={(idx) => {
+                            setCurrentFrameIndex(idx);
+                            orchestratorRef.current?.jumpToFrame(idx);
+                        }}
+                    />
+                </div>
 
-            {/* Psychometric Analysis Dashboard */}
-            <section className="px-6 py-6 border-b border-white/10">
-                <div className="max-w-7xl mx-auto space-y-6">
-                    <div className="flex items-center gap-2">
-                        <Brain className="w-5 h-5 text-oxot-gold" />
-                        <h2 className="text-white font-semibold">Psychometric Analysis</h2>
-                    </div>
-
-                    {/* Core Metrics - Large Primary Cards */}
-                    <div>
-                        <div className="text-xs uppercase tracking-wider text-gray-500 mb-3 font-bold">Core Metrics</div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {/* Trauma */}
-                            <div className="bg-gradient-to-br from-red-900/30 to-gray-900/60 rounded-xl p-5 border border-red-500/20 shadow-lg shadow-red-900/10">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="text-sm text-red-300 uppercase tracking-wider font-bold">Trauma (τ)</div>
-                                    <Activity className="w-5 h-5 text-red-400" />
-                                </div>
-                                <div className="text-4xl font-bold text-red-400 mb-3">{trauma.toFixed(2)}</div>
-                                <div className="w-full h-2 bg-gray-800/80 rounded-full overflow-hidden">
-                                    <div className="h-2 bg-gradient-to-r from-red-600 to-red-400 rounded-full transition-all duration-500" style={{ width: `${trauma * 100}%` }} />
-                                </div>
-                            </div>
-
-                            {/* Entropy */}
-                            <div className="bg-gradient-to-br from-yellow-900/30 to-gray-900/60 rounded-xl p-5 border border-yellow-500/20 shadow-lg shadow-yellow-900/10">
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className="text-sm text-yellow-300 uppercase tracking-wider font-bold">Entropy (H)</div>
-                                    <Zap className="w-5 h-5 text-yellow-400" />
-                                </div>
-                                <div className="text-4xl font-bold text-yellow-400 mb-3">{entropy.toFixed(2)}</div>
-                                <div className="w-full h-2 bg-gray-800/80 rounded-full overflow-hidden">
-                                    <div className="h-2 bg-gradient-to-r from-yellow-600 to-yellow-400 rounded-full transition-all duration-500" style={{ width: `${entropy * 100}%` }} />
-                                </div>
-                            </div>
-
-                            {/* Lyapunov */}
-                            <div className={`bg-gradient-to-br ${lyapunov < 0 ? 'from-green-900/30' : lyapunov < 0.1 ? 'from-yellow-900/30' : 'from-red-900/30'} to-gray-900/60 rounded-xl p-5 border ${lyapunov < 0 ? 'border-green-500/20 shadow-green-900/10' : lyapunov < 0.1 ? 'border-yellow-500/20 shadow-yellow-900/10' : 'border-red-500/20 shadow-red-900/10'} shadow-lg`}>
-                                <div className="flex items-center justify-between mb-3">
-                                    <div className={`text-sm uppercase tracking-wider font-bold ${stabilityColor}`}>Lyapunov (λ)</div>
-                                    <Activity className={`w-5 h-5 ${stabilityColor}`} />
-                                </div>
-                                <div className={`text-4xl font-bold ${stabilityColor} mb-1`}>{lyapunov.toFixed(3)}</div>
-                                <div className={`text-xs font-mono ${stabilityColor} opacity-80`}>{stabilityLabel}</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Musical State - Compact Secondary Cards */}
-                    <div>
-                        <div className="text-xs uppercase tracking-wider text-gray-500 mb-3 font-bold">Musical State</div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                            {/* Tempo */}
-                            <div className="bg-gray-900/60 rounded-lg p-3 border border-cyan-500/20 hover:border-cyan-500/40 transition-colors">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Music className="w-3 h-3 text-cyan-400" />
-                                    <div className="text-[10px] text-gray-500 uppercase tracking-wider">Tempo</div>
-                                </div>
-                                <div className="text-2xl font-bold text-cyan-400">{tempo}</div>
-                                <div className="text-xs text-gray-600 mt-1">BPM</div>
-                            </div>
-
-                            {/* Velocity */}
-                            <div className="bg-gray-900/60 rounded-lg p-3 border border-blue-500/20 hover:border-blue-500/40 transition-colors">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Zap className="w-3 h-3 text-blue-400" />
-                                    <div className="text-[10px] text-gray-500 uppercase tracking-wider">Velocity</div>
-                                </div>
-                                <div className="text-2xl font-bold text-blue-400">{velocity}</div>
-                                <div className="text-xs text-gray-600 mt-1">{dynamicLabel}</div>
-                            </div>
-
-                            {/* Chord */}
-                            <div className="bg-gray-900/60 rounded-lg p-3 border border-gold/20 hover:border-gold/40 transition-colors">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Music className="w-3 h-3 text-oxot-gold" />
-                                    <div className="text-[10px] text-gray-500 uppercase tracking-wider">Chord</div>
-                                </div>
-                                <div className="text-2xl font-bold text-oxot-gold">{currentFrame?.script?.chord || 'Cm'}</div>
-                            </div>
-
-                            {/* BSI */}
-                            <div className="bg-gray-900/60 rounded-lg p-3 border border-purple-500/20 hover:border-purple-500/40 transition-colors">
-                                <div className="flex items-center gap-2 mb-2">
-                                    <Layers className="w-3 h-3 text-purple-400" />
-                                    <div className="text-[10px] text-gray-500 uppercase tracking-wider">BSI</div>
-                                </div>
-                                <div className="text-2xl font-bold text-purple-400">{borromeanStability.toFixed(2)}</div>
-                                <div className="text-xs text-gray-600 mt-1">Stability</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Status Panel - Alert Style */}
-                    <div>
-                        <div className="text-xs uppercase tracking-wider text-gray-500 mb-3 font-bold">System Status</div>
-                        <div className={`rounded-xl p-4 border transition-all duration-300 ${trauma > 0.8 ? 'bg-red-900/40 border-red-500/50 shadow-lg shadow-red-900/30' : 'bg-gray-900/40 border-white/10'}`}>
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-                                    <AlertTriangle className={`w-6 h-6 ${trauma > 0.8 ? 'text-red-400 animate-pulse' : 'text-gray-600'}`} />
-                                    <div>
-                                        <div className="text-sm uppercase tracking-wider text-gray-400 mb-1">Crisis Detection</div>
-                                        <div className="flex items-center gap-2">
-                                            {trauma > 0.8 ? (
-                                                <span className="text-red-400 font-bold text-lg">ACTIVE</span>
-                                            ) : (
-                                                <span className="text-green-400 font-medium">Normal Operations</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
-                                {trauma > 0.8 && (
-                                    <div className="hidden md:block text-right">
-                                        <div className="text-xs text-gray-500 mb-1">Trauma Level</div>
-                                        <div className="text-2xl font-bold text-red-400">{(trauma * 100).toFixed(0)}%</div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Musical Style Selector */}
-                    <div className="mt-8">
-                        <div className="flex items-center gap-2 mb-4">
-                            <Music className="w-5 h-5 text-oxot-gold" />
-                            <h2 className="text-white font-semibold">Musical Style</h2>
-                        </div>
-                        <StyleSelector
-                            currentStyleId={currentStyleId}
-                            onStyleChange={handleStyleChange}
-                            trauma={trauma}
-                            entropy={entropy}
-                            rsi={rsi}
-                            showParameters={true}
+                {/* Right Panel: Orchestrator Dashboard & Score */}
+                <div className="w-7/12 flex flex-col bg-gray-950">
+                    {/* Top: Orchestrator Dashboard (Controls) */}
+                    <div data-testid="orchestrator-dashboard" className="min-h-[500px] flex-1 border-b border-white/10 overflow-hidden relative">
+                        {/* Pass derived actors if state is empty, to ensure the dashboard populates even if initial state is lagging */}
+                        <OrchestratorDashboard
+                            variant={currentVariant}
+                            activeActorId={activeActorId}
+                            actors={actors.length > 0 ? actors : (scoreFrame?.staves || []).map((s, i) => createActorProfile(s.actorName, i))}
+                            onUpdateVariant={async (updated) => {
+                                setCurrentVariant(updated);
+                                orchestratorRef.current?.setVariantOverrides(updated);
+                            }}
+                            onGenerate={() => {
+                                // Reset for new generation run
+                                if (confirm('This will clear the current score buffer and restart the scenario. Continue?')) {
+                                    setScoreBuffer([]);
+                                    setProcessedIndex(-1);
+                                    setCurrentFrameIndex(0);
+                                    orchestratorRef.current?.reset();
+                                    setIsPlaying(true);
+                                }
+                            }}
+                            onSave={async () => {
+                                if (!currentVariant) return;
+                                try {
+                                    // Save both overrides and the generated score buffer
+                                    const response = await fetch(`/api/variants/${currentVariant.id}`, {
+                                        method: 'PUT',
+                                        headers: { 'Content-Type': 'application/json' },
+                                        body: JSON.stringify({
+                                            voice_overrides: currentVariant.voice_overrides || {},
+                                            parameter_overrides: currentVariant.parameter_overrides || {},
+                                            generated_score: {
+                                                frames: scoreBuffer,
+                                                metadata: {
+                                                    savedAt: new Date().toISOString(),
+                                                    frameCount: scoreBuffer.length,
+                                                    finalTrauma: trauma,
+                                                    finalEntropy: entropy
+                                                }
+                                            }
+                                        })
+                                    });
+                                    if (!response.ok) throw new Error('Failed to save');
+                                    alert('Variant and Generated Score saved successfully!');
+                                } catch (e) {
+                                    console.error("Failed to save variant", e);
+                                    alert('Failed to save variant. Check console for details.');
+                                }
+                            }}
+                            className="h-full w-full"
                         />
                     </div>
-                </div>
-            </section>
 
-            {/* Main Grid */}
-            <section className="py-8 px-6 min-h-[60vh]">
-                <div className="max-w-[95%] mx-auto">
-                    {/* Conductor Score */}
-                    <div className="bg-gray-950/80 rounded-2xl border border-white/10 overflow-hidden mb-8 shadow-2xl shadow-blue-900/10">
-                        <div className="p-4 border-b border-white/10 flex items-center justify-between bg-white/5 backdrop-blur-sm">
-                            <div className="flex items-center gap-2">
-                                <Music className="w-4 h-4 text-oxot-gold" />
-                                <h3 className="text-white font-semibold">Conductor's Score: {selectedScenario.title}</h3>
+                    {/* Bottom: Score Visualization & Analysis */}
+                    <div className="h-[400px] overflow-y-auto relative bg-black/80 flex flex-col">
+                        {/* Metrics Bar */}
+                        <div data-testid="metrics-bar" className="sticky top-0 z-10 flex items-center gap-4 px-4 py-2 bg-black/90 border-b border-white/10 text-xs font-mono">
+                            <div className="flex items-center gap-2 text-red-400">
+                                <Activity className="w-3 h-3" />
+                                <span data-testid="trauma-value">Trauma: {trauma.toFixed(2)}</span>
                             </div>
-                            <span className="text-gray-500 text-xs">{scoreFrame?.staves?.length || 0} Staves</span>
-                        </div>
-                        <div className="p-6 relative">
-                            {/* Score Background Glow */}
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-900/5 via-transparent to-blue-900/5 pointer-events-none" />
-                            <div className="min-h-[600px] flex items-center justify-center">
-                                <ConductorScoreView
-                                    frame={scoreFrame as any}
-                                    frames={scoreBuffer.slice(currentFrameIndex, currentFrameIndex + 4)}
-                                    showChordSymbols={true}
-                                    showDynamics={true}
-                                    isPlaying={isPlaying}
-                                    currentBeat={currentFrameIndex}
-                                    totalFrames={selectedScenario.frames.length}
-                                    currentFrameIndex={currentFrameIndex}
-                                />
+                            <div className="flex items-center gap-2 text-yellow-400">
+                                <Zap className="w-3 h-3" />
+                                <span data-testid="entropy-value">Entropy: {entropy.toFixed(2)}</span>
                             </div>
-                        </div>
-                    </div>
-
-                    {/* Phase Space Row */}
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        {/* Lorenz Attractor */}
-                        <div className="bg-gray-900/50 rounded-2xl border border-white/10 overflow-hidden">
-                            <div className="p-4 border-b border-white/10 flex items-center gap-2">
-                                <Zap className="w-4 h-4 text-oxot-gold" />
-                                <h3 className="text-white font-semibold">Phase Space: Lorenz Attractor</h3>
-                            </div>
-                            <div className="h-[350px]">
-                                <MPNExperiment_LorenzAttractor
-                                    trauma={trauma}
-                                    entropy={entropy}
-                                    time={currentFrameIndex * 0.1}
-                                />
-                            </div>
-                            <div className="p-3 bg-black/40 grid grid-cols-3 gap-2 text-xs font-mono">
-                                <div>
-                                    <span className="text-gray-500">X (Trauma)</span>
-                                    <div className="text-red-400">{trauma.toFixed(2)}</div>
-                                </div>
-                                <div>
-                                    <span className="text-gray-500">Y (Entropy)</span>
-                                    <div className="text-yellow-400">{entropy.toFixed(2)}</div>
-                                </div>
-                                <div>
-                                    <span className="text-gray-500">Z (λ)</span>
-                                    <div className="text-blue-400">{lyapunov.toFixed(3)}</div>
-                                </div>
+                            <div className="flex items-center gap-2 text-blue-400">
+                                <Users className="w-3 h-3" />
+                                <span>Stability: {borromeanStability.toFixed(2)}</span>
                             </div>
                         </div>
 
-                        {/* Tonnetz Grid */}
-                        <div className="bg-gray-900/50 rounded-2xl border border-white/10 overflow-hidden">
-                            <div className="p-4 border-b border-white/10 flex items-center gap-2">
-                                <Layers className="w-4 h-4 text-oxot-gold" />
-                                <h3 className="text-white font-semibold">Tonnetz Grid: Neo-Riemannian Torus</h3>
-                            </div>
-                            <div className="h-[350px]">
-                                <MPNExperiment_TonnetzGrid
-                                    trauma={trauma}
-                                    entropy={entropy}
-                                />
-                            </div>
-                            <div className="p-3 bg-black/40 text-xs font-mono text-gray-400">
-                                Current Chord: <span className="text-oxot-gold">{currentFrame?.script?.chord || 'Cm'}</span> →
-                                {lyapunov < 0 ? ' R (Symbolic)' : lyapunov < 0.1 ? ' L (Imaginary)' : ' P (Real)'}
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Leitmotif Registry */}
-                    <div className="bg-gray-900/50 rounded-2xl border border-white/10 overflow-hidden">
-                        <div className="p-4 border-b border-white/10 flex items-center gap-2">
-                            <BarChart className="w-4 h-4 text-oxot-gold" />
-                            <h3 className="text-white font-semibold">Leitmotif Registry</h3>
-                        </div>
-                        <div className="p-4 grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-                            {(scoreFrame?.staves || []).slice(0, 5).map((stave, i) => (
-                                <div
-                                    key={stave.actorId || i}
-                                    className={`rounded-lg p-3 border ${stave.isSpeaking ? 'bg-oxot-gold/10 border-oxot-gold/50' : 'bg-black/40 border-white/10'}`}
-                                >
-                                    <div className={`text-sm font-medium mb-1 ${stave.isSpeaking ? 'text-oxot-gold' : 'text-white'}`}>
-                                        {stave.actorName}
-                                    </div>
-                                    <div className="text-xs text-gray-500 font-mono">
-                                        {stave.instrument}
-                                    </div>
-                                    <div className="text-xs text-gray-600 mt-1">
-                                        Activation: {((stave.activation || 0) * 100).toFixed(0)}%
-                                    </div>
-                                </div>
-                            ))}
-                            {(!scoreFrame?.staves || scoreFrame.staves.length === 0) && (
-                                <div className="col-span-full text-center text-gray-500 py-8">
-                                    Press Play or Step Forward to generate score data
-                                </div>
-                            )}
+                        {/* Score View */}
+                        <div data-testid="score-canvas-container" className="p-4 min-h-[300px]">
+                            <ConductorScoreView
+                                frame={scoreFrame as any}
+                                frames={scoreBuffer.slice(currentFrameIndex, currentFrameIndex + 4)}
+                                showChordSymbols={true}
+                                showDynamics={true}
+                                isPlaying={isPlaying}
+                                currentBeat={currentFrameIndex}
+                                totalFrames={selectedScenario.frames.length}
+                                currentFrameIndex={currentFrameIndex}
+                            />
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
 
             {/* Footer */}
             <footer className="py-8 border-t border-white/10 text-center text-gray-500 text-xs">
@@ -955,5 +1037,14 @@ export default function MPNConductorPage() {
                 <p className="mt-1">Canon v2.3 | {LITERARY_SCENARIOS.length} Scenarios | Full Psychometric Analysis</p>
             </footer>
         </main>
+    );
+}
+
+// Wrap in Suspense for useSearchParams SSR compatibility
+export default function MPNConductorPage() {
+    return (
+        <Suspense fallback={<LoadingPlaceholder label="Loading MPN Conductor..." />}>
+            <MPNConductorPageContent />
+        </Suspense>
     );
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useRef, useEffect, useMemo } from 'react';
+import { useCallback, useRef, useEffect, useMemo, useState } from 'react';
 import * as Tone from 'tone';
 
 // Musical constants
@@ -32,6 +32,7 @@ export class MPNSynthesizer {
     // Instrument Samplers
     private samplers: Map<string, Tone.Sampler> = new Map();
     private isSamplesLoaded: boolean = false;
+    get loaded() { return this.isSamplesLoaded; }
 
     // Fallback Synths (for when samples fail or are missing)
     private fallbackSynths: Map<string, Tone.PolySynth> = new Map();
@@ -330,17 +331,28 @@ export class MPNSynthesizer {
 
             if (stave.notes && stave.notes.length > 0) {
                 stave.notes.forEach((note: any) => {
-                    if (synth) {
+                    let activeSynth = synth;
+
+                    // If it's a sampler, check if it's loaded. If not, use fallback.
+                    if (activeSynth instanceof Tone.Sampler && !activeSynth.loaded) {
+                        activeSynth = this.fallbackSynths.get('default')!;
+                    }
+
+                    if (activeSynth) {
                         const time = now + (note.startBeat * beatDuration);
                         const duration = note.duration * beatDuration;
                         const velocity = Math.min(1, Math.max(0.1, note.velocity / 127));
 
-                        synth.triggerAttackRelease(
-                            note.pitch,
-                            duration,
-                            time,
-                            velocity
-                        );
+                        try {
+                            activeSynth.triggerAttackRelease(
+                                note.pitch,
+                                duration,
+                                time,
+                                velocity
+                            );
+                        } catch (e) {
+                            console.warn(`[MPNSynthesizer] Failed to note`, e);
+                        }
                     }
                 });
             }
@@ -385,6 +397,59 @@ export class MPNSynthesizer {
         }
     }
 
+    /**
+     * Play a full score (used by audio exporter for offline rendering)
+     * @param staves - Array of stave data with notes and instruments
+     * @param tempo - Beats per minute
+     * @param startTime - Optional start time offset (for offline rendering)
+     */
+    playScore(staves: any[], tempo: number, startTime: number = 0): void {
+        if (!this.isInitialized) return;
+
+        const secondsPerBeat = 60 / tempo;
+        const beatsPerBar = 4;
+        const barDuration = beatsPerBar * secondsPerBeat;
+
+        staves.forEach((stave, staveIndex) => {
+            if (!stave || !stave.notes) return;
+
+            const instrument = this.samplers.get(stave.instrument?.toLowerCase()) ||
+                this.fallbackSynths.get('default');
+
+            if (!instrument) return;
+
+            stave.notes.forEach((note: any, noteIndex: number) => {
+                if (!note || !note.keys || note.keys.length === 0) return;
+
+                const noteTime = startTime + (noteIndex * secondsPerBeat * 0.5);
+                const duration = note.duration || '4n';
+                const velocity = note.velocity || 0.7;
+
+                // Convert VexFlow keys to standard note names
+                const noteNames = note.keys.map((key: string) => {
+                    const parts = key.split('/');
+                    if (parts.length === 2) {
+                        return parts[0].toUpperCase() + parts[1];
+                    }
+                    return key;
+                });
+
+                try {
+                    if ('triggerAttackRelease' in instrument) {
+                        (instrument as Tone.Sampler | Tone.PolySynth).triggerAttackRelease(
+                            noteNames,
+                            duration,
+                            noteTime,
+                            velocity
+                        );
+                    }
+                } catch (e) {
+                    // Ignore individual note errors
+                }
+            });
+        });
+    }
+
     stopAll(): void {
         this.samplers.forEach(s => s.releaseAll());
         this.fallbackSynths.forEach(s => s.releaseAll());
@@ -405,6 +470,7 @@ export class MPNSynthesizer {
 // React Hook
 export function useMPNSynthesizer() {
     const synthRef = useRef<MPNSynthesizer | null>(null);
+    const [isLoaded, setIsLoaded] = useState(false);
 
     useEffect(() => {
         synthRef.current = new MPNSynthesizer();
@@ -415,6 +481,7 @@ export function useMPNSynthesizer() {
 
     const initialize = useCallback(async () => {
         await synthRef.current?.initialize();
+        setIsLoaded(!!synthRef.current?.loaded);
     }, []);
 
     const playFullOrchestra = useCallback((trauma: number, entropy: number, focusLayer: number = -1) => {
@@ -447,7 +514,8 @@ export function useMPNSynthesizer() {
         playCrisisAlert,
         setVolume,
         stopAll,
-    }), [initialize, playFullOrchestra, playScore, playCrisisAlert, setVolume, stopAll]);
+        isLoaded,
+    }), [initialize, playFullOrchestra, playScore, playCrisisAlert, setVolume, stopAll, isLoaded]);
 }
 
 export default MPNSynthesizer;

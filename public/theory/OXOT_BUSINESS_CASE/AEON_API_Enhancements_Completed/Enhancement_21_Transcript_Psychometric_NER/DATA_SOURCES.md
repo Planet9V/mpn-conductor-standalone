@@ -394,7 +394,7 @@ Fully Public:
 
 ### 8.1 LLM-Generated Transcripts
 
-**Method:** GPT-4, Claude, or Llama3 with personality-conditioned prompts
+**Method:** Gemini-3-Flash, Claude, or Llama3 with personality-conditioned prompts
 **Volume:** Unlimited (cost-limited)
 **Quality:** Variable (requires validation)
 

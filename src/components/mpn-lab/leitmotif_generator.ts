@@ -12,6 +12,8 @@ export interface ActorProfile {
     name: string;
     disc?: { D: number; I: number; S: number; C: number };
     bigFive?: { O: number; C: number; E: number; A: number; N: number };
+    darkTriad?: { machiavellianism: number; narcissism: number; psychopathy: number };
+    biases?: string[];
     archetype?: 'hero' | 'shadow' | 'mentor' | 'herald' | 'threshold_guardian' | 'shapeshifter' | 'trickster';
 }
 

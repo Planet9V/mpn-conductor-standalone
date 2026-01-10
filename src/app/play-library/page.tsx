@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Search, BookOpen, Music, FileText, Plus, LayoutGrid, List as ListIcon, X, Wand2, Trash2, Edit, AlertCircle } from 'lucide-react';
+import { Search, BookOpen, Music, FileText, Plus, LayoutGrid, List as ListIcon, X, Wand2, Trash2, Edit, AlertCircle, Eye, Layers } from 'lucide-react';
 import Link from 'next/link';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -9,6 +9,10 @@ import { LITERARY_SCENARIOS } from '@/components/mpn-lab/literary_data';
 import { LiteraryScenario } from '@/components/mpn-lab/types';
 import { useRouter } from 'next/navigation';
 import ScriptProcessor from '@/components/mpn-lab/ScriptProcessor';
+import ProcessingWizard from '@/components/mpn-lab/ProcessingWizard';
+import ProcessingReport from '@/components/mpn-lab/ProcessingReport';
+import { VariantManager } from '@/components/mpn-lab/VariantManager';
+import { ScoreVariant } from '@/components/mpn-lab/score_types';
 
 // --- Types ---
 
@@ -16,6 +20,7 @@ interface PlayRecord {
     id: string;
     title: string;
     author: string;
+    year?: string;
     theme: string;
     description?: string;
     source_text?: string;
@@ -30,8 +35,8 @@ const TabButton = ({ active, onClick, icon: Icon, label, count }: any) => (
     <button
         onClick={onClick}
         className={`flex items-center gap-2 px-6 py-3 rounded-t-xl transition-all ${active
-                ? 'bg-white/10 text-white border-b-2 border-amber-500'
-                : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'
+            ? 'bg-white/10 text-white border-b-2 border-amber-500'
+            : 'bg-transparent text-gray-400 hover:text-white hover:bg-white/5'
             }`}
     >
         <Icon className="w-4 h-4" />
@@ -103,6 +108,13 @@ export default function PlayLibraryPage() {
     // Selection state
     const [selectedScript, setSelectedScript] = useState<PlayRecord | null>(null);
     const [processModalOpen, setProcessModalOpen] = useState(false);
+    const [editingScenario, setEditingScenario] = useState<PlayRecord | null>(null);
+    const [viewingScenario, setViewingScenario] = useState<PlayRecord | null>(null);
+
+    const [isUpdating, setIsUpdating] = useState(false);
+
+    // Variant Management State
+    const [managingVariantPlayId, setManagingVariantPlayId] = useState<string | null>(null);
 
     // Fetch DB plays
     const fetchPlays = async () => {
@@ -138,6 +150,52 @@ export default function PlayLibraryPage() {
         } finally {
             setDeletingId(null);
         }
+    };
+
+    const handleUpdateScenario = async (playId: string, config: any) => {
+        setIsUpdating(true);
+        try {
+            // Reconstruct processed_data like in import/page.tsx
+            // We need to keep the original structure if possible
+            const originalPlay = dbPlays.find(p => p.id === playId);
+            const originalData = originalPlay?.processed_data as any;
+
+            const updatedProcessedData = {
+                ...originalData,
+                stylePreset: config.stylePreset,
+                characters: config.characters,
+                musicParams: config.musicParams,
+                options: {
+                    generateChords: config.generateChords,
+                    generateMusic: config.generateMusic,
+                    computePsychometrics: config.computePsychometrics
+                },
+                // We'd also need to update frames, but for the "Edit Config" 
+                // we'll focus on the metadata/params for now or use a dedicated API.
+                // For simplicity in this demo, we'll just update the config parts.
+            };
+
+            const res = await fetch(`/api/plays/${playId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ processed_data: updatedProcessedData })
+            });
+
+            if (!res.ok) throw new Error('Update failed');
+
+            setEditingScenario(null);
+            fetchPlays(); // Refresh
+        } catch (error) {
+            console.error('Update failed', error);
+            alert('Failed to update scenario configuration');
+        } finally {
+            setIsUpdating(false);
+        }
+
+    };
+
+    const handleVariantLoad = (variant: ScoreVariant) => {
+        router.push(`/mpn-conductor?variant=${variant.id}`);
     };
 
     // Combine Data
@@ -302,13 +360,42 @@ export default function PlayLibraryPage() {
                                             Open Reader
                                         </button>
                                     ) : (
-                                        <Link
-                                            href={`/mpn-conductor?scenario=${item.id}`}
-                                            className="flex-1 py-2.5 bg-amber-600/20 text-amber-400 hover:bg-amber-600/30 border border-amber-600/50 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2"
-                                        >
-                                            <Music className="w-4 h-4" />
-                                            Open Conductor
-                                        </Link>
+                                        <div className="flex-1 flex flex-col gap-2">
+                                            <Link
+                                                href={`/mpn-conductor?scenario=${item.id}`}
+                                                className="flex-1 py-2.5 bg-amber-600/20 text-amber-400 hover:bg-amber-600/30 border border-amber-600/50 rounded-lg text-sm font-medium transition flex items-center justify-center gap-2"
+                                            >
+                                                <Music className="w-4 h-4" />
+                                                Open Conductor
+                                            </Link>
+                                            <button
+                                                onClick={() => setViewingScenario(item)}
+                                                className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 text-gray-500 hover:text-white rounded-lg text-xs font-medium transition flex items-center justify-center gap-2"
+                                            >
+                                                <Eye className="w-3.5 h-3.5" />
+                                                View Details
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    if (!item.processed_data || !(item.processed_data as any).structure) {
+                                                        alert("This legacy scenario lacks structure data and cannot be re-configured in the wizard.");
+                                                        return;
+                                                    }
+                                                    setEditingScenario(item);
+                                                }}
+                                                className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg text-xs font-medium transition flex items-center justify-center gap-2"
+                                            >
+                                                <Edit className="w-3.5 h-3.5" />
+                                                Edit Config
+                                            </button>
+                                            <button
+                                                onClick={() => setManagingVariantPlayId(item.id)}
+                                                className="flex-1 py-1.5 bg-white/5 hover:bg-white/10 text-purple-400 hover:text-white rounded-lg text-xs font-medium transition flex items-center justify-center gap-2 border border-purple-500/20"
+                                            >
+                                                <Layers className="w-3.5 h-3.5" />
+                                                Variants
+                                            </button>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -361,6 +448,71 @@ export default function PlayLibraryPage() {
                 playId={selectedScript?.id}
                 onProcessingComplete={handleProcessingComplete}
             />
+            {/* Processing Wizard for Editing */}
+            {editingScenario && (
+                <div className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+                    <ProcessingWizard
+                        validatedStructure={(editingScenario.processed_data as any).structure}
+                        initialConfig={{
+                            stylePreset: (editingScenario.processed_data as any).stylePreset,
+                            characters: (editingScenario.processed_data as any).characters,
+                            musicParams: (editingScenario.processed_data as any).musicParams,
+                            generateChords: (editingScenario.processed_data as any).options?.generateChords,
+                            generateMusic: (editingScenario.processed_data as any).options?.generateMusic,
+                            computePsychometrics: (editingScenario.processed_data as any).options?.computePsychometrics
+                        }}
+                        onComplete={(config) => handleUpdateScenario(editingScenario.id, config)}
+                        onCancel={() => setEditingScenario(null)}
+                    />
+                </div>
+            )}
+
+            {/* Processing Report for Viewing */}
+            {viewingScenario && (
+                <div className="fixed inset-0 z-[160] bg-gray-950 overflow-y-auto p-6 md:p-12 animate-in fade-in slide-in-from-bottom-8 duration-500">
+                    <div className="max-w-6xl mx-auto">
+                        <ProcessingReport
+                            processedData={viewingScenario.processed_data}
+                            isSaving={false}
+                            error={null}
+                            onBack={() => setViewingScenario(null)}
+                            onSave={() => {
+                                setViewingScenario(null);
+                                if (!viewingScenario.processed_data || !(viewingScenario.processed_data as any).structure) {
+                                    alert("Structure missing: Cannot re-configure.");
+                                    return;
+                                }
+                                setEditingScenario(viewingScenario);
+                            }}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* Variant Manager Modal */}
+            {managingVariantPlayId && (
+                <div className="fixed inset-0 z-[170] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+                    <div className="bg-gray-900 border border-gray-800 rounded-2xl w-full max-w-lg max-h-[80vh] overflow-y-auto relative shadow-2xl">
+                        <button
+                            onClick={() => setManagingVariantPlayId(null)}
+                            className="absolute top-4 right-4 p-2 text-gray-400 hover:text-white rounded-full hover:bg-white/10"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                        <div className="p-6">
+                            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+                                <Layers className="w-5 h-5 text-purple-400" />
+                                Project Variants
+                            </h2>
+                            <p className="text-sm text-gray-400 mb-6">Create and manage different musical interpretations of this script.</p>
+                            <VariantManager
+                                playId={managingVariantPlayId}
+                                onLoadVariant={handleVariantLoad}
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

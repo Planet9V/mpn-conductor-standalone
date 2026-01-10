@@ -6,8 +6,8 @@ import { ArrowLeft, Book, Check, X, AlertTriangle } from 'lucide-react';
 /**
  * Component Dependency Matrix
  * 
- * Updated: 2026-01-04 12:30 CST
- * Version: 3.2.0
+ * Updated: 2026-01-06 01:15 CST
+ * Version: 3.9.0
  */
 
 interface ComponentDep {
@@ -74,7 +74,7 @@ const COMPONENTS: ComponentDep[] = [
         dependsOn: ['ElevenLabs API'],
         providesTo: ['LeadVoiceManager', 'EmotionalTTSRenderer'],
         status: 'complete',
-        description: 'Text-to-speech synthesis client'
+        description: 'Text-to-speech synthesis client with 9 emotion styles (2026-01-05)'
     },
     {
         name: 'EmotionalTTSRenderer',
@@ -116,6 +116,105 @@ const COMPONENTS: ComponentDep[] = [
         status: 'complete',
         description: 'MP3 export via Tone.js offline rendering'
     },
+    // === PHASE 7: DYNAMIC CONDUCTOR UI (Added 2026-01-05) ===
+    {
+        name: 'ActorInstrumentPicker',
+        file: 'ActorInstrumentPicker.tsx',
+        dependsOn: ['OrchestrationOptions', 'DISC Profiles'],
+        providesTo: ['ConductorScore', 'page.tsx'],
+        status: 'complete',
+        description: 'Real-time actor-to-instrument mapping with volume/pan/octave controls (Added 2026-01-05)'
+    },
+    {
+        name: 'TimelineScrubber',
+        file: 'TimelineScrubber.tsx',
+        dependsOn: ['PsychometricSnapshot', 'Transport Controls'],
+        providesTo: ['ConductorScore', 'page.tsx'],
+        status: 'complete',
+        description: 'Psychometric heatmap timeline with beat scrubbing and markers (Added 2026-01-05)'
+    },
+    {
+        name: 'RegenerationAPI',
+        file: 'api/regenerate/route.ts',
+        dependsOn: ['Database', 'AuditLog'],
+        providesTo: ['TimelineScrubber', 'GeniusComposer'],
+        status: 'complete',
+        description: 'Real-time score regeneration from any beat with dynamic temperature (Added 2026-01-05)'
+    },
+    // === PHASE 4: AUTH & ADMIN (Added 2026-01-05) ===
+    {
+        name: 'AuthSystem',
+        file: 'api/auth/login/route.ts',
+        dependsOn: ['Database', 'bcryptjs'],
+        providesTo: ['LoginPage', 'AdminDashboard'],
+        status: 'complete',
+        description: 'Invitation-only authentication with role-based access (Added 2026-01-05)'
+    },
+    {
+        name: 'AdminDashboard',
+        file: 'admin/page.tsx',
+        dependsOn: ['AuthSystem', 'UserAPI', 'ConfigAPI'],
+        providesTo: ['SystemAdmin'],
+        status: 'complete',
+        description: 'User management, system config, and audit log viewer (Added 2026-01-05)'
+    },
+    {
+        name: 'UserDashboard',
+        file: 'dashboard/page.tsx',
+        dependsOn: ['AuthSystem', 'ProjectsAPI'],
+        providesTo: ['EndUsers'],
+        status: 'complete',
+        description: 'Personal project management with shared library access (Added 2026-01-05)'
+    },
+    // === PHASE 8: SCRIPT PROCESSING PIPELINE (Added 2026-01-06) ===
+    {
+        name: 'AIScriptValidator',
+        file: 'AIScriptValidator.tsx',
+        dependsOn: ['OpenRouter API', 'Gemini-3-Flash'],
+        providesTo: ['ProcessingWizard', 'PlayLibraryImport'],
+        status: 'complete',
+        description: 'ISA v2.3-HARDENED: Intelligent Script Analysis with aggressive metadata scrubbing (Updated 2026-01-06)'
+    },
+    {
+        name: 'ProcessingWizard',
+        file: 'ProcessingWizard.tsx',
+        dependsOn: ['ElevenLabsClient', 'StylesAPI', 'VoicesAPI'],
+        providesTo: ['ProcessingReport', 'PlayLibrary'],
+        status: 'complete',
+        description: '5-step wizard: Character voices, psychometrics, styles, music params (Updated 2026-01-06)'
+    },
+    {
+        name: 'ProcessingReport',
+        file: 'ProcessingReport.tsx',
+        dependsOn: ['ProcessingWizard', 'CharacterConfig'],
+        providesTo: ['PlayLibraryImport'],
+        status: 'complete',
+        description: 'Voice preview with ElevenLabs integration and psychometric display (Updated 2026-01-06)'
+    },
+    {
+        name: 'PlayLibraryPage',
+        file: 'play-library/page.tsx',
+        dependsOn: ['PlaysAPI', 'ProcessingWizard', 'ProcessingReport'],
+        providesTo: ['EndUsers', 'MPNConductorPage'],
+        status: 'complete',
+        description: 'Script/scenario management with CRUD operations (Updated 2026-01-06)'
+    },
+    {
+        name: 'ScenarioLoader',
+        file: 'mpn-conductor/page.tsx',
+        dependsOn: ['PlaysAPI', 'LITERARY_SCENARIOS'],
+        providesTo: ['MPNConductorPage'],
+        status: 'complete',
+        description: 'Dynamic scenario loading from DB with fallback to built-in scenarios (Added 2026-01-06)'
+    },
+    {
+        name: 'PlaysAPI',
+        file: 'api/plays/route.ts + [id]/route.ts',
+        dependsOn: ['Database'],
+        providesTo: ['PlayLibraryPage', 'ScenarioLoader'],
+        status: 'complete',
+        description: 'Full CRUD for plays with year column and processed_data JSONB (Updated 2026-01-06)'
+    },
 ];
 
 export default function ComponentsPage() {
@@ -144,7 +243,7 @@ export default function ComponentsPage() {
                         </div>
                     </div>
                     <div className="flex items-center gap-3 text-xs">
-                        <span className="text-white/40">Updated: 2026-01-04</span>
+                        <span className="text-white/40">Updated: 2026-01-06</span>
                     </div>
                 </div>
             </header>
@@ -286,7 +385,7 @@ export default function ComponentsPage() {
             <footer className="border-t border-white/10 px-6 py-6 mt-16">
                 <div className="max-w-7xl mx-auto flex items-center justify-between text-xs text-white/40">
                     <span>MPN Wiki • Component Dependency Matrix</span>
-                    <span>Last updated: 2026-01-04 12:30 CST</span>
+                    <span>Last updated: 2026-01-06 01:15 CST</span>
                 </div>
             </footer>
         </div>

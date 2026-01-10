@@ -15,6 +15,7 @@ import {
 
 import { ParameterAdjustment } from './mpn_reference_types';
 import { selectInstrumentForActor, InstrumentName } from '@/lib/psychometric_instrument_mapper';
+import { ScoreVariant } from './score_types';
 
 // ============================================================================
 // TYPES
@@ -141,6 +142,7 @@ export class ScoreOrchestrator {
     private globalKey: string = 'C Major';
     private globalTempo: number = 80;
     private activeAdjustments: Record<string, ParameterAdjustment> = {};
+    private variantOverrides: ScoreVariant | null = null;
 
     private composer: GeniusComposer;
 
@@ -175,6 +177,10 @@ export class ScoreOrchestrator {
 
     updateAdjustments(adjustments: Record<string, ParameterAdjustment>) {
         this.activeAdjustments = { ...this.activeAdjustments, ...adjustments };
+    }
+
+    setVariantOverrides(variant: ScoreVariant | null) {
+        this.variantOverrides = variant;
     }
 
     registerActor(profile: ActorProfile) {
@@ -225,15 +231,26 @@ export class ScoreOrchestrator {
         // ... existing analysis ...
         const rsi = analyzeRSI(frame.analysis);
 
-        // Build psychometric state
-        const state: PsychometricState = { trauma, entropy, rsi };
+        const speakerId = frame.speaker.toLowerCase().replace(/\s+/g, '_');
+
+        // Lookup speaker profile to get deep psychometrics
+        const speakerProfile = this.actors.get(speakerId) || Array.from(this.actors.values()).find(a => a.name.toLowerCase() === frame.speaker.toLowerCase());
+
+        // Build psychometric state with full context
+        const state: PsychometricState = {
+            trauma,
+            entropy,
+            rsi,
+            disc: speakerProfile?.disc,
+            darkTriad: speakerProfile?.darkTriad,
+            biases: speakerProfile?.biases
+        };
 
         // Get global params (scale/mode updated by lookupMode)
         const globalParams = psychometricToMusical(state, this.activeAdjustments);
         this.globalKey = globalParams.key;
         this.globalTempo = globalParams.tempo;
 
-        const speakerId = frame.speaker.toLowerCase().replace(/\s+/g, '_');
         const outputStaves: ActorStave[] = [];
 
         // 1. Generate Harmony (Chords) via Genius Composer
@@ -264,6 +281,14 @@ export class ScoreOrchestrator {
                 stave.instrument = selectInstrumentForActor(actor);
             }
 
+            // Apply Variant Overrides (Instrument)
+            if (this.variantOverrides?.parameter_overrides && this.variantOverrides.parameter_overrides[actorId]) {
+                const overrides = this.variantOverrides.parameter_overrides[actorId];
+                if (overrides.instrument) {
+                    stave.instrument = overrides.instrument;
+                }
+            }
+
             const transformation = selectTransformation(trauma, entropy, rsi);
             const transformedMotif = transformLeitmotif(stave.leitmotif, transformation);
 
@@ -291,6 +316,16 @@ export class ScoreOrchestrator {
                     0,
                     trauma * 0.5 // Lower intensity
                 );
+            }
+
+            // Apply Variant Overrides (Dynamics)
+            if (this.variantOverrides?.parameter_overrides && this.variantOverrides.parameter_overrides[actorId]) {
+                const overrides = this.variantOverrides.parameter_overrides[actorId];
+                if (overrides.dynamicsOffset) {
+                    notes.forEach(note => {
+                        note.velocity = Math.max(1, Math.min(127, note.velocity + overrides.dynamicsOffset));
+                    });
+                }
             }
 
             stave.notes = notes;

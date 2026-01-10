@@ -67,6 +67,14 @@ export class OrchestratorWorkerClient {
         this.worker?.postMessage({ type: 'UPDATE_ADJUSTMENTS', payload: { adjustments } });
     }
 
+    setVariantOverrides(variant: any) {
+        this.worker?.postMessage({ type: 'SET_VARIANT_OVERRIDES', payload: { variant } });
+    }
+
+    jumpToFrame(frameIndex: number) {
+        this.worker?.postMessage({ type: 'JUMP_TO_FRAME', payload: { frameIndex } });
+    }
+
     async processFrame(script: any, trauma: number, entropy: number): Promise<any> {
         return new Promise((resolve, reject) => {
             if (!this.worker) {

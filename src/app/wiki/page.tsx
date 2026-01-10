@@ -7,8 +7,8 @@ import { useState } from 'react';
 /**
  * MPN Wiki - Comprehensive Documentation Hub
  * 
- * Updated: 2026-01-04 12:30 CST
- * Version: 3.2.0
+ * Updated: 2026-01-06 05:00 CST
+ * Version: 3.6.0
  */
 
 interface WikiSection {
@@ -123,12 +123,12 @@ export default function WikiPage() {
                                     <span className="text-[#FFD700]">MPN</span>
                                     <span className="text-white/60 ml-2">Wiki</span>
                                 </h1>
-                                <p className="text-xs text-white/40">Documentation v3.2.0</p>
+                                <p className="text-xs text-white/40">Documentation v3.6.0</p>
                             </div>
                         </div>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-white/40">
-                        <span>Last Updated: 2026-01-04 12:30 CST</span>
+                        <span>Last Updated: 2026-01-06 05:00 CST</span>
                     </div>
                 </div>
             </header>
@@ -180,6 +180,17 @@ export default function WikiPage() {
                             </div>
                         </div>
                     </Link>
+                    <Link href="/mpn-reference" className="group p-4 rounded-xl border border-[#FFD700]/30 hover:border-[#FFD700] bg-[#FFD700]/5 transition-all">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-[#FFD700]/20 flex items-center justify-center">
+                                <Book className="w-5 h-5 text-[#FFD700]" />
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-[#FFD700]">Reference Dictionary</h3>
+                                <p className="text-xs text-white/50">Interactive psychometric criteria</p>
+                            </div>
+                        </div>
+                    </Link>
                 </div>
 
                 {/* Section Grid */}
@@ -225,6 +236,11 @@ export default function WikiPage() {
                         Recent Updates
                     </h3>
                     <div className="space-y-3">
+                        <div className="flex items-center gap-4 text-sm">
+                            <span className="text-white/40 font-mono">2026-01-06</span>
+                            <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 text-xs">UPDATE</span>
+                            <span>ISA v2.0: Strict Act detection, corrected metadata ordering, and Gemini-3-Flash alignment</span>
+                        </div>
                         <div className="flex items-center gap-4 text-sm">
                             <span className="text-white/40 font-mono">2026-01-05</span>
                             <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-xs">NEW</span>

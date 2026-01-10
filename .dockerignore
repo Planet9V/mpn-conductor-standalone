@@ -1,0 +1,14 @@
+node_modules
+.next
+.git
+.gitignore
+ml
+mpn_backup_*.dump
+test-results
+tests
+**/__tests__
+**/node_modules
+*.md
+LICENSE
+.env.local
+.env

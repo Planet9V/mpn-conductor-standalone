@@ -1,0 +1,21 @@
+INFO:     Started server process [1355253]
+INFO:     Waiting for application startup.
+INFO:inference.server:Loading model from checkpoints/psychoscore/final
+/home/jim/mpn-conductor-standalone/ml/psychoscore/venv/lib/python3.12/site-packages/miditok/tokenizations/remi.py:88: UserWarning: Attribute controls are not compatible with 'config.one_token_stream_for_programs' and multi-vocabulary tokenizers. Disabling them from the config.
+  super().__init__(tokenizer_config, params)
+`torch_dtype` is deprecated! Use `dtype` instead!
+INFO:accelerate.utils.modeling:We will use 90% of the memory on device 0 for storing the model, and 10% for the buffer to avoid OOM. You can set `max_memory` in to a higher value to use more memory (at your own risk).
+/home/jim/mpn-conductor-standalone/ml/psychoscore/venv/lib/python3.12/site-packages/peft/tuners/lora/layer.py:2285: UserWarning: fan_in_fan_out is set to False but the target module is `Conv1D`. Setting fan_in_fan_out to True.
+  warnings.warn(
+/home/jim/mpn-conductor-standalone/ml/psychoscore/venv/lib/python3.12/site-packages/peft/tuners/lora/layer.py:2276: UserWarning: fan_in_fan_out is set to True but the target module is `torch.nn.Linear`. Setting fan_in_fan_out to False.
+  warnings.warn(
+/home/jim/mpn-conductor-standalone/ml/psychoscore/venv/lib/python3.12/site-packages/peft/tuners/tuners_utils.py:916: UserWarning: Model with `tie_word_embeddings=True` and the tied_target_modules=['lm_head'] are part of the adapter. This can lead to complications, for example when merging the adapter or converting your model to formats other than safetensors. See for example https://github.com/huggingface/peft/issues/2018.
+  warnings.warn(
+INFO:inference.server:Loading LoRA adapters
+/home/jim/mpn-conductor-standalone/ml/psychoscore/venv/lib/python3.12/site-packages/peft/tuners/tuners_utils.py:282: UserWarning: Already found a `peft_config` attribute in the model. This will lead to having multiple adapters in the model. Make sure to know what you are doing!
+  warnings.warn(
+INFO:inference.server:Model loaded on cuda
+INFO:     Application startup complete.
+ERROR:    [Errno 98] error while attempting to bind on address ('0.0.0.0', 8001): address already in use
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.

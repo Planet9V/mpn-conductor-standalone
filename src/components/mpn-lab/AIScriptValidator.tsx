@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
     FileText, Sparkles, CheckCircle, AlertCircle,
-    Edit, Eye, Loader2, Users, MapPin, Book
+    Edit, Eye, Loader2, Users, MapPin, Book, Save, Trash2, Plus, X,
+    HelpCircle, ChevronDown, ChevronUp, Info
 } from 'lucide-react';
 
 /**
@@ -25,6 +26,7 @@ interface DetectedStructure {
     metadata: {
         title?: string;
         author?: string;
+        year?: string;
         frontMatter?: string; // Historical notes, introduction
         estimatedLineCount: number;
     };
@@ -68,6 +70,220 @@ export default function AIScriptValidator({ rawText, playId, onValidated, onCanc
     const [structure, setStructure] = useState<DetectedStructure | null>(null);
     const [editedStructure, setEditedStructure] = useState<DetectedStructure | null>(null);
     const [analysisLog, setAnalysisLog] = useState<string[]>([]);
+    const [markdownText, setMarkdownText] = useState<string>('');
+    const [editingCharacterIdx, setEditingCharacterIdx] = useState<number | null>(null);
+    const [showHelp, setShowHelp] = useState<boolean>(false);
+
+    // Convert structure to standard markdown format
+    const structureToMarkdown = (struct: DetectedStructure): string => {
+        let md = '';
+
+        // Title and metadata (ORDER: Title, Author, Year)
+        if (struct.metadata.title) {
+            md += `# ${struct.metadata.title}\n\n`;
+        }
+        if (struct.metadata.author) {
+            md += `**Author:** ${struct.metadata.author}\n`;
+        }
+        if (struct.metadata.year) {
+            md += `**Year:** ${struct.metadata.year}\n`;
+        }
+        md += '\n---\n\n';
+
+        // Characters list
+        md += '## Characters\n\n';
+        struct.characters.forEach(char => {
+            md += `- **${char.name}**`;
+            if (char.aliases.length > 0) {
+                md += ` (also: ${char.aliases.join(', ')})`;
+            }
+            md += `\n`;
+        });
+        md += '\n---\n\n';
+
+        // Front matter / introduction
+        if (struct.metadata.frontMatter) {
+            md += '## Introduction\n\n';
+            md += `${struct.metadata.frontMatter}\n\n`;
+            md += '---\n\n';
+        }
+
+        // Acts and Scenes
+        struct.acts.forEach(act => {
+            md += `## ACT ${act.actNumber}`;
+            // Only add title if it's not a redundant "Act X"
+            if (act.title && !act.title.match(/^ACT\s+[IVX\d]+$/i)) {
+                md += ` - ${act.title}`;
+            }
+            md += '\n\n';
+
+            act.scenes.forEach(scene => {
+                md += `### Scene ${scene.sceneNumber}`;
+                if (scene.location) md += ` - ${scene.location}`;
+                md += '\n\n';
+
+                scene.lines.forEach(line => {
+                    if (line.type === 'stage_direction') {
+                        md += `*[${line.text}]*\n\n`;
+                    } else if (line.type === 'dialogue' && line.character) {
+                        md += `**${line.character}:** ${line.text}\n\n`;
+                    } else if (line.type === 'scene_header') {
+                        md += `#### ${line.text}\n\n`;
+                    } else {
+                        md += `${line.text}\n\n`;
+                    }
+                });
+            });
+        });
+
+        return md;
+    };
+    // Convert standard markdown back to structure
+    const markdownToStructure = (md: string): DetectedStructure => {
+        const lines = md.split('\n');
+        const struct: DetectedStructure = {
+            format: editedStructure?.format || 'unknown',
+            confidence: 1.0,
+            acts: [],
+            characters: [],
+            metadata: {
+                title: '',
+                author: '',
+                year: '',
+                frontMatter: '',
+                estimatedLineCount: 0
+            }
+        };
+
+        let currentAct: Act | null = null;
+        let currentScene: Scene | null = null;
+        const charSet = new Set<string>();
+
+        lines.forEach(line => {
+            const trimmed = line.trim();
+            if (!trimmed) return;
+
+            // Metadata
+            if (trimmed.startsWith('# ')) {
+                struct.metadata.title = trimmed.replace('# ', '').trim();
+            } else if (trimmed.startsWith('**Author:**')) {
+                struct.metadata.author = trimmed.replace('**Author:**', '').trim();
+            } else if (trimmed.startsWith('**Year:**')) {
+                struct.metadata.year = trimmed.replace('**Year:**', '').trim();
+            }
+            // Acts
+            else if (trimmed.startsWith('## ACT')) {
+                if (currentAct) {
+                    if (currentScene) currentAct.scenes.push(currentScene);
+                    struct.acts.push(currentAct);
+                }
+                const actMatch = trimmed.match(/^## ACT\s+(\d+)(?:\s*-\s*(.*))?$/i);
+                currentAct = {
+                    actNumber: actMatch ? parseInt(actMatch[1]) : struct.acts.length + 1,
+                    title: actMatch?.[2] || '',
+                    scenes: []
+                };
+                currentScene = null;
+            }
+            // Scenes
+            else if (trimmed.startsWith('### Scene')) {
+                if (currentAct && currentScene) {
+                    currentAct.scenes.push(currentScene);
+                }
+                const sceneMatch = trimmed.match(/^### Scene\s+(\d+)(?:\s*-\s*(.*))?$/i);
+                currentScene = {
+                    sceneNumber: sceneMatch ? parseInt(sceneMatch[1]) : (currentAct?.scenes.length || 0) + 1,
+                    location: sceneMatch?.[2] || '',
+                    lines: []
+                };
+            }
+            // Dialogue
+            else if (trimmed.startsWith('**') && trimmed.includes(':**')) {
+                const diaMatch = trimmed.match(/^\*\*([^*]+):\*\*\s*(.*)$/);
+                if (diaMatch && currentScene) {
+                    const charName = diaMatch[1].trim();
+                    charSet.add(charName);
+                    currentScene.lines.push({
+                        lineNumber: 0,
+                        type: 'dialogue',
+                        character: charName,
+                        text: diaMatch[2].trim(),
+                        confidence: 1.0
+                    });
+                }
+            }
+            // Stage Directions
+            else if (trimmed.startsWith('*[') && trimmed.endsWith(']*')) {
+                if (currentScene) {
+                    currentScene.lines.push({
+                        lineNumber: 0,
+                        type: 'stage_direction',
+                        text: trimmed.slice(2, -2).trim(),
+                        confidence: 1.0
+                    });
+                }
+            }
+            // Scene Headers (Fallback)
+            else if (trimmed.startsWith('#### ')) {
+                if (currentScene) {
+                    currentScene.lines.push({
+                        lineNumber: 0,
+                        type: 'scene_header',
+                        text: trimmed.replace('#### ', '').trim(),
+                        confidence: 1.0
+                    });
+                }
+            }
+        });
+
+        // Close last act/scene
+        if (currentAct) {
+            if (currentScene) currentAct.scenes.push(currentScene);
+            struct.acts.push(currentAct);
+        }
+
+        // Finalize characters
+        struct.characters = Array.from(charSet).map(name => ({
+            name,
+            aliases: [],
+            estimatedLines: 0 // Will be recalculated if needed
+        }));
+
+        struct.metadata.estimatedLineCount = struct.acts.reduce((acc, act) =>
+            acc + act.scenes.reduce((sAcc, s) => sAcc + s.lines.length, 0), 0);
+
+        return struct;
+    };
+
+    // Update markdown when entering edit mode
+    React.useEffect(() => {
+        if (status === 'editing' && editedStructure) {
+            setMarkdownText(structureToMarkdown(editedStructure));
+        }
+    }, [status, editedStructure]);
+
+    // Character editing functions
+    const updateCharacterName = (idx: number, newName: string) => {
+        if (!editedStructure) return;
+        const updated = { ...editedStructure };
+        updated.characters = [...updated.characters];
+        updated.characters[idx] = { ...updated.characters[idx], name: newName };
+        setEditedStructure(updated);
+    };
+
+    const deleteCharacter = (idx: number) => {
+        if (!editedStructure) return;
+        const updated = { ...editedStructure };
+        updated.characters = updated.characters.filter((_, i) => i !== idx);
+        setEditedStructure(updated);
+    };
+
+    const addCharacter = () => {
+        if (!editedStructure) return;
+        const updated = { ...editedStructure };
+        updated.characters = [...updated.characters, { name: 'NEW CHARACTER', aliases: [], estimatedLines: 0 }];
+        setEditedStructure(updated);
+    };
 
     // Simulate AI analysis (replace with actual API call)
     const analyzeScript = async () => {
@@ -83,7 +299,7 @@ export default function AIScriptValidator({ rawText, playId, onValidated, onCanc
         await delay(800);
 
         // Call AI API (OpenRouter/HuggingFace)
-        addLog('🤖 Analyzing with GPT-4...');
+        addLog('🤖 Analyzing with Gemini-3-Flash [V2.2 HARDENED]...');
         await delay(1200);
 
         try {
@@ -98,6 +314,23 @@ export default function AIScriptValidator({ rawText, playId, onValidated, onCanc
             }
 
             const detected: DetectedStructure = await response.json();
+
+            // REPAIR: If metadata leaked into frontMatter, extract and SCRUB it
+            if (detected.metadata) {
+                let fm = detected.metadata.frontMatter || '';
+                const titleMatch = fm.match(/Title:\s*([^\n]+)/i);
+                const authorMatch = fm.match(/Author:\s*([^\n]+)/i);
+                const yearMatch = fm.match(/Year:\s*([^\n]+)/i);
+
+                if (!detected.metadata.title && titleMatch) detected.metadata.title = titleMatch[1].trim();
+                if (!detected.metadata.author && authorMatch) detected.metadata.author = authorMatch[1].trim();
+                if (!detected.metadata.year && yearMatch) detected.metadata.year = yearMatch[1].trim();
+
+                // SCRUB: Remove metadata lines from frontMatter
+                detected.metadata.frontMatter = fm.split('\n')
+                    .filter(line => !line.match(/^(Title:|Author:|Year:|Year published:|By|Written by)/i))
+                    .join('\n').trim();
+            }
 
             addLog(`✅ Format detected: ${detected.format} (${(detected.confidence * 100).toFixed(0)}% confidence)`);
             addLog(`📖 Found ${detected.acts.length} acts, ${detected.characters.length} characters`);
@@ -117,79 +350,89 @@ export default function AIScriptValidator({ rawText, playId, onValidated, onCanc
     };
 
     const simpleFallbackParse = (text: string): DetectedStructure => {
-        // Basic parsing logic
         const lines = text.split('\n');
         const characters = new Set<string>();
-        const scriptLines: ScriptLine[] = [];
+        const acts: Act[] = [];
+        let currentAct: Act | null = null;
+        let currentScene: Scene | null = null;
 
+        let metadataTitle = '';
+        let metadataAuthor = '';
+        let metadataYear = '';
+        const metadataIndices = new Set<number>();
+
+        // Step 1: Detect Metadata headers within first 20 lines
+        lines.slice(0, 20).forEach((line, idx) => {
+            const t = line.trim();
+            if (t.toLowerCase().startsWith('title:')) { metadataTitle = t.replace(/title:/i, '').trim(); metadataIndices.add(idx); }
+            else if (t.toLowerCase().startsWith('author:')) { metadataAuthor = t.replace(/author:/i, '').trim(); metadataIndices.add(idx); }
+            else if (t.toLowerCase().startsWith('year:')) { metadataYear = t.replace(/year:/i, '').trim(); metadataIndices.add(idx); }
+        });
+
+        // Step 2: Parse Body lines
         lines.forEach((line, idx) => {
             const trimmed = line.trim();
-            if (!trimmed) return;
+            if (!trimmed || metadataIndices.has(idx)) return;
 
-            // Detect character names (ALL CAPS, short line)
-            if (/^[A-Z\s]{2,}$/.test(trimmed) && trimmed.length < 30) {
-                characters.add(trimmed);
-                scriptLines.push({
-                    lineNumber: idx,
-                    type: 'character_name',
-                    character: trimmed,
-                    text: trimmed,
-                    confidence: 0.7
-                });
+            // Header Detection
+            if (trimmed.match(/^ACT\s+[IVX\d]+/i)) {
+                if (currentAct) acts.push(currentAct);
+                currentAct = { actNumber: acts.length + 1, scenes: [] };
+                currentScene = null;
+                return;
             }
-            // Stage directions (parentheses or brackets)
-            else if (/^\(.*\)$|^\[.*\]$/.test(trimmed)) {
-                scriptLines.push({
-                    lineNumber: idx,
-                    type: 'stage_direction',
-                    text: trimmed,
-                    confidence: 0.8
-                });
+            if (trimmed.match(/^SCENE\s+[IVX\d]+/i)) {
+                if (!currentAct) currentAct = { actNumber: 1, scenes: [] };
+                currentScene = { sceneNumber: currentAct.scenes.length + 1, location: trimmed, lines: [] };
+                currentAct.scenes.push(currentScene);
+                return;
             }
-            // Scene/Act headers
-            else if (/^(ACT|SCENE|Act|Scene)/i.test(trimmed)) {
-                scriptLines.push({
-                    lineNumber: idx,
-                    type: 'scene_header',
-                    text: trimmed,
-                    confidence: 0.9
-                });
+
+            if (!currentAct) currentAct = { actNumber: 1, scenes: [] };
+            if (!currentScene) {
+                currentScene = { sceneNumber: 1, lines: [] };
+                currentAct.scenes.push(currentScene);
             }
-            // Dialogue
-            else {
-                scriptLines.push({
-                    lineNumber: idx,
-                    type: 'dialogue',
-                    text: trimmed,
-                    confidence: 0.6
-                });
+
+            // Dialogue/Directions Detection
+            const shawMatch = trimmed.match(/^([A-Z][A-Z\s\-']+)(?:\s*\[[^\]]+\])?\.\s*(.*)$/);
+            if (trimmed.startsWith('[') || trimmed.startsWith('(')) {
+                currentScene.lines.push({ lineNumber: idx + 1, type: 'stage_direction', text: trimmed, confidence: 0.8 });
+            } else if (shawMatch) {
+                const char = shawMatch[1].trim();
+                characters.add(char);
+                currentScene.lines.push({ lineNumber: idx + 1, type: 'dialogue', character: char, text: shawMatch[2].trim(), confidence: 0.8 });
+            } else if (trimmed.includes(':') && trimmed.slice(0, 20).includes(':')) {
+                const parts = trimmed.split(':');
+                const char = parts[0].trim();
+                characters.add(char);
+                currentScene.lines.push({ lineNumber: idx + 1, type: 'dialogue', character: char, text: parts.slice(1).join(':').trim(), confidence: 0.8 });
+            } else {
+                currentScene.lines.push({ lineNumber: idx + 1, type: 'dialogue', text: trimmed, confidence: 0.5 });
             }
         });
+
+        if (currentAct && !acts.includes(currentAct)) acts.push(currentAct);
 
         return {
             format: 'unknown',
             confidence: 0.5,
-            acts: [{
-                actNumber: 1,
-                scenes: [{
-                    sceneNumber: 1,
-                    lines: scriptLines
-                }]
-            }],
-            characters: Array.from(characters).map(name => ({
-                name,
-                aliases: [],
-                estimatedLines: scriptLines.filter(l => l.character === name).length
-            })),
+            acts: acts.length > 0 ? acts : [{ actNumber: 1, scenes: [{ sceneNumber: 1, lines: [] }] }],
+            characters: Array.from(characters).map(c => ({ name: c, aliases: [], estimatedLines: 0 })),
             metadata: {
-                frontMatter: lines.slice(0, 10).join('\n'),
-                estimatedLineCount: scriptLines.length
+                title: metadataTitle || (lines[0].length < 50 ? lines[0] : 'Untitled'),
+                author: metadataAuthor,
+                year: metadataYear,
+                estimatedLineCount: lines.length
             }
         };
     };
 
     const handleConfirm = () => {
-        if (editedStructure) {
+        if (status === 'editing' && markdownText) {
+            const finalStructure = markdownToStructure(markdownText);
+            onValidated(finalStructure);
+        } else if (editedStructure) {
             onValidated(editedStructure);
         }
     };
@@ -211,8 +454,9 @@ export default function AIScriptValidator({ rawText, playId, onValidated, onCanc
                         <Sparkles className="w-6 h-6 text-purple-400" />
                         <h2 className="text-2xl font-bold text-white">AI Script Validator</h2>
                     </div>
-                    <p className="text-gray-400 text-sm mt-2">
-                        Analyzing script structure • Detecting format • Extracting characters
+                    <p className="text-gray-400 text-sm mt-2 flex items-center justify-between">
+                        <span>Analyzing script structure • Detecting format • Extracting characters</span>
+                        <span className="text-white/20 text-[10px] font-mono">v2.2-HARDENED</span>
                     </p>
                 </div>
 
@@ -300,50 +544,205 @@ export default function AIScriptValidator({ rawText, playId, onValidated, onCanc
                                     </div>
                                 </div>
 
-                                {/* Characters List */}
-                                <div className="border border-white/10 rounded-xl p-4 bg-white/5">
-                                    <div className="flex items-center gap-2 mb-3">
-                                        <Users className="w-4 h-4 text-purple-400" />
-                                        <h4 className="font-bold text-white">Characters</h4>
-                                    </div>
-                                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                        {structure.characters.map((char, i) => (
-                                            <div key={i} className="p-2 bg-black/20 rounded text-sm">
-                                                <div className="font-bold text-white">{char.name}</div>
-                                                <div className="text-xs text-gray-500">{char.estimatedLines} lines</div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-
-                                {/* Acts/Scenes Preview */}
-                                <div className="space-y-4">
-                                    {structure.acts.map((act, actIdx) => (
-                                        <div key={actIdx} className="border border-white/10 rounded-xl overflow-hidden">
-                                            <div className="p-3 bg-white/5 border-b border-white/10">
+                                {/* EDITING MODE */}
+                                {status === 'editing' && editedStructure ? (
+                                    <div className="space-y-6">
+                                        {/* Help Guide - Collapsible */}
+                                        <div className="border border-yellow-500/30 rounded-xl overflow-hidden bg-yellow-900/10">
+                                            <button
+                                                onClick={() => setShowHelp(!showHelp)}
+                                                className="w-full p-3 flex items-center justify-between text-left hover:bg-yellow-900/20 transition"
+                                            >
                                                 <div className="flex items-center gap-2">
-                                                    <Book className="w-4 h-4 text-blue-400" />
-                                                    <span className="font-bold text-white">Act {act.actNumber}</span>
-                                                    {act.title && <span className="text-gray-400 text-sm">• {act.title}</span>}
+                                                    <HelpCircle className="w-4 h-4 text-yellow-400" />
+                                                    <span className="font-bold text-yellow-300 text-sm">Markdown Syntax Guide</span>
                                                 </div>
+                                                {showHelp ? (
+                                                    <ChevronUp className="w-4 h-4 text-yellow-400" />
+                                                ) : (
+                                                    <ChevronDown className="w-4 h-4 text-yellow-400" />
+                                                )}
+                                            </button>
+
+                                            {showHelp && (
+                                                <div className="p-4 border-t border-yellow-500/20 text-sm space-y-4">
+                                                    <div>
+                                                        <h5 className="font-bold text-white mb-2">📝 Standard Script Format</h5>
+                                                        <div className="bg-black/30 p-3 rounded-lg font-mono text-xs text-gray-300 space-y-1">
+                                                            <p><span className="text-blue-400"># Title</span> - Play title (H1 header)</p>
+                                                            <p><span className="text-purple-400">**Author:** Name</span> - Author metadata</p>
+                                                            <p><span className="text-green-400">## ACT 1</span> - Act header</p>
+                                                            <p><span className="text-cyan-400">### Scene 1 - Location</span> - Scene header</p>
+                                                            <p><span className="text-yellow-400">**CHARACTER:** Dialogue</span> - Character speech</p>
+                                                            <p><span className="text-gray-400">*[Stage direction]*</span> - Stage directions</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div>
+                                                        <h5 className="font-bold text-white mb-2">✏️ Editing Tips</h5>
+                                                        <ul className="text-gray-400 space-y-1 text-xs">
+                                                            <li>• <strong className="text-white">Characters:</strong> Edit names directly, add with +, remove with ×</li>
+                                                            <li>• <strong className="text-white">Metadata:</strong> Edit title and author in the blue section</li>
+                                                            <li>• <strong className="text-white">Markdown:</strong> Freely edit the script in the text area below</li>
+                                                            <li>• <strong className="text-white">Dialogue:</strong> Use <code className="bg-black/40 px-1 rounded">**NAME:** text</code> format</li>
+                                                            <li>• <strong className="text-white">Directions:</strong> Wrap in <code className="bg-black/40 px-1 rounded">*[brackets]*</code></li>
+                                                        </ul>
+                                                    </div>
+
+                                                    <div className="flex items-start gap-2 p-2 bg-blue-900/20 rounded-lg border border-blue-500/20">
+                                                        <Info className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
+                                                        <p className="text-xs text-blue-300">
+                                                            This standardized format ensures consistent parsing for music generation.
+                                                            The system will convert your script to musical notation based on character emotions and dialogue.
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Editable Characters */}
+                                        <div className="border border-purple-500/30 rounded-xl p-4 bg-purple-900/10">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center gap-2">
+                                                    <Users className="w-4 h-4 text-purple-400" />
+                                                    <h4 className="font-bold text-white">Edit Characters</h4>
+                                                </div>
+                                                <button
+                                                    onClick={addCharacter}
+                                                    className="p-1.5 rounded-lg bg-purple-500/20 hover:bg-purple-500/40 text-purple-300 transition"
+                                                >
+                                                    <Plus className="w-4 h-4" />
+                                                </button>
                                             </div>
-                                            <div className="p-4 space-y-2">
-                                                {act.scenes.map((scene, sceneIdx) => (
-                                                    <div key={sceneIdx} className="p-3 bg-black/20 rounded-lg">
-                                                        <div className="flex items-center gap-2 mb-2">
-                                                            <MapPin className="w-3 h-3 text-green-400" />
-                                                            <span className="text-sm font-bold text-white">Scene {scene.sceneNumber}</span>
-                                                            {scene.location && <span className="text-xs text-gray-500">• {scene.location}</span>}
-                                                        </div>
-                                                        <div className="text-xs text-gray-600">
-                                                            {scene.lines.length} lines detected
-                                                        </div>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {editedStructure.characters.map((char, i) => (
+                                                    <div key={i} className="p-2 bg-black/30 rounded border border-white/10 flex items-center gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={char.name}
+                                                            onChange={(e) => updateCharacterName(i, e.target.value)}
+                                                            className="flex-1 bg-transparent text-white text-sm font-bold border-none outline-none"
+                                                        />
+                                                        <button
+                                                            onClick={() => deleteCharacter(i)}
+                                                            className="p-1 rounded hover:bg-red-500/30 text-red-400 transition"
+                                                        >
+                                                            <X className="w-3 h-3" />
+                                                        </button>
                                                     </div>
                                                 ))}
                                             </div>
                                         </div>
-                                    ))}
-                                </div>
+
+                                        {/* Editable Metadata */}
+                                        <div className="border border-blue-500/30 rounded-xl p-4 bg-blue-900/10">
+                                            <h4 className="font-bold text-white mb-3">Edit Metadata</h4>
+                                            <div className="space-y-2">
+                                                <div>
+                                                    <label className="text-xs text-gray-400">Title</label>
+                                                    <input
+                                                        type="text"
+                                                        value={editedStructure.metadata.title || ''}
+                                                        onChange={(e) => {
+                                                            const updated = { ...editedStructure };
+                                                            updated.metadata = { ...updated.metadata, title: e.target.value };
+                                                            setEditedStructure(updated);
+                                                        }}
+                                                        className="w-full bg-black/30 text-white text-sm p-2 rounded border border-white/10 outline-none focus:border-blue-500"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs text-gray-400">Author</label>
+                                                    <input
+                                                        type="text"
+                                                        value={editedStructure.metadata.author || ''}
+                                                        onChange={(e) => {
+                                                            const updated = { ...editedStructure };
+                                                            updated.metadata = { ...updated.metadata, author: e.target.value };
+                                                            setEditedStructure(updated);
+                                                        }}
+                                                        className="w-full bg-black/30 text-white text-sm p-2 rounded border border-white/10 outline-none focus:border-blue-500"
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label className="text-xs text-gray-400">Year</label>
+                                                    <input
+                                                        type="text"
+                                                        value={editedStructure.metadata.year || ''}
+                                                        onChange={(e) => {
+                                                            const updated = { ...editedStructure };
+                                                            updated.metadata = { ...updated.metadata, year: e.target.value };
+                                                            setEditedStructure(updated);
+                                                        }}
+                                                        className="w-full bg-black/30 text-white text-sm p-2 rounded border border-white/10 outline-none focus:border-blue-500"
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Markdown Preview/Edit */}
+                                        <div className="border border-white/10 rounded-xl overflow-hidden">
+                                            <div className="p-3 bg-white/5 border-b border-white/10 flex items-center justify-between">
+                                                <h4 className="font-bold text-white text-sm">Standard Markdown Format</h4>
+                                                <span className="text-xs text-gray-500">Editable</span>
+                                            </div>
+                                            <textarea
+                                                value={markdownText}
+                                                onChange={(e) => setMarkdownText(e.target.value)}
+                                                className="w-full h-64 bg-black/40 text-gray-300 text-xs font-mono p-4 resize-none outline-none"
+                                                placeholder="Markdown preview will appear here..."
+                                            />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    /* REVIEWING MODE */
+                                    <>
+                                        {/* Characters List */}
+                                        <div className="border border-white/10 rounded-xl p-4 bg-white/5">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <Users className="w-4 h-4 text-purple-400" />
+                                                <h4 className="font-bold text-white">Characters</h4>
+                                            </div>
+                                            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                                                {structure.characters.map((char, i) => (
+                                                    <div key={i} className="p-2 bg-black/20 rounded text-sm">
+                                                        <div className="font-bold text-white">{char.name}</div>
+                                                        <div className="text-xs text-gray-500">{char.estimatedLines} lines</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Acts/Scenes Preview */}
+                                        <div className="space-y-4">
+                                            {structure.acts.map((act, actIdx) => (
+                                                <div key={actIdx} className="border border-white/10 rounded-xl overflow-hidden">
+                                                    <div className="p-3 bg-white/5 border-b border-white/10">
+                                                        <div className="flex items-center gap-2">
+                                                            <Book className="w-4 h-4 text-blue-400" />
+                                                            <span className="font-bold text-white">Act {act.actNumber}</span>
+                                                            {act.title && <span className="text-gray-400 text-sm">• {act.title}</span>}
+                                                        </div>
+                                                    </div>
+                                                    <div className="p-4 space-y-2">
+                                                        {act.scenes.map((scene, sceneIdx) => (
+                                                            <div key={sceneIdx} className="p-3 bg-black/20 rounded-lg">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <MapPin className="w-3 h-3 text-green-400" />
+                                                                    <span className="text-sm font-bold text-white">Scene {scene.sceneNumber}</span>
+                                                                    {scene.location && <span className="text-xs text-gray-500">• {scene.location}</span>}
+                                                                </div>
+                                                                <div className="text-xs text-gray-600">
+                                                                    {scene.lines.length} lines detected
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
                             </div>
                         ) : null}
                     </div>

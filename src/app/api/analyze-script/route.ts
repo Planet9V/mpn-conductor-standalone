@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 /**
  * AI Script Analysis API
  * 
- * Uses OpenRouter/GPT-4 to analyze uploaded play scripts and extract:
+ * Uses OpenRouter/Gemini-3-Flash to analyze uploaded play scripts and extract:
  * - Format (Shakespeare, modern play, screenplay)
  * - Structure (acts, scenes)
  * - Characters
@@ -23,6 +23,7 @@ interface DetectedStructure {
     metadata: {
         title?: string;
         author?: string;
+        year?: string;
         frontMatter?: string;
         estimatedLineCount: number;
     };
@@ -73,7 +74,36 @@ export async function POST(req: NextRequest) {
             return NextResponse.json(fallbackParse(rawText));
         }
 
+
         const prompt = buildAnalysisPrompt(rawText);
+
+        const systemPrompt = `You are a MASTER CLASS theatrical script parser.
+Your GOAL is to convert a raw script text into a structured JSON representation, strictly adhering to the **Standard Script Format (SSF)**.
+
+### 1. STANDARDIZED SCRIPT FORMAT (SSF) - MANDATORY OUTPUT
+You must analyze the script while keeping this EXACT output format in mind:
+- Title: # [Title] (H1 header)
+- Author: **Author:** [Name]
+- Year: **Year:** [Year]
+- Acts: ## ACT [Number] - [Optional Title]
+- Scenes: ### Scene [Number] - [Optional Location]
+- Dialogue: **[CHARACTER NAME]:** [Dialogue text]
+- Directions: *[Stage direction text]* (Single asterisk, square brackets inside)
+
+### 2. METADATA EXTRACTION (ABSOLUTE ISOLATION)
+- **Title**: Extract the play title.
+- **Author**: Extract the author name.
+- **Year**: Extract the publication or writing year.
+- **CRITICAL RULE**: Once Title, Author, or Year are extracted into the metadata object, they MUST be COMPLETELY REMOVED from the "frontMatter" and the "lines" array. The frontMatter should NOT contain "Title: X", "Author: Y", or "Year: Z". 
+
+### 3. STRUCTURAL RULES
+- **DEDUPLICATION**: DO NOT include "ACT I" or "SCENE 1" as text in the "lines" array. Use the structural fields instead.
+- **FRONT MATTER**: Contains context, mood, or character lists that are NOT metadata and NOT dialogue.
+- **CHARACTER LIST**: MUST capture every unique speaking name found in the text.
+
+### 4. OUTPUT FORMAT
+You MUST return ONLY valid JSON matching the requested structure. NO conversational filler. NO markdown code blocks in the response itself.
+`;
 
         const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
             method: 'POST',
@@ -83,19 +113,19 @@ export async function POST(req: NextRequest) {
                 'HTTP-Referer': process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3002',
             },
             body: JSON.stringify({
-                model: 'openai/gpt-4-turbo',
+                model: 'google/gemini-3-flash-preview',
                 messages: [
                     {
                         role: 'system',
-                        content: 'You are an expert in theatrical script analysis and format detection. Respond ONLY with valid JSON.'
+                        content: systemPrompt
                     },
                     {
                         role: 'user',
                         content: prompt
                     }
                 ],
-                temperature: 0.3, // Low for structured output
-                max_tokens: 4000
+                temperature: 0.1, // Lower temperature for more consistent extraction
+                max_tokens: 16000
             })
         });
 
@@ -121,151 +151,210 @@ export async function POST(req: NextRequest) {
 }
 
 function buildAnalysisPrompt(rawText: string): string {
-    const preview = rawText.substring(0, 5000); // First 5000 chars for analysis
+    // Take first 15000 characters to stay within token limits
+    const preview = rawText.slice(0, 15000);
 
-    return `Analyze this theatrical script and extract its structure. Return ONLY valid JSON in this exact format:
+    return `ANALYZE THIS SCRIPT:
 
+PHASE 1: EXTRACT METADATA
+- Identify Title, Author, and Year.
+- Identify frontmatter (intro text).
+
+PHASE 2: MAP STRUCTURE
+- Identify Acts and Scenes.
+- Identify every character who speaks.
+
+PHASE 3: BUILD JSON
+Return this EXACT structure:
 {
-  "format": "shakespeare" | "modern_play" | "screenplay" | "unknown",
-  "confidence": 0.0-1.0,
+  "format": "modern_play",
+  "confidence": 0.98,
   "acts": [
     {
       "actNumber": 1,
-      "title": "optional title",
+      "title": "Optional Title",
       "scenes": [
         {
           "sceneNumber": 1,
-          "location": "optional location",
+          "location": "Optional Location",
           "lines": [
-            {
-              "lineNumber": 0,
-              "type": "dialogue" | "stage_direction" | "character_name" | "scene_header",
-              "character": "CHARACTER NAME if dialogue",
-              "text": "the actual text",
-              "confidence": 0.0-1.0
-            }
+            {"lineNumber": 1, "type": "stage_direction", "text": "...", "confidence": 1.0},
+            {"lineNumber": 2, "type": "dialogue", "character": "NAME", "text": "...", "confidence": 1.0}
           ]
         }
       ]
     }
   ],
-  "characters": [
-    {
-      "name": "MAIN NAME",
-      "aliases": ["ALT1", "ALT2"],
-      "estimatedLines": 100
-    }
-  ],
+  "characters": [{"name": "NAME", "aliases": [], "estimatedLines": 10}],
   "metadata": {
-    "title": "detected title",
-    "author": "detected author",
-    "frontMatter": "introduction/historical notes if present",
-    "estimatedLineCount": 1000
+    "title": "PLAY TITLE",
+    "author": "AUTHOR NAME",
+    "year": "YEAR",
+    "frontMatter": "CONTEXT/DESCRIPTION (SCRUB TITLE/AUTHOR FROM HERE)",
+    "estimatedLineCount": 100
   }
 }
 
-SCRIPT TEXT (first 5000 characters):
 ---
+ALIGNMENT GUIDE (SSF MARKDOWN):
+# Play Title
+**Author:** Author Name
+**Year:** 2024
+---
+## ACT 1 - Act Title
+### Scene 1 - Location
+**CHARACTER:** Dialogue text...
+*[Stage direction]*
+---
+
+CRITICAL: 
+- Metadata (Title, Author, Year) MUST BE ISOLATED in the metadata object.
+- DO NOT repeat Title/Author inside the frontMatter or lines.
+- Results must be in English.
+
+---SCRIPT TEXT---
 ${preview}
----
-
-Key detection rules:
-1. Character names are usually ALL CAPS before dialogue
-2. Stage directions are in (parentheses) or [brackets]
-3. Scene headers contain "Scene" or "Act"
-4. Shakespeare: Archaic language, iambic pentameter hints
-5. Modern play: Contemporary language, realistic dialogue
-6. Screenplay: INT/EXT markers, CUT TO, FADE IN, etc.
-
-Analyze the structure comprehensively and return the JSON.`;
+---END SCRIPT---`;
 }
+
 
 function parseAIResponse(aiResult: string, rawText: string): DetectedStructure {
     try {
         // Remove markdown code blocks if present
-        const cleaned = aiResult.replace(/```json\n?/g, '').replace(/```\n?/g, '');
-        const parsed = JSON.parse(cleaned);
+        const cleaned = aiResult.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+        const parsed = JSON.parse(cleaned) as DetectedStructure;
+
+        // AGGRESSIVE METADATA SCRUBBING from frontMatter
+        if (parsed.metadata) {
+            let fm = parsed.metadata.frontMatter || '';
+            const title = (parsed.metadata.title || '').toLowerCase().trim();
+            const author = (parsed.metadata.author || '').toLowerCase().trim();
+            const year = (parsed.metadata.year || '').toLowerCase().trim();
+
+            // Multi-pattern scrubbing
+            fm = fm.split('\n')
+                .filter(line => {
+                    const l = line.trim().toLowerCase();
+                    const lRaw = line.trim();
+
+                    // Remove explicit metadata labels
+                    if (l.match(/^(title|author|by|written by|year|date|published|year published|copyright)[:\s]/i)) return false;
+
+                    // Remove ACT and SCENE headers from frontMatter
+                    if (l.match(/^act\s+[ivx\d]+/i)) return false;
+                    if (l.match(/^scene\s+[ivx\d]+/i)) return false;
+
+                    // Remove lines that exactly match extracted metadata
+                    if (title && (l === title || l.includes(title))) return false;
+                    if (author && (l === author || l.includes(author))) return false;
+                    if (year && l.includes(year)) return false;
+
+                    // Remove standalone year patterns (4-digit years)
+                    if (lRaw.match(/^\s*\d{4}\s*$/)) return false;
+
+                    return true;
+                })
+                .join('\n').trim();
+
+            parsed.metadata.frontMatter = fm;
+        }
+
+        // Also scrub metadata from the first scene's lines if it leaked there
+        if (parsed.acts && parsed.acts.length > 0 && parsed.acts[0].scenes && parsed.acts[0].scenes.length > 0) {
+            const firstScene = parsed.acts[0].scenes[0];
+            const title = (parsed.metadata?.title || '').toLowerCase().trim();
+            const author = (parsed.metadata?.author || '').toLowerCase().trim();
+
+            firstScene.lines = firstScene.lines.filter(line => {
+                const l = line.text.toLowerCase().trim();
+                if (l.match(/^(title|author|by|written by|year|date|published)[:\s]/i)) return false;
+                if (title && l === title) return false;
+                if (author && l === author) return false;
+                return true;
+            });
+        }
 
         // Validate structure
         if (!parsed.format || !parsed.acts || !parsed.characters) {
             throw new Error('Invalid AI response structure');
         }
 
-        return parsed as DetectedStructure;
+        return parsed;
     } catch (error) {
-        console.error('Failed to parse AI response, using fallback');
+        console.error('Failed to parse AI response, using fallback:', error);
         return fallbackParse(rawText);
     }
 }
 
 function fallbackParse(text: string): DetectedStructure {
     const lines = text.split('\n');
-    const characters = new Map<string, number>();
     const scriptLines: ScriptLine[] = [];
+    const characters = new Map<string, number>();
     const detectedActs: Act[] = [];
     let currentAct: Act | null = null;
     let currentScene: Scene | null = null;
 
+    // First, scan for metadata to skip in body
+    let metadataTitle = '';
+    let metadataAuthor = '';
+    let metadataYear = '';
+    const metadataLines = new Set<number>();
+
+    lines.slice(0, 20).forEach((l, idx) => {
+        const t = l.trim();
+        if (t.toLowerCase().startsWith('title:')) {
+            metadataTitle = t.replace(/title:/i, '').trim();
+            metadataLines.add(idx);
+        } else if (t.toLowerCase().startsWith('author:')) {
+            metadataAuthor = t.replace(/author:/i, '').trim();
+            metadataLines.add(idx);
+        } else if (t.toLowerCase().match(/^(by|written by)/i)) {
+            metadataAuthor = t.replace(/^(by|written by):?/i, '').trim();
+            metadataLines.add(idx);
+        } else if (t.toLowerCase().match(/^(year|date|published)/i)) {
+            metadataYear = t.replace(/^(year|date|published):?/i, '').trim();
+            metadataLines.add(idx);
+        }
+    });
+
     lines.forEach((line, idx) => {
         const trimmed = line.trim();
         if (!trimmed) return;
+        if (metadataLines.has(idx)) return; // SKIP METADATA IN BODY
 
-        // Detect Acts
-        const actMatch = trimmed.match(/^ACT\s+([IVXLCDM]+|\d+)/i);
-        if (actMatch) {
-            if (currentAct && currentScene) {
-                currentAct.scenes.push(currentScene);
-            }
+        // Detect structural headers (SKIP IN DIALOGUE)
+        if (trimmed.match(/^ACT\s+[IVX\d]+/i) || trimmed.match(/^(##|###)\s+ACT/i)) {
             if (currentAct) {
+                if (currentScene) currentAct.scenes.push(currentScene);
                 detectedActs.push(currentAct);
             }
-
             currentAct = {
                 actNumber: detectedActs.length + 1,
-                title: trimmed,
                 scenes: []
             };
             currentScene = null;
-
-            scriptLines.push({
-                lineNumber: idx,
-                type: 'scene_header',
-                text: trimmed,
-                confidence: 0.9
-            });
             return;
         }
 
-        // Detect Scenes
-        const sceneMatch = trimmed.match(/^SCENE\s+([IVXLCDM]+|\d+)/i);
-        if (sceneMatch) {
-            if (currentScene && currentAct) {
-                currentAct.scenes.push(currentScene);
-            }
-
+        if (trimmed.match(/^SCENE\s+[IVX\d]+/i) || trimmed.match(/^(###|####)\s+SCENE/i)) {
             if (!currentAct) {
                 currentAct = {
                     actNumber: 1,
                     scenes: []
                 };
             }
-
+            if (currentAct && currentScene) {
+                currentAct.scenes.push(currentScene);
+            }
             currentScene = {
                 sceneNumber: currentAct.scenes.length + 1,
-                location: trimmed,
+                location: trimmed.replace(/^SCENE\s+[IVX\d]+[:.-]?\s*/i, '').trim(),
                 lines: []
             };
-
-            scriptLines.push({
-                lineNumber: idx,
-                type: 'scene_header',
-                text: trimmed,
-                confidence: 0.9
-            });
             return;
         }
 
-        // Initialize first scene if none exists
+        // Initialize first act/scene if none exists
         if (!currentAct) {
             currentAct = { actNumber: 1, scenes: [] };
         }
@@ -273,97 +362,87 @@ function fallbackParse(text: string): DetectedStructure {
             currentScene = { sceneNumber: 1, lines: [] };
         }
 
-        // Detect character names (ALL CAPS, short line)
-        if (/^[A-Z\s\-']{2,40}$/.test(trimmed) && trimmed.length < 40 && !trimmed.includes('.')) {
-            const charName = trimmed;
+        // SHAW FORMAT: "CHARACTER NAME. Dialogue" or "CHARACTER NAME [direction]. Dialogue"
+        const shawMatch = trimmed.match(/^([A-Z][A-Z\s\-']+)(?:\s*\[[^\]]+\])?\.\s*(.*)$/);
+        if (shawMatch) {
+            const charName = shawMatch[1].trim();
             characters.set(charName, (characters.get(charName) || 0) + 1);
-
-            const scriptLine: ScriptLine = {
+            const line: ScriptLine = {
                 lineNumber: idx,
-                type: 'character_name',
+                type: 'dialogue',
                 character: charName,
-                text: trimmed,
-                confidence: 0.7
-            };
-
-            scriptLines.push(scriptLine);
-            currentScene.lines.push(scriptLine);
-            return;
-        }
-
-        // Stage directions (parentheses or brackets)
-        if (/^\(.*\)$|^\[.*\]$/.test(trimmed)) {
-            const scriptLine: ScriptLine = {
-                lineNumber: idx,
-                type: 'stage_direction',
-                text: trimmed,
+                text: shawMatch[2].trim(),
                 confidence: 0.8
             };
-
-            scriptLines.push(scriptLine);
-            currentScene.lines.push(scriptLine);
+            currentScene.lines.push(line);
             return;
         }
 
-        // Dialogue (everything else)
-        const scriptLine: ScriptLine = {
-            lineNumber: idx,
-            type: 'dialogue',
-            text: trimmed,
-            confidence: 0.6
-        };
+        // Stage direction (brackets or parentheses)
+        if (trimmed.startsWith('[') || trimmed.startsWith('(')) {
+            currentScene.lines.push({
+                lineNumber: idx,
+                type: 'stage_direction',
+                text: trimmed.replace(/[\[\]\(\)]/g, '').trim(),
+                confidence: 0.8
+            });
+            return;
+        }
 
-        scriptLines.push(scriptLine);
-        currentScene.lines.push(scriptLine);
+        // Assume dialogue for remaining
+        const splitLine = trimmed.match(/^([A-Z\s]+):\s*(.*)$/);
+        if (splitLine) {
+            const charName = splitLine[1].trim();
+            characters.set(charName, (characters.get(charName) || 0) + 1);
+            currentScene.lines.push({
+                lineNumber: idx,
+                type: 'dialogue',
+                character: charName,
+                text: splitLine[2].trim(),
+                confidence: 0.8
+            });
+        } else {
+            // General dialogue fallback
+            currentScene.lines.push({
+                lineNumber: idx,
+                type: 'dialogue',
+                text: trimmed,
+                confidence: 0.5
+            });
+        }
     });
 
-    // Close final scene and act
-    if (currentScene && currentAct) {
-        currentAct.scenes.push(currentScene);
-    }
-    if (currentAct) {
-        detectedActs.push(currentAct);
-    }
+    // Close
+    if (currentScene && currentAct) currentAct.scenes.push(currentScene);
+    if (currentAct) detectedActs.push(currentAct);
 
-    // Build character list
-    const characterList: Character[] = Array.from(characters.entries()).map(([name, count]) => ({
-        name,
-        aliases: [],
-        estimatedLines: count
-    }));
-
-    // Detect format based on heuristics
-    const hasShakespeareanLanguage = /thee|thou|hath|doth|wherefore/i.test(text);
-    const hasScreenplayMarkers = /INT\.|EXT\.|FADE IN|CUT TO/i.test(text);
-
-    let format: DetectedStructure['format'] = 'unknown';
-    let confidence = 0.5;
-
-    if (hasScreenplayMarkers) {
-        format = 'screenplay';
-        confidence = 0.85;
-    } else if (hasShakespeareanLanguage) {
-        format = 'shakespeare';
-        confidence = 0.8;
-    } else if (characters.size > 0) {
-        format = 'modern_play';
-        confidence = 0.7;
-    }
+    // Calculate total lines from processed scenes
+    let totalProcessedLines = 0;
+    detectedActs.forEach(act => {
+        act.scenes.forEach(scene => {
+            totalProcessedLines += scene.lines.length;
+        });
+    });
 
     return {
-        format,
-        confidence,
+        format: 'modern_play',
+        confidence: 0.5,
         acts: detectedActs.length > 0 ? detectedActs : [{
             actNumber: 1,
-            scenes: currentScene ? [currentScene] : [{
+            scenes: [{
                 sceneNumber: 1,
-                lines: scriptLines
+                lines: scriptLines // This will be empty now, as lines are pushed directly to currentScene.lines
             }]
         }],
-        characters: characterList,
+        characters: Array.from(characters.entries()).map(([name, count]) => ({
+            name, aliases: [], estimatedLines: count
+        })),
         metadata: {
-            frontMatter: lines.slice(0, 20).join('\n'),
-            estimatedLineCount: scriptLines.length
+            title: metadataTitle || (lines[0].length < 50 ? lines[0].trim() : 'Unknown Title'),
+            author: metadataAuthor || 'Unknown Author',
+            year: metadataYear,
+            frontMatter: '', // Logic simplified to prevent leakage
+            estimatedLineCount: totalProcessedLines
         }
     };
 }

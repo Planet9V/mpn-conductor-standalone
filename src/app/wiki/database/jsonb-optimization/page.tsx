@@ -10,8 +10,12 @@ import { useEffect, useRef } from 'react';
  * Complete guide to PostgreSQL JSONB indexing strategies for
  * MPN psychometric metadata storage.
  * 
- * Updated: 2026-01-05 07:35 CST
- * Version: 1.0.0
+ * Updated: 2026-01-05 15:25 CST
+ * Version: 1.1.0
+ * 
+ * CHANGE LOG:
+ * - 2026-01-05 15:25: Added Phase 5 temporal versioning and audit log sections
+ * - 2026-01-05 07:35: Initial documentation created
  */
 
 function useMermaid() {

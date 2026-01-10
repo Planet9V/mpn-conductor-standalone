@@ -10,9 +10,10 @@ import {
     lookupDynamics,
     lookupTimeSignature,
     lookupTempoRange,
-    lookupModeName,
+    lookupMode,
     lookupInstrument,
-    lookupArticulation
+    lookupArticulation,
+    lookupChordType
 } from './mpn_reference_lookup';
 
 // ============================================================================
@@ -150,6 +151,10 @@ const DISSONANCE_MAP: Record<string, number> = {
 // CORE CALCULUS FUNCTIONS
 // ============================================================================
 
+// ============================================================================
+// CORE CALCULUS FUNCTIONS
+// ============================================================================
+
 /**
  * Convert trauma level to dynamics
  */
@@ -166,10 +171,14 @@ export function entropyToRhythm(entropy: number, adjustments?: Record<string, Pa
     if (entropy > 0.4) stability = 'operational';
     if (entropy > 0.7) stability = 'crisis';
 
+    // Lookup base tempo range
     const range = lookupTempoRange(stability, adjustments);
+
     // Calculate precise tempo within range based on entropy
+    // Higher entropy = more fluctuation, but here we just map to position in range
     const tempo = range.min + (entropy * (range.max - range.min));
 
+    // Lookup time signature
     const timeSignature = lookupTimeSignature(entropy);
 
     return { tempo: Math.round(tempo), timeSignature };
@@ -179,13 +188,12 @@ export function entropyToRhythm(entropy: number, adjustments?: Record<string, Pa
  * Convert RSI attractors to mode/scale
  */
 export function rsiToMode(rsi: { real: number; symbolic: number; imaginary: number }): string {
-    const dominant = Math.max(rsi.real, rsi.symbolic, rsi.imaginary);
-    let register: 'real' | 'symbolic' | 'imaginary' = 'symbolic';
+    // Determine dominant register
+    let dominant = 'symbolic';
+    if (rsi.real > rsi.symbolic && rsi.real > rsi.imaginary) dominant = 'real';
+    else if (rsi.imaginary > rsi.symbolic && rsi.imaginary > rsi.real) dominant = 'imaginary';
 
-    if (dominant === rsi.real) register = 'real';
-    else if (dominant === rsi.imaginary) register = 'imaginary';
-
-    return lookupModeName(register);
+    return lookupModeName(dominant as 'real' | 'symbolic' | 'imaginary');
 }
 
 /**
@@ -194,13 +202,16 @@ export function rsiToMode(rsi: { real: number; symbolic: number; imaginary: numb
 export function discToInstrument(disc?: { D: number; I: number; S: number; C: number }): string {
     if (!disc) return 'piano';
 
-    const dominant = Object.entries(disc).reduce((a, b) => a[1] > b[1] ? a : b);
+    // Find dominant trait
+    const traits = Object.entries(disc);
+    const dominant = traits.reduce((a, b) => a[1] > b[1] ? a : b);
     const trait = dominant[0] as 'D' | 'I' | 'S' | 'C';
 
-    // Use lookupInstrument - note: returns array, we pick random
+    // Lookup appropriate instruments
     const instruments = lookupInstrument(trait);
     if (instruments.length === 0) return 'piano';
 
+    // Return a random selection from the approved palette
     return instruments[Math.floor(Math.random() * instruments.length)];
 }
 
@@ -248,6 +259,8 @@ export function applyDarkTriadTimbre(
     const intensity = maxTrait[1];
 
     const mod = DARK_TRIAD_MODULATION[traitName];
+    if (!mod) return {};
+
     return {
         detuning: mod.detuning * intensity,
         attack: mod.attack,
@@ -274,14 +287,31 @@ export function tensionToChordType(tension: number): string {
  * Full psychometric state to musical parameters conversion
  */
 export function psychometricToMusical(state: PsychometricState, adjustments?: Record<string, ParameterAdjustment>): MusicalParams {
+    // 1. Dynamics (Trauma)
     const dynamics = traumaToDynamics(state.trauma, adjustments);
+
+    // 2. Rhythm (Entropy -> Stability)
     const rhythm = entropyToRhythm(state.entropy, adjustments);
-    const mode = rsiToMode(state.rsi);
+
+    // 3. Mode (RSI + Emotion)
+    // Heuristic: Use biases/traits to find primary emotion if available, else RSI
+    let likelyEmotion: string = '';
+    if (state.biases && state.biases.includes('Confirmation Bias')) likelyEmotion = 'stubborn'; // Example
+
+    // Fallback to RSI driven mode
+    const mode = lookupMode(likelyEmotion, state.rsi, adjustments);
+
+    // 4. Instrument/Timbre (DISC)
     const instrument = discToInstrument(state.disc);
-    const tension = (state.rsi.real * 0.8) + (state.entropy * 0.2);
+
+    // 5. Tension (Calculated from Register conflict)
+    // High Real = High Tension. High Symbolic = Low Tension (Order). High Imaginary = Moderate (Fantasy)
+    const tension = (state.rsi.real * 0.9) + (state.entropy * 0.1);
+
+    // 6. Chord Type (from Tension lookup)
     const chordType = tensionToChordType(tension);
 
-    // Base timbre
+    // 7. Base Timbre
     let timbre: MusicalParams['timbre'] = {
         attack: 0.1,
         decay: 0.3,
@@ -292,40 +322,44 @@ export function psychometricToMusical(state: PsychometricState, adjustments?: Re
         filterCutoff: 5000
     };
 
-    // Apply Dark Triad if present
+    // Apply Dark Triad timbre modulation
     if (state.darkTriad) {
         const dtMod = applyDarkTriadTimbre(state.darkTriad);
         timbre = { ...timbre, ...dtMod };
     }
 
-    // Determine articulation from trauma using lookup
-    let articulationTrait = 'Conformity'; // Low trauma
-    if (state.trauma > 0.7) articulationTrait = 'Fragility';
-    else if (state.trauma > 0.5) articulationTrait = 'Resistance';
+    // 5. Articulation (Biases + Trauma)
+    const articulationResult = lookupArticulation(
+        state.trauma || 0,
+        state.biases || [],
+        adjustments
+    );
 
-    // Map trait to articulation via lookup (needs trait name from reference dict)
-    // For now, simpler mapping:
+    // Map string result to strict type
     let articulation: MusicalParams['articulation'] = 'legato';
-    if (state.trauma > 0.7) articulation = 'sforzando';
-    else if (state.trauma > 0.4) articulation = 'marcato';
-    else articulation = 'legato';
-    // Ideally we'd use lookupArticulation, but it requires specific trait keys matching the dictionary entries
-
-    // Determine key from RSI balance
-    let key = 'C Major';
-    if (state.rsi.real > 0.5) key = 'D minor';
-    else if (state.rsi.imaginary > 0.5) key = 'Eb Major';
-    else if (state.rsi.symbolic > 0.5) key = 'G Major';
-
-    // Determine instrument family
-    let instrumentFamily: MusicalParams['instrumentFamily'] = 'keyboard';
-    if (instrument.includes('trumpet') || instrument.includes('trombone') || instrument.includes('horn')) {
-        instrumentFamily = 'brass';
-    } else if (instrument.includes('flute') || instrument.includes('clarinet') || instrument.includes('oboe')) {
-        instrumentFamily = 'woodwind';
-    } else if (instrument.includes('violin') || instrument.includes('cello') || instrument.includes('viola')) {
-        instrumentFamily = 'strings';
+    const validArticulations = ['legato', 'staccato', 'marcato', 'tenuto', 'sforzando'];
+    if (validArticulations.includes(articulationResult)) {
+        articulation = articulationResult as MusicalParams['articulation'];
     }
+
+    // 9. Key (RSI driven)
+    let key = 'C Major';
+    // Deep logic: Real = minor / atonal keys. Imaginary = complex major. Symbolic = simple major.
+    if (state.rsi.real > 0.6) key = 'C# minor'; // Dark
+    else if (state.rsi.imaginary > 0.6) key = 'E Major'; // Bright/Dreamy
+    else if (state.rsi.symbolic > 0.6) key = 'G Major'; // Standard/Royal
+    else if (state.entropy > 0.8) key = 'F# Locrian'; // Chaotic
+
+    // 10. Instrument Family Classification
+    let instrumentFamily: MusicalParams['instrumentFamily'] = 'keyboard';
+    const brass = ['trumpet', 'trombone', 'horn', 'tuba'];
+    const woodwind = ['flute', 'clarinet', 'oboe', 'bassoon'];
+    const strings = ['violin', 'cello', 'viola', 'bass'];
+
+    if (brass.some(i => instrument.includes(i))) instrumentFamily = 'brass';
+    else if (woodwind.some(i => instrument.includes(i))) instrumentFamily = 'woodwind';
+    else if (strings.some(i => instrument.includes(i))) instrumentFamily = 'strings';
+    else if (instrument.includes('drum') || instrument.includes('perc')) instrumentFamily = 'percussion';
 
     return {
         tempo: rhythm.tempo,

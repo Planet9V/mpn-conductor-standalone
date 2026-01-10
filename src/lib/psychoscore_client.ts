@@ -91,10 +91,23 @@ const DEFAULT_CONFIG: PsychoscoreClientConfig = {
 
 // === CLIENT IMPLEMENTATION ===
 
+// Singleton instance
+let psychoscoreClientInstance: PsychoscoreClient | null = null;
+
 export class PsychoscoreClient {
     private endpoint: string;
     private timeout: number;
     private isConfigured: boolean;
+
+    /**
+     * Get singleton instance of PsychoscoreClient
+     */
+    static getInstance(): PsychoscoreClient {
+        if (!psychoscoreClientInstance) {
+            psychoscoreClientInstance = new PsychoscoreClient();
+        }
+        return psychoscoreClientInstance;
+    }
 
     constructor(config: PsychoscoreClientConfig = {}) {
         const mergedConfig = { ...DEFAULT_CONFIG, ...config };

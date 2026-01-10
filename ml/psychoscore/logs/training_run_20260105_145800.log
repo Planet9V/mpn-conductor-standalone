@@ -1,0 +1,4 @@
+usage: run_training_pipeline.py [-h] [--config CONFIG]
+                                [--num-synthetic NUM_SYNTHETIC]
+                                [--skip-download]
+run_training_pipeline.py: error: unrecognized arguments: --num_pairs 50000

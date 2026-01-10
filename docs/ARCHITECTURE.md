@@ -38,7 +38,7 @@
 ```
 User Input (Text/Upload)
     ↓
-AI Script Validator (GPT-4)
+AI Script Validator (Gemini-3-Flash)
     ↓
 Psychometric Analysis
     ↓

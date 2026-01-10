@@ -244,7 +244,7 @@ Deploy symbolic music generation for conductor-quality MIDI output:
 
 ### 5.4 Phase 4: Multimodal Integration (Q4 2026)
 
-- Audio input analysis via `openai/gpt-4o-audio-preview`
+- Audio input analysis via `openai/gpt-4o-audio-preview` (multimodal support)
 - Transcription + psychometric extraction from recorded meetings
 - Real-time organizational sonification during live events
 
@@ -316,8 +316,8 @@ Deploy symbolic music generation for conductor-quality MIDI output:
 │  │                 PSYCHOMETRIC ANALYSIS LAYER                  │   │
 │  │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐          │   │
 │  │  │ Gemini 3    │  │ Claude      │  │ GPT-4o      │          │   │
-│  │  │ Flash       │  │ Sonnet 4    │  │ Audio       │          │   │
-│  │  │ (Primary)   │  │ (Deep)      │  │ (Input)     │          │   │
+│  │  │ Flash       │  │ Sonnet 4    │  │ (Input)     │          │   │
+│  │  │ (Primary)   │  │ (Deep)      │  │             │          │   │
 │  │  └─────────────┘  └─────────────┘  └─────────────┘          │   │
 │  └─────────────────────────┬───────────────────────────────────┘   │
 │                            ▼                                        │

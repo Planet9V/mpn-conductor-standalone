@@ -10,8 +10,12 @@ import { useEffect, useRef } from 'react';
  * Complete API reference for the PSYCHOSCORE FastAPI server
  * and TypeScript client.
  * 
- * Updated: 2026-01-05 07:25 CST
- * Version: 1.0.0
+ * Updated: 2026-01-05 15:58 CST
+ * Version: 1.1.0
+ * 
+ * CHANGE LOG:
+ * - 2026-01-05 15:58: Added GeniusComposer AIModelSource integration
+ * - 2026-01-05 07:25: Initial API documentation
  */
 
 function useMermaid() {

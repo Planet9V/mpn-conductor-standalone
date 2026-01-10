@@ -145,7 +145,30 @@ export default function ScriptProcessor({ isOpen, onClose, playTitle, playId, on
         }
     }, [isOpen]);
 
-    const activeStyle = useMemo(() => selectedStyle ? STYLE_PRESETS[selectedStyle] : null, [selectedStyle]);
+    const [styles, setStyles] = useState<MusicalStyle[]>(Object.values(STYLE_PRESETS));
+    const [isLoadingStyles, setIsLoadingStyles] = useState(true);
+
+    // Fetch styles on mount
+    useEffect(() => {
+        const fetchStyles = async () => {
+            try {
+                const res = await fetch('/api/styles/list');
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.styles && data.styles.length > 0) {
+                        setStyles(data.styles);
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to fetch styles in ScriptProcessor:', err);
+            } finally {
+                setIsLoadingStyles(false);
+            }
+        };
+        fetchStyles();
+    }, []);
+
+    const activeStyle = useMemo(() => styles.find(s => s.id === selectedStyle), [selectedStyle, styles]);
 
     const handleProcess = async () => {
         if (!playId || !selectedStyle) return;
@@ -211,14 +234,19 @@ export default function ScriptProcessor({ isOpen, onClose, playTitle, playId, on
                     </div>
 
                     <div className="flex-1 overflow-y-auto p-6 space-y-3 custom-scrollbar">
-                        {Object.values(STYLE_PRESETS).map((style) => (
+                        {isLoading ? (
+                            <div className="flex flex-col items-center justify-center py-20 gap-4 opacity-50">
+                                <Loader2 className="w-8 h-8 animate-spin text-amber-500" />
+                                <span className="text-xs font-mono uppercase tracking-widest text-gray-500">Loading Vectors...</span>
+                            </div>
+                        ) : styles.map((style) => (
                             <button
                                 key={style.id}
                                 onClick={() => status === 'idle' && setSelectedStyle(style.id)}
                                 disabled={status !== 'idle'}
                                 className={`w-full text-left p-4 rounded-xl border transition-all duration-200 group relative overflow-hidden ${selectedStyle === style.id
-                                        ? 'bg-amber-900/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.1)]'
-                                        : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
+                                    ? 'bg-amber-900/20 border-amber-500/50 shadow-[0_0_20px_rgba(245,158,11,0.1)]'
+                                    : 'bg-white/5 border-white/5 hover:bg-white/10 hover:border-white/20'
                                     }`}
                             >
                                 <div className="flex justify-between items-start mb-2 relative z-10">

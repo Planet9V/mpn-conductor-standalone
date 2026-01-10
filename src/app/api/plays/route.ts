@@ -8,6 +8,7 @@ const ensureTable = async () => {
             id SERIAL PRIMARY KEY,
             title VARCHAR(255) NOT NULL,
             author VARCHAR(255),
+            year VARCHAR(100),
             theme VARCHAR(255),
             description TEXT,
             source_text TEXT,
@@ -24,9 +25,12 @@ export async function GET() {
         await ensureTable();
         const result = await db.query('SELECT * FROM plays ORDER BY created_at DESC');
         return NextResponse.json(result.rows);
-    } catch (error) {
-        console.error('[API] Failed to fetch plays:', error);
-        return NextResponse.json({ error: 'Failed to fetch plays' }, { status: 500 });
+    } catch (error: any) {
+        console.error('[API-PLAYS] GET Error:', error.message || error);
+        return NextResponse.json({
+            error: 'Failed to fetch plays',
+            details: error.message
+        }, { status: 500 });
     }
 }
 
@@ -34,16 +38,17 @@ export async function POST(request: Request) {
     try {
         await ensureTable();
         const body = await request.json();
-        const { title, author, theme, description, source_text, is_processed, processed_data } = body;
+        const { title, author, year, theme, description, source_text, is_processed, processed_data } = body;
 
         const result = await db.query(
             `INSERT INTO plays
-            (title, author, theme, description, source_text, is_processed, processed_data)
-            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            (title, author, year, theme, description, source_text, is_processed, processed_data)
+            VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
             RETURNING *`,
             [
                 title,
                 author,
+                year,
                 theme,
                 description || '',
                 source_text || '',
@@ -53,8 +58,12 @@ export async function POST(request: Request) {
         );
 
         return NextResponse.json(result.rows[0]);
-    } catch (error) {
-        console.error('[API] Failed to create play:', error);
-        return NextResponse.json({ error: 'Failed to create play' }, { status: 500 });
+    } catch (error: any) {
+        console.error('[API-PLAYS] POST Error:', error.message || error);
+        return NextResponse.json({
+            error: 'Failed to create play',
+            details: error.message,
+            stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+        }, { status: 500 });
     }
 }

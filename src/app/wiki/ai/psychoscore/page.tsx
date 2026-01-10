@@ -10,8 +10,13 @@ import { useEffect, useRef } from 'react';
  * Comprehensive academic-style documentation for the PSYCHOSCORE
  * transformer-based music generation system.
  * 
- * Updated: 2026-01-05 07:05 CST
- * Version: 1.0.0
+ * Updated: 2026-01-05 15:20 CST
+ * Version: 1.1.0
+ * 
+ * CHANGE LOG:
+ * - 2026-01-05 15:20: Updated training metrics with 50k synthetic pairs
+ * - 2026-01-05 15:20: Added EMOPIA dataset integration
+ * - 2026-01-05 07:05: Initial documentation created
  */
 
 function useMermaid() {
@@ -78,7 +83,7 @@ export default function PsychoscorePage() {
                             </div>
                         </div>
                     </div>
-                    <span className="text-xs text-white/40">Updated: 2026-01-05 07:05 CST</span>
+                    <span className="text-xs text-white/40">Updated: 2026-01-05 15:20 CST</span>
                 </div>
             </header>
 
@@ -96,6 +101,7 @@ export default function PsychoscorePage() {
                         <span className="px-3 py-1 rounded-full bg-pink-500/20 text-pink-300 text-xs">QLoRA Fine-tuned</span>
                         <span className="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs">57 Dimensions</span>
                         <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs">CUDA Accelerated</span>
+                        <span className="px-3 py-1 rounded-full bg-gold/20 text-gold text-xs">50k+ Training Pairs</span>
                     </div>
                 </div>
 
@@ -215,7 +221,10 @@ export default function PsychoscorePage() {
 
                 {/* Key Metrics */}
                 <section className="mb-12">
-                    <h3 className="text-xl font-semibold mb-4">Production Training Results</h3>
+                    <h3 className="text-xl font-semibold mb-4">
+                        Production Training Results
+                        <span className="ml-2 px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 text-xs">Updated 2026-01-05</span>
+                    </h3>
                     <div className="overflow-x-auto">
                         <table className="w-full text-sm">
                             <thead>
@@ -241,10 +250,15 @@ export default function PsychoscorePage() {
                                     <td className="py-3 px-4 font-mono">6.35M / 130M (4.86%)</td>
                                     <td className="py-3 px-4 text-white/50">Rank 16, Alpha 32</td>
                                 </tr>
-                                <tr className="border-b border-white/10">
+                                <tr className="border-b border-white/10 bg-emerald-500/10">
                                     <td className="py-3 px-4">Synthetic Pairs</td>
-                                    <td className="py-3 px-4 font-mono">15,000</td>
-                                    <td className="py-3 px-4 text-white/50">Scaled production run</td>
+                                    <td className="py-3 px-4 font-mono text-emerald-400">50,000</td>
+                                    <td className="py-3 px-4 text-white/50">52MB JSONL (Updated 2026-01-05)</td>
+                                </tr>
+                                <tr className="border-b border-white/10 bg-purple-500/10">
+                                    <td className="py-3 px-4">EMOPIA Dataset</td>
+                                    <td className="py-3 px-4 font-mono text-purple-400">1,084 MIDI</td>
+                                    <td className="py-3 px-4 text-white/50">Emotion-labeled piano clips (Added 2026-01-05)</td>
                                 </tr>
                                 <tr className="border-b border-white/10">
                                     <td className="py-3 px-4">Training Steps</td>

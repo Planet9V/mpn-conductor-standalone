@@ -1,0 +1,3 @@
+=== EMOPIA Dataset Downloader ===
+Target directory: ./data/raw/EMOPIA
+mkdir: cannot create directory ‘./data/raw/EMOPIA’: Permission denied

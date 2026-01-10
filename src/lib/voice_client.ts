@@ -34,19 +34,31 @@ export class ElevenLabsClient {
     }
 
     /**
-     * Synthesize text to speech
+     * Synthesize text to speech with optional emotion styling
      * @param text The text to speak
      * @param voiceId Optional voice ID (defaults to config default)
-     * @param stability Optional stability setting (0.0 - 1.0)
+     * @param options Optional synthesis options including emotion style
      * @returns ArrayBuffer of audio data
      */
     async synthesize(
         text: string,
         voiceId?: string,
-        stability: number = 0.5,
-        similarityBoost: number = 0.75
+        options?: {
+            stability?: number;
+            similarityBoost?: number;
+            speakerStyle?: string;
+        }
     ): Promise<ArrayBuffer | null> {
-        const key = `${voiceId || this.config.defaultVoiceId}:${text}:${stability}`;
+        const stability = options?.stability ?? 0.5;
+        const similarityBoost = options?.similarityBoost ?? 0.75;
+        const speakerStyle = options?.speakerStyle;
+
+        // Adjust voice settings based on emotion style
+        const emotionAdjustments = this.getEmotionAdjustments(speakerStyle);
+        const finalStability = emotionAdjustments.stability ?? stability;
+        const finalSimilarityBoost = emotionAdjustments.similarityBoost ?? similarityBoost;
+
+        const key = `${voiceId || this.config.defaultVoiceId}:${text}:${finalStability}:${speakerStyle || 'default'}`;
 
         // Return cached if available
         if (this.bufferCache.has(key)) {
@@ -72,10 +84,12 @@ export class ElevenLabsClient {
                 },
                 body: JSON.stringify({
                     text,
-                    model_id: 'eleven_monolingual_v1',
+                    model_id: 'eleven_multilingual_v2',
                     voice_settings: {
-                        stability,
-                        similarity_boost: similarityBoost,
+                        stability: finalStability,
+                        similarity_boost: finalSimilarityBoost,
+                        style: emotionAdjustments.style ?? 0,
+                        use_speaker_boost: true
                     }
                 }),
             });
@@ -87,13 +101,68 @@ export class ElevenLabsClient {
 
             const buffer = await response.arrayBuffer();
 
-            // Cache result (simple LRU could be added, but map is fine for session)
+            // Cache result
             this.bufferCache.set(key, buffer);
+            console.log(`[VoiceClient] Synthesized with emotion: ${speakerStyle || 'default'}`);
 
             return buffer;
         } catch (error) {
             console.error('[VoiceClient] Synthesis failed:', error);
             return null;
+        }
+    }
+
+    /**
+     * Map emotion style names to ElevenLabs voice settings adjustments
+     */
+    private getEmotionAdjustments(speakerStyle?: string): {
+        stability?: number;
+        similarityBoost?: number;
+        style?: number; // 0-1 for ElevenLabs style parameter
+    } {
+        const emotionMap: Record<string, { stability: number; similarityBoost: number; style: number }> = {
+            'fearful': { stability: 0.25, similarityBoost: 0.8, style: 0.7 },
+            'excited': { stability: 0.3, similarityBoost: 0.8, style: 0.9 },
+            'sad': { stability: 0.8, similarityBoost: 0.6, style: 0.3 },
+            'angry': { stability: 0.4, similarityBoost: 0.85, style: 0.8 },
+            'cheerful': { stability: 0.5, similarityBoost: 0.75, style: 0.6 },
+            'hopeful': { stability: 0.6, similarityBoost: 0.7, style: 0.5 },
+            'whispering': { stability: 0.9, similarityBoost: 0.5, style: 0.2 },
+            'shouting': { stability: 0.2, similarityBoost: 0.9, style: 1.0 },
+            'friendly': { stability: 0.6, similarityBoost: 0.7, style: 0.4 },
+            'default': { stability: 0.5, similarityBoost: 0.75, style: 0 }
+        };
+
+        return emotionMap[speakerStyle || 'default'] || emotionMap['default'];
+    }
+
+    /**
+     * Fetch all available voices from ElevenLabs
+     */
+    async getVoices(): Promise<any[]> {
+        const apiKey = this.config.apiKey;
+        if (!apiKey) {
+            console.warn('[VoiceClient] No ElevenLabs API key found for voice listing');
+            return [];
+        }
+
+        try {
+            const response = await fetch(`${this.config.baseUrl}/voices`, {
+                method: 'GET',
+                headers: {
+                    'xi-api-key': apiKey,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`ElevenLabs API error ${response.status}: ${await response.text()}`);
+            }
+
+            const data = await response.json();
+            return data.voices || [];
+        } catch (error) {
+            console.error('[VoiceClient] Failed to fetch voices:', error);
+            return [];
         }
     }
 

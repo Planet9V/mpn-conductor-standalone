@@ -49,6 +49,15 @@ self.onmessage = async (e: MessageEvent<WorkerMessage>) => {
                 if (orchestrator) orchestrator.updateAdjustments((payload as any).adjustments);
                 break;
 
+            case 'SET_VARIANT_OVERRIDES':
+                if (orchestrator) orchestrator.setVariantOverrides((payload as any).variant);
+                break;
+
+            case 'JUMP_TO_FRAME':
+                // Optional: Reset internal state if needed, or just acknowledge
+                // if (orchestrator) orchestrator.jumpToFrame((payload as any).frameIndex);
+                break;
+
             case 'PROCESS_FRAME':
                 if (!orchestrator) throw new Error('Orchestrator not initialized');
                 const result = await orchestrator.processFrame(

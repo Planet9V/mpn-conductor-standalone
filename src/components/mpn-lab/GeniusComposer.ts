@@ -53,6 +53,13 @@ interface VoiceLeadingState {
 // ============================================================================
 
 import { AIMusicClient, AIMelodyResponse } from '@/lib/ai_music_client';
+import { PsychoscoreClient, PsychoscoreRequest } from '@/lib/psychoscore_client';
+
+/**
+ * AI Model Source Selection
+ * Determines which AI backend to use for melody generation
+ */
+export type AIModelSource = 'text2midi' | 'psychoscore' | 'hybrid' | 'off';
 
 export class GeniusComposer {
     private mode: OrchestrationMode = 'FULL_ORCHESTRA';
@@ -67,9 +74,13 @@ export class GeniusComposer {
     private useAI: boolean = false;
     private aiTemperature: number = 0.7;
     private aiClient: AIMusicClient;
+    private psychoscoreClient: PsychoscoreClient;
+    private aiModelSource: AIModelSource = 'text2midi';
+
 
     constructor() {
         this.aiClient = AIMusicClient.getInstance();
+        this.psychoscoreClient = PsychoscoreClient.getInstance();
     }
 
     setMode(mode: OrchestrationMode) {
@@ -101,6 +112,30 @@ export class GeniusComposer {
         this.useAI = enabled;
         this.aiTemperature = temperature;
         if (enabled) this.aiClient.checkConnection();
+    }
+
+    /**
+     * Set the AI model source for melody generation
+     * @param source - 'text2midi' | 'psychoscore' | 'hybrid' | 'off'
+     */
+    setAIModelSource(source: AIModelSource) {
+        this.aiModelSource = source;
+        this.useAI = source !== 'off';
+        console.log(`[GeniusComposer] AI model source set to: ${source}`);
+    }
+
+    /**
+     * Get current AI model source
+     */
+    getAIModelSource(): AIModelSource {
+        return this.aiModelSource;
+    }
+
+    /**
+     * Check if PSYCHOSCORE model is available
+     */
+    async isPsychoscoreAvailable(): Promise<boolean> {
+        return await this.psychoscoreClient.checkConnection();
     }
 
     /**
@@ -154,32 +189,73 @@ export class GeniusComposer {
         // Log transformation for debugging
         console.log(`[GeniusComposer] Professional Transform: mode=${targetMode}, orch=${transformations.orchestrationLevel}, frag=${transformations.fragmentation.level}`);
 
-        // AI GENERATION PATH - TRY TEXT2MIDI FIRST, THEN LLM FALLBACK
+        // AI GENERATION PATH - ROUTE BASED ON MODEL SOURCE SELECTION
         if (this.useAI) {
-            // === TEXT2MIDI PATH: Symbolic MIDI from psychometric state ===
-            if (this.aiClient.isText2midiReady()) {
-                const symbolicNotes = await this.aiClient.generateSymbolicMidi({
-                    trauma,
-                    entropy,
-                    rsi,
-                    musicalContext: {
+            // === PSYCHOSCORE PATH: Custom trained model ===
+            if (this.aiModelSource === 'psychoscore' || this.aiModelSource === 'hybrid') {
+                try {
+                    const psychoscoreNotes = await this.psychoscoreClient.generateMidi({
+                        trauma,
+                        entropy,
+                        rsi: {
+                            real: rsi.real,
+                            symbolic: rsi.symbolic,
+                            imaginary: rsi.imaginary
+                        },
                         key: params.key?.replace(/m$/, '') || 'C',
                         mode: targetMode,
-                        tempo: params.tempo || 120
-                    }
-                });
+                        tempo: params.tempo || 120,
+                        max_bars: Math.ceil(duration / 4),
+                        temperature: this.aiTemperature
+                    });
 
-                if (symbolicNotes && symbolicNotes.length > 0) {
-                    console.log(`[GeniusComposer] Text2midi generated ${symbolicNotes.length} notes`);
-                    // Convert ParsedMidiNote to NoteEvent with leitmotif context
-                    return symbolicNotes.map(n => ({
-                        pitch: this.midiToNoteName(n.pitch),
-                        midiNote: n.pitch,
-                        duration: n.duration,
-                        startBeat: startBeat + n.startTime,
-                        velocity: n.velocity / 127, // Convert MIDI velocity to 0-1
-                        articulation: params.articulation
-                    }));
+                    if (psychoscoreNotes && psychoscoreNotes.length > 0) {
+                        console.log(`[GeniusComposer] PSYCHOSCORE generated ${psychoscoreNotes.length} notes`);
+                        return psychoscoreNotes.map(n => ({
+                            pitch: this.midiToNoteName(n.pitch),
+                            midiNote: n.pitch,
+                            duration: n.duration,
+                            startBeat: startBeat + n.startTime,
+                            velocity: n.velocity / 127,
+                            articulation: params.articulation
+                        }));
+                    }
+                } catch (err) {
+                    console.warn('[GeniusComposer] PSYCHOSCORE failed, falling back:', err);
+                    // Fall through to Text2midi if hybrid mode
+                    if (this.aiModelSource === 'psychoscore') {
+                        // Pure PSYCHOSCORE mode - don't fall back, return empty
+                        console.log('[GeniusComposer] PSYCHOSCORE unavailable, using algorithmic fallback');
+                    }
+                }
+            }
+
+            // === TEXT2MIDI PATH: Symbolic MIDI from psychometric state ===
+            if (this.aiModelSource === 'text2midi' || this.aiModelSource === 'hybrid') {
+                if (this.aiClient.isText2midiReady()) {
+                    const symbolicNotes = await this.aiClient.generateSymbolicMidi({
+                        trauma,
+                        entropy,
+                        rsi,
+                        musicalContext: {
+                            key: params.key?.replace(/m$/, '') || 'C',
+                            mode: targetMode,
+                            tempo: params.tempo || 120
+                        }
+                    });
+
+                    if (symbolicNotes && symbolicNotes.length > 0) {
+                        console.log(`[GeniusComposer] Text2midi generated ${symbolicNotes.length} notes`);
+                        // Convert ParsedMidiNote to NoteEvent with leitmotif context
+                        return symbolicNotes.map(n => ({
+                            pitch: this.midiToNoteName(n.pitch),
+                            midiNote: n.pitch,
+                            duration: n.duration,
+                            startBeat: startBeat + n.startTime,
+                            velocity: n.velocity / 127, // Convert MIDI velocity to 0-1
+                            articulation: params.articulation
+                        }));
+                    }
                 }
             }
 

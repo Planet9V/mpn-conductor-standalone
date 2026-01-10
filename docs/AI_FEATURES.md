@@ -9,7 +9,7 @@
 
 MPN Conductor integrates multiple AI systems for intelligent music generation, script parsing, and psychometric analysis:
 
-1. **OpenRouter API** - Text-based AI (GPT-4, Claude, Gemini)
+1. **OpenRouter API** - Text-based AI (Gemini, Claude)
 2. **HuggingFace API** - Audio generation (MusicGen)
 3. **Local LM Studio** - Offline fallback
 4. **ElevenLabs TTS** - Voice narration (optional)
@@ -78,7 +78,7 @@ export class OpenRouterClient {
 **Workflow:**
 1. User uploads/pastes script text
 2. Click "Validate with AI" button
-3. GPT-4 analyzes structure (5-10 seconds)
+3. Gemini-3-Flash analyzes structure (5-10 seconds)
 4. AI extracts:
    - Format type with confidence score
    - Act and scene breakdown
@@ -206,7 +206,7 @@ const voice = await elevenlabs.textToSpeech({
 1. **Whisper** - Transcribe audio meetings
 2. **spaCy/Transformer NER** - Extract entities
 3. **Sentiment Analysis** - Detect Dark Triad markers
-4. **OpenRouter GPT-4** - Infer OCEAN/DISC traits
+4. **OpenRouter Gemini-3-Flash** - Infer OCEAN/DISC traits
 5. **Feed to MPN** - Generate real-time organizational score
 
 **Example:**
@@ -245,11 +245,11 @@ MUSICAL OUTPUT:
 - ✅ 200+ tests (Vitest + Playwright)
 - ✅ Docker deployment
 - ✅ PostgreSQL + pgvector
-- ✅ AI Script Validator with GPT-4
+- ✅ AI Script Validator with Gemini-3-Flash
 - ✅ Multi-measure conductor view (4-frame look-ahead)
 
 #### AI Features
-- ✅ OpenRouter integration (GPT-4, Claude, Gemini)
+- ✅ OpenRouter integration (Gemini, Claude)
 - ✅ HuggingFace model catalog
 - ✅ Local LM Studio fallback
 - ✅ Intelligent script parsing

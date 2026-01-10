@@ -120,3 +120,26 @@ evaluation:
 hardware:
   device_map: "auto"
   torch_dtype: "float16"
+
+# EMOPIA Dataset Configuration (Added 2026-01-05)
+emopia:
+  enabled: true
+  dataset_path: "./data/raw/EMOPIA/EMOPIA_2.2"
+  pairs_output: "./data/emopia/emopia_pairs.jsonl"
+  
+# Contrastive Learning (Added 2026-01-05)
+contrastive:
+  enabled: true
+  weight: 0.1                    # λ in L_total = L_lm + λ * L_contrastive
+  temperature: 0.07              # InfoNCE temperature
+  positive_threshold: 0.7        # Profile similarity for positive pairs
+  negative_threshold: 0.3        # Profile similarity for negative pairs
+  hard_negative_mining: true
+
+# Per-Project Config Support (Added 2026-01-05)
+workspace:
+  config_search_paths:
+    - "./psychoscore.json"
+    - "./.psychoscore/config.json"
+  preset: null                   # Can be: tragedy, comedy, experimental
+

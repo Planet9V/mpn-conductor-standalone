@@ -246,3 +246,20 @@ export interface NotationExportOptions {
     showLyrics: boolean;        // Show script text as lyrics
     showChordSymbols: boolean;
 }
+
+// ============================================================================
+// PROJECT VARIATIONS (Phase 11)
+// ============================================================================
+
+export interface ScoreVariant {
+    id: string; // UUID
+    play_id: string;
+    name: string;
+    ai_model: 'psychoscore' | 'text2midi' | 'hybrid';
+    musical_style_id: string; // e.g., 'LEITMOTIF_WAGNERIAN'
+    voice_overrides: Record<string, { voiceId: string; stability: number }>;
+    parameter_overrides: Record<string, any>;
+    is_generated: boolean;
+    generated_score?: PsychometricScore;
+    created_at: string;
+}
