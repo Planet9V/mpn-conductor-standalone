@@ -243,6 +243,11 @@ export default function WikiPage() {
                         </div>
                         <div className="flex items-center gap-4 text-sm">
                             <span className="text-white/40 font-mono">2026-01-10</span>
+                            <span className="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 text-xs">AUTH</span>
+                            <span>Login/Auth flow complete: bcrypt + httpOnly cookies, middleware protection</span>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm">
+                            <span className="text-white/40 font-mono">2026-01-10</span>
                             <span className="px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 text-xs">UPDATE</span>
                             <span>Emotion→Voice mapping enhanced with Dark Triad modulation</span>
                         </div>

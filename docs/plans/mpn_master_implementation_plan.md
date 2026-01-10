@@ -180,18 +180,26 @@ ELEVENLABS_API_KEY=sk_xxxxx  # Set in .env.local
 
 ## Phase 4: Auth, Admin & Project Mgmt 🔄
 
-**Status:** Implementation Starting
+**Status:** In Progress (Auth ✅ Complete 2026-01-10 17:21 CST)  
 **Goal:** Invitation-only launch with robust multi-tenancy.
 
-### User Challenge (Login)
+### Completed (2026-01-10)
+- [x] Login API with bcrypt password verification
+- [x] httpOnly cookie authentication
+- [x] Middleware route protection (/dashboard, /admin, /projects)
+- [x] Users table with 6 test users seeded
+- [x] Login page with redirect handling
+
+### User Credentials
 - **Administrator:** Jim (`jim@aeon.com` / `JimmyAmy`)
 - **Regular User:** Tom (`tom@aeon.com` / `TomJudy`)
 - **Landing Page:** Endless scrolling, Jim McKenney's theory, "Request Invitation" CTA.
 
-### Admin Dashboard
-- **User Management:** CRUD for users, roles, and approvals.
-- **Message Center:** Unified inbox for CTA requests (non-email).
-- **System Config:** Live tracking and management of .env-style keys/models.
+### Remaining Tasks
+- [ ] Admin Dashboard UI
+- [ ] User Management (CRUD, roles, approvals)
+- [ ] Message Center (unified inbox for CTA requests)
+- [ ] System Config UI (live key/model management)
 
 ### Project Management ("Project Base" Approach)
 - **Personal Projects:** Users manage their own library.
@@ -404,6 +412,46 @@ All implementation work must include:
 | 2026-01-02 | 3.1 | Leitmotif enhancement complete |
 | 2026-01-04 | 3.2-alpha | Text2midi integration complete |
 | 2026-01-04 | 3.2-beta | **PSYCHOSCORE Phase 1 complete** |
+| 2026-01-10 | 3.2.1 | **PSYCHOSCORE port fix, tests, emotion mapping, auth** |
+
+---
+
+## Session Log: 2026-01-10
+
+### Completed Tasks (17:23 CST)
+
+| Task | ICE Score | Status | Details |
+|------|-----------|--------|---------|
+| PSYCHOSCORE Port Fix | 900 | ✅ Complete | Changed port 8000→8001, installed midiutil |
+| Unit Test Fixes | 640 | ✅ Complete | Added lookupModeName, tempo range ±10 |
+| Emotion→Voice Mapping | 504 | ✅ Complete | Dark Triad modulation in emotional_tts_renderer.ts |
+| Auth/Login Flow | 432 | ✅ Complete | bcrypt + httpOnly cookies, users table seeded |
+
+### Verification Results
+- **Unit Tests:** 293/293 passing
+- **E2E Tests:** 64/64 passing (Chromium, Firefox, WebKit)
+- **Pages Verified:** 8/8 returning 200 OK
+- **PSYCHOSCORE:** Running on CUDA, model loaded
+
+### Git Commits
+1. `3538a82` - System verification + Dark Triad emotion mapping
+2. `cc86e63` - Auth/Login flow with bcrypt + cookies
+
+### Files Modified
+| File | Changes |
+|------|---------|
+| `ml/psychoscore/inference/server.py` | Port 8000→8001 |
+| `src/components/mpn-lab/mpn_reference_lookup.ts` | +lookupModeName, tempo ±10 |
+| `src/components/mpn-lab/psychometric_calculus.ts` | Import fix |
+| `src/lib/emotional_tts_renderer.ts` | Dark Triad modulation |
+| `src/app/wiki/page.tsx` | Updated to v3.6.1 with verification entries |
+| `scripts/init_db.sql` | Added users table with bcrypt hashes |
+
+### Next Actions (Prioritized by ICE Score)
+1. **SSML Prosody Control Sliders** (ICE: 432) - Add UI controls for rate/pitch/volume
+2. **README.md Corrections** (ICE: 400) - Fix clone URL, version, add PSYCHOSCORE section
+3. **ActorInstrumentPicker Enhancement** (ICE: 336) - Real-time instrument reassignment
+4. **Database Audit Logging** (ICE: 280) - Create audit_logs table and triggers
 
 ---
 
@@ -423,5 +471,6 @@ All implementation work must include:
 
 ---
 
-**Last Updated:** 2026-01-04 16:45 CST  
+**Last Updated:** 2026-01-10 17:23 CST  
 **Maintainer:** MPN Development Team
+
