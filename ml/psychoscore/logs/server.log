@@ -169,3 +169,38 @@ INFO:     127.0.0.1:41896 - "GET /health HTTP/1.1" 200 OK
 INFO:     127.0.0.1:41908 - "GET /health HTTP/1.1" 200 OK
 INFO:     127.0.0.1:41916 - "GET /health HTTP/1.1" 200 OK
 INFO:     127.0.0.1:41928 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35502 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35508 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35502 - "GET /health HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.75 (trauma=0.50, entropy=0.40)
+INFO:     127.0.0.1:35508 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.67 (trauma=0.60, entropy=0.30)
+INFO:     127.0.0.1:35502 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.83 (trauma=0.90, entropy=0.80)
+INFO:     127.0.0.1:35508 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.77 (trauma=0.10, entropy=0.20)
+INFO:     127.0.0.1:35502 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:35508 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.76 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:35502 - "POST /generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35524 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35528 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35542 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35544 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35560 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35562 - "GET /health HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.86 (trauma=0.30, entropy=0.30)
+INFO:     127.0.0.1:35508 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.78 (trauma=0.75, entropy=0.60)
+INFO:     127.0.0.1:35502 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.82 (trauma=0.10, entropy=0.30)
+INFO:     127.0.0.1:35508 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.58 (trauma=0.90, entropy=0.30)
+INFO:     127.0.0.1:35574 - "POST /generate HTTP/1.1" 200 OK
+INFO:__main__:Dynamic temperature: 0.70 (trauma=0.50, entropy=0.30)
+INFO:     127.0.0.1:35580 - "POST /generate HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35584 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35594 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35606 - "GET /health HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35622 - "GET /health HTTP/1.1" 200 OK

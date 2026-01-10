@@ -1,7 +1,34 @@
 -- MPN Conductor Database Schema
 -- Auto-executed on first container start
--- Version: 1.0.0
--- Date: 2026-01-01
+-- Version: 1.1.0
+-- Date: 2026-01-10
+
+-- ============================================
+-- USERS TABLE
+-- Authentication and authorization
+-- ============================================
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(50) DEFAULT 'User',
+    is_approved BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP
+);
+
+-- Index for faster email lookups
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+
+-- Seed test users (passwords are bcrypt hashed)
+-- jim@aeon.com / JimmyAmy
+-- tom@aeon.com / TomJudy
+INSERT INTO users (name, email, password_hash, role, is_approved) VALUES
+('Jim McKenney', 'jim@aeon.com', '$2b$10$6in0km2zFYBmijuDYpkMjeHYwPJHiojoenkKjnBb3E1JvXu9EH6xW', 'Administrator', TRUE),
+('Tom User', 'tom@aeon.com', '$2b$10$SzFdndI6vW16rlTF.RrUQexVm9yG/oiX7NsbsXnuzBY/0aTtejguq', 'User', TRUE)
+ON CONFLICT (email) DO NOTHING;
 
 -- ============================================
 -- SCORES TABLE
